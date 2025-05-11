@@ -10,7 +10,9 @@ let transporter = nodemailer.createTransport({
     auth: {
         user: process.env.EMAIL_USER, // generated ethereal user
         pass: process.env.EMAIL_PASS, // generated ethereal password
-    },
+    },tls: {
+        rejectUnauthorized: false // Accept self-signed cert
+    }
 });
 
 export default transporter;

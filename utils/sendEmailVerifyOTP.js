@@ -1,8 +1,14 @@
-import transporter from "./emailConfig"
+import { EmailVerification } from "../models/otp_schema.js"
+import transporter from "./emailConfig.js"
 
 const sendEmailVerifyOTP = async (req, user) => {
 
     const OTP = Math.floor(100000 + Math.random() * 900000)
+
+    await new EmailVerification({
+        userId: user._id,
+        otp: OTP
+    }).save()
 
     const otpVerifyLink = `${process.env.FRONTEND_URL}/account/verify-email`
 

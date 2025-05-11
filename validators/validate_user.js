@@ -24,14 +24,16 @@ const registerSchema = z.object({
         })
         .default("customer"),
 
-    profilePicture: z
-        .string()
-        .trim()
-        .url({ message: "Invalid URL for profile picture" })
-        .optional(),
-
+   
     isVerified: z
         .boolean()
+        .optional(),
+
+    refreshToken: z
+        .string()
+        .trim()
+        .optional()
+        .default(""),
 
 });
 
