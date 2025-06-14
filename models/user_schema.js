@@ -33,6 +33,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
+    Product:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+    }],
+    Cart: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Cart",
+    }],
+    orders: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Order",
+    }],
 }, { timestamps: true });
 
 export const User = mongoose.model('User', userSchema);

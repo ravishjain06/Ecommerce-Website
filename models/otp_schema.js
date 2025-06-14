@@ -19,3 +19,4 @@ const emailVerficationSchema = new mongoose.Schema({
 })
 
 export const EmailVerification = mongoose.model("EmailVerification", emailVerficationSchema)
+    
