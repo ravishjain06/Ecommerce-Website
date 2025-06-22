@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { Input } from "@/components/ui/input"
-import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { EyeIcon, EyeOffIcon, LoaderCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { useLoginMutation } from '../../APIs/user';
 import { toast } from 'react-toastify';
-
+import { TbLoader3 } from "react-icons/tb";
+import { useDispatch } from 'react-redux';
+import { setUser ,setAccessToken} from '../../features/userSlice';
 const Login = () => {
   const navigate = useNavigate()
   const [show, setShow] = useState(false)
-
+  
+  const dispatch = useDispatch()
+ 
   const handleShow = () => {
     setShow(!show)
   }
@@ -26,7 +30,7 @@ const Login = () => {
     })
 
   }
-  const [login, { data, error, loading }] = useLoginMutation()
+  const [login, { data, error, isLoading }] = useLoginMutation()
 
   const handleLogin = async (e) => {
     console.log("working");
@@ -38,15 +42,17 @@ const Login = () => {
         password: form.password
       })
       if (res?.data?.success) {
+        console.log(res?.data?.user);
         toast.success(res?.data?.message || 'Registration successful!')
-        navigate('/auth/login');
+        dispatch(setUser(res?.data?.user))
+       dispatch(setAccessToken(res?.data?.accessToken));
+
+        navigate('/');
       } else if (res?.error) {
         toast.error(res?.error?.data?.message || 'Registration failed!')
       }
-      navigate('/');
     } catch (error) {
       console.log(error);
-     
     }
   };
 
@@ -130,12 +136,14 @@ const Login = () => {
             <Button
               type="submit"
               className="bg-[var(--purple)] hover:bg-[var(--purple)] text-white cursor-pointer w-28"
+              disabled={isLoading} // Disable the button while loading
             >
-              Sign In
+              {isLoading ? <TbLoader3 className="animate-spin" /> : "Sign In"}
             </Button>
+
             <div className='text-gray-500 mt-2' onClick={() => navigate('/auth/register')}>
               <span className='text-[12px]'>Don't have an account? </span>
-              <span className='text-[12px] cursor-pointer underline hover:text-[var(--purple)]'>Sign Up</span>
+              <span className='text-[12px] cursor-pointer underline hover:text-[var(--purple)]'>Sign Up </span>
             </div>
           </div>
         </form>

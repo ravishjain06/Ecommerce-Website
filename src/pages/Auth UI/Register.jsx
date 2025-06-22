@@ -46,8 +46,8 @@ const Register = () => {
       console.log("Registration Response:", res);
 
       if (res?.data?.success) {
-        toast.success(res?.data?.message || 'Registration successful!')
-        navigate('/auth/login');
+        toast.success(res?.data?.message)
+        navigate('/auth/verify-code',{state:{email:form.email}});
       } else if (res?.error) {
         toast.error(res?.error?.data?.message || 'Registration failed!')
       }
@@ -166,7 +166,7 @@ const Register = () => {
             >
               {loading ? "Signing Up..." : "Sign Up"}
             </Button>
-            <div className='text-gray-500 mt-2' onClick={() => navigate('/login')}>
+            <div className='text-gray-500 mt-2' onClick={() => navigate('/auth/login')}>
               <span className='text-[12px]'>Already have an account? </span>
               <span className='text-[12px] cursor-pointer underline hover:text-[var(--purple)]'>Sign In</span>
             </div>

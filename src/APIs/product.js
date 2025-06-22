@@ -1,0 +1,119 @@
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
+export const productApi = createApi({
+    reducerPath: "productApi",
+    baseQuery: fetchBaseQuery({
+        baseUrl: `${import.meta.env.VITE_BASE_URL}/api/v1/product/`,
+        prepareHeaders: (headers, { getState }) => {
+            const token = ((state) =>  state.auth.accessToken)(getState());
+            console.log("Token:", token);
+            if (token) {
+                headers.set("Authorization", `Bearer ${token}`);
+            }
+            return headers;
+        }
+    }),
+    endpoints: (builder) => ({
+        allProduct: builder.query({
+            query: ({ page = 1, limit = 12 } = {}) => ({
+                url: `all/products?page=${page}&limit=${limit}`,
+                method: "GET",
+            })
+        }),
+        filterProduct: builder.query({
+            query: (params) => {
+                const queryParams = new URLSearchParams();
+
+                // Handle clothing parameter
+                if (params?.clothing && params.clothing !== '' && params.clothing !== 'undefined') {
+                    queryParams.set("clothing", params.clothing);
+                }
+                
+                // Handle category parameter  
+                if (params?.category && params.category !== '' && params.category !== 'undefined') {
+                    queryParams.set("category", params.category);
+                }
+                
+                // Handle brand parameter - support both 'brands' and 'brandName'
+                const brandValue = params?.brandName || params?.brands;
+                if (brandValue && brandValue !== '' && brandValue !== 'undefined') {
+                    if (Array.isArray(brandValue)) {
+                        queryParams.set("brandName", brandValue.join(','));
+                    } else {
+                        queryParams.set("brandName", brandValue);
+                    }
+                }
+                
+                // Handle price range - convert from priceRange to minPrice/maxPrice
+                if (params?.priceRange && params.priceRange !== '' && params.priceRange !== 'undefined') {
+                    const priceRangeMap = {
+                        'under-1000': { minPrice: '0', maxPrice: '1000' },
+                        '1000-2000': { minPrice: '1000', maxPrice: '2000' },
+                        '2000-5000': { minPrice: '2000', maxPrice: '5000' },
+                        '5000-10000': { minPrice: '5000', maxPrice: '10000' },
+                        'above-10000': { minPrice: '10000' } // No maxPrice for "above"
+                    };
+                    const priceRange = priceRangeMap[params.priceRange];
+                    if (priceRange) {
+                        if (priceRange.minPrice) queryParams.set("minPrice", priceRange.minPrice);
+                        if (priceRange.maxPrice) queryParams.set("maxPrice", priceRange.maxPrice);
+                    }
+                }
+                
+                // Handle direct minPrice/maxPrice if provided
+                if (params?.minPrice && params.minPrice !== '') {
+                    queryParams.set("minPrice", params.minPrice);
+                }
+                if (params?.maxPrice && params.maxPrice !== '') {
+                    queryParams.set("maxPrice", params.maxPrice);
+                }
+                
+                if (params?.search && params.search !== '' && params.search !== 'undefined') {
+                    queryParams.set("search", params.search);
+                }
+                
+                if (params?.page) {
+                    queryParams.set("page", params.page);
+                }
+                
+                if (params?.limit) {
+                    queryParams.set("limit", params.limit);
+                }
+
+                const queryString = queryParams.toString();
+                const finalUrl = `search/filter${queryString ? "?" + queryString : ""}`;
+                
+                console.log('API URL:', finalUrl); // Debug log
+                console.log('Params sent:', params); // Debug log
+
+                return {
+                    url: finalUrl,
+                    method: "GET",
+                };
+            }
+        }),
+
+        addProduct: builder.mutation({
+            query: (formData) => ({
+                url: "add-product",
+                method: "POST",
+                body: formData,
+                
+            }),
+        }),
+
+        getProductById : builder.query({
+            query : (id) => ({
+                url:`/${id}`,
+                method:"GET",
+                
+            })
+        }),
+    
+ 
+    })
+})
+
+export const { 
+    
+    useAllProductQuery, useFilterProductQuery, useAddProductMutation ,useGetProductByIdQuery } = productApi

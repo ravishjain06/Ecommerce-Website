@@ -14,17 +14,16 @@ import Footer from './Footer'
 const Home = () => {
   return (
     <div>
-        <Navbar/>
-        <HeroSection/>
-        <FaishonCard/>
-        <NewArrival/>
-        <BigSavingZone/>
-        <Poster/>
-        <MenCategory/>
-        <WomenCategory/>
-        <TopBrand/>
-        <Limelight/>
-        <Footer/>
+      <HeroSection />
+      <FaishonCard />
+      <NewArrival />
+      <BigSavingZone />
+      <Poster />
+      <MenCategory />
+      <WomenCategory />
+      <TopBrand />
+      <Limelight />
+
     </div>
   )
 }

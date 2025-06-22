@@ -3,12 +3,14 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { BsCart2 } from 'react-icons/bs'
 import { CiHeart, CiUser, CiSearch } from 'react-icons/ci'
 import { HiMenu, HiX } from 'react-icons/hi'
-
+import { useSelector } from 'react-redux'
+import { Button } from '../../components/ui/button'
+// Update your navLinks to redirect to products with clothing filter
 const navLinks = [
-    { to: '/men', label: 'Men' },
-    { to: '/women', label: 'Women' },
-    { to: '/gen-z', label: 'Gen Z' },
-    { to: '/classic-luxury', label: 'Classic Luxury' },
+    { to: '/product?clothing=mens', label: 'Men' },
+    { to: '/product?clothing=women', label: 'Women' },
+    { to: '/product?clothing=gen-z', label: 'Gen Z' },
+    { to: '/product?clothing=classic-luxury', label: 'Classic Luxury' },
 ]
 
 const accountLinks = [
@@ -17,8 +19,14 @@ const accountLinks = [
     { to: '/profile', label: 'Profile', icon: <CiUser className="text-xl" /> },
 ]
 
+
+
 const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+    console.log(isAuthenticated);
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -29,9 +37,9 @@ const Navbar = () => {
             {/* Navbar */}
             <div className="flex items-center h-14 px-4 md:px-8 border-b-2 relative justify-between bg-white">
                 {/* Logo always left */}
-                <div className="flex-shrink-0 flex items-center h-14">
+                <NavLink to={"/"} className="flex-shrink-0 flex items-center h-14">
                     <h1 className='love-light-regular text-3xl font-bold'>Euphoria</h1>
-                </div>
+                </NavLink>
 
                 {/* Navigation Items - Hidden on mobile */}
                 <div className="hidden md:flex gap-6 ml-8">
@@ -47,37 +55,35 @@ const Navbar = () => {
                     ))}
                 </div>
 
-                {/* Search Bar - Hidden on mobile */}
-                <div className="hidden md:flex items-center flex-1 justify-center mx-8 max-w-sm">
-                    <div className="relative w-full">
-                        <input
-                            type="text"
-                            placeholder="Search products..."
-                            className="w-full pl-4 pr-10 py-1.5 text-sm border border-gray-300 rounded-sm"
-                        />
-                        <CiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
+                {isAuthenticated ?
+                    <div className="hidden md:flex gap-2 items-center ml-2">
+                        <button className="p-2 bg-gray-100 rounded-md">
+                            <CiHeart className="text-lg text-gray-700 transition-colors" />
+                        </button>
+                        <NavLink to={"/cart"} className="p-2 bg-gray-100 rounded-md">
+                            <BsCart2 className="text-lg text-gray-700 transition-colors" />
+                        </NavLink>
+                        <NavLink to={"/profile"} className="p-2 bg-gray-100 rounded-md">
+                            <CiUser className="text-lg text-gray-700 transition-colors" />
+                        </NavLink>
                     </div>
-                </div>
+                    :
+                    <div className='gap-5 hidden md:flex ml-auto'>
+                        <NavLink to="/auth/login">
+                            <Button className="bg-[var(--purple)] hover:bg-[var(--purple)] text-white cursor-pointer w-20">Login</Button>
+                        </NavLink>
+                        <NavLink to="/auth/register">
+                            <Button className="bg-white hover:bg-white text-[#8A33FD] border-1 shadow-[var(--shadow)] font-semibold cursor-pointer w-24">Sign Up</Button>
+                        </NavLink>
+                    </div>
 
-                {/* Icons for desktop */}
-                <div className="hidden md:flex gap-2 items-center ml-2">
-                    <button className="p-2 bg-gray-100 rounded-md">
-                        <CiHeart className="text-lg text-gray-700 transition-colors" />
-                    </button>
-                    <button className="p-2 bg-gray-100 rounded-md">
-                        <BsCart2 className="text-lg text-gray-700 transition-colors" />
-                    </button>
-                    <button className="p-2 bg-gray-100 rounded-md">
-                        <CiUser className="text-lg text-gray-700 transition-colors" />
-                    </button>
-                </div>
 
-                {/* Hamburger Menu - Mobile Only (Right side) */}
+                }
+
                 {!isMobileMenuOpen && (
                     <button
                         className="md:hidden"
                         onClick={toggleMobileMenu}
-                        
                     >
                         <HiMenu />
                     </button>

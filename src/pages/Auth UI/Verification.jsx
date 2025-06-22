@@ -1,13 +1,41 @@
 "use client"
 
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Button } from '../../components/ui/button';
+import { useVerifyUserMutation } from '../../APIs/user';
+import { toast } from 'react-toastify';
 
 const Verification = () => {
   const [value, setValue] = useState("");
+  const location = useLocation()
+  const navigate = useNavigate();
+  const email = location?.state?.email || "";
 
+  const [verifyUser, { data, error, loading }] = useVerifyUserMutation();
+ 
+  const handleChange = async (value) => {
+    console.log("OTP Value:", value);
+    try {
+      const res = await verifyUser({
+        email: email,
+        otp: value
+      })
+      console.log("Verification Response:", res);
+
+      if (res?.data?.success) {
+        toast.success(res?.data?.message)
+        navigate('/auth/login');
+        setValue("")
+      } else if (res?.error) {
+        toast.error(res?.error?.data?.message || 'Registration failed!')
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <div className="flex items-center justify-center h-[calc(100vh-4rem)] px-4">
       <div className="flex flex-col md:flex-row w-full max-w-5xl h-[40rem] md:shadow-[var(--shadow)] xl:shadow-[var(--shadow)] lg:shadow-[var(--shadow)] overflow-hidden">
@@ -58,11 +86,13 @@ const Verification = () => {
           </div>
 
           <div className='mt-5'>
-            <NavLink to="/login">
+            <NavLink to="">
               <Button
+                onClick={() => handleChange(value)}
                 className="bg-[var(--purple)] hover:bg-[var(--purple)] text-white cursor-pointer w-28"
                 disabled={value.length !== 6}
               >
+                
                 Verify code
               </Button>
             </NavLink>
