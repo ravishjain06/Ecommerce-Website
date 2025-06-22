@@ -5,7 +5,7 @@ import fs from "fs";
 
 export const createProduct = async (req, res) => {
     try {
-        const { name, description, price, rating, size, category, inStock } = req.body; // Added inStock
+        const { name, description, price, rating, size, category, inStock, brandName } = req.body; // Added inStock
         const userId = req.id;
         const files = req.files;
         if (!userId) {
@@ -31,7 +31,8 @@ export const createProduct = async (req, res) => {
                 size,
                 category,
                 inStock, // Pass inStock here
-                user: userId // Fix: use 'user' not 'userId'
+                user: userId, // Fix: use 'user' not 'userId'
+                brandName
             });
 
             await product.save();
@@ -56,18 +57,36 @@ export const createProduct = async (req, res) => {
 
 export const getAllPorducts = async (req, res) => {
     try {
-        const products = await Product.find().sort({ createdAt: -1 })
-        if (!products || products.length === 0) {
-            return res.status(404).json({ message: "No products found" });
-        }
-        res.status(200).json({ message: "Products fetched successfully", products });
-    } catch (error) {
-        console.error("Error fetching products:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 12;
+        const skip = (page - 1) * limit;
 
-export const getProductBytId = async (req, res) => {
+        const totalProducts = await Product.countDocuments();
+        const products = await Product.find()
+            .skip(skip)
+            .limit(limit);
+
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        res.json({
+            success: true,
+            products,
+            pagination: {
+                currentPage: page,
+                totalProducts,
+                totalPages,
+                limit
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+export const getProductById = async (req, res) => {
     try {
         const productId = req.params.id
         if (!productId) {
@@ -85,46 +104,108 @@ export const getProductBytId = async (req, res) => {
     }
 }
 
-export const categoryAndSearch = async (req, res) => {
+export const filterProducts = async (req, res) => {
     try {
-        const { category, search } = req.query;
+        const { 
+            clothing, 
+            category, 
+            search, 
+            brandName, 
+            minPrice, 
+            maxPrice, 
+            page = 1, 
+            limit = 10 
+        } = req.query;
+        
+        // Build the query object
         const query = {};
-
-        if (category) {
-            // Check if any product exists with this category (case-insensitive)
-            const categoryExists = await Product.exists({
-                category: { $regex: category, $options: 'i' }
-            });
-
-            if (!categoryExists) {
-                return res.status(404).json({
-                    success: false,
-                    message: `No products found in category "${category}"`
-                });
-            }
-
-            query.category = { $regex: category, $options: 'i' };
+        
+        // 1. Main category filter (clothing field)
+        if (clothing) {
+            const clothingArr = clothing.split(',').map(c => c.trim());
+            query.clothing = { $in: clothingArr };
         }
-
+        
+        // 2. Category filter
+        if (category) {
+            const categories = category.split(',').map(c => c.trim());
+            query.category = { $in: categories };
+        }
+        
+        // 3. Brand name filter
+        if (brandName) {
+            const brands = brandName.split(',').map(b => b.trim());
+            query.brandName = { $in: brands };
+        }
+        
+        // 4. Price range filter
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = parseInt(minPrice);
+            if (maxPrice) query.price.$lte = parseInt(maxPrice);
+        }
+        
+        // 5. Search filter (search in name, description, brandName)
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } }
+                { description: { $regex: search, $options: 'i' } },
+                { brandName: { $regex: search, $options: 'i' } }
             ];
         }
-
-        const products = await Product.find(query).sort({ createdAt: -1 });
-
+        
+        // Pagination
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        
+        // Get total count for pagination
+        const totalProducts = await Product.countDocuments(query);
+        
+        // Fetch products
+        const products = await Product.find(query)
+            .sort({ createdAt: -1, _id: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+        
+        // Check if products found
+        if (!products || products.length === 0) {
+            return res.status(201).json({
+                success: false,
+                message: "No products found matching your criteria"
+            });
+        }
+        
         res.status(200).json({
             success: true,
-            data: products
+            message: "Products fetched successfully",
+            data: {
+                products,
+                pagination: {
+                    currentPage: parseInt(page),
+                    totalProducts,
+                    totalPages: Math.ceil(totalProducts / parseInt(limit)),
+                    limit: parseInt(limit),
+                    hasNextPage: page < Math.ceil(totalProducts / parseInt(limit)),
+                    hasPrevPage: page > 1
+                },
+                filters: {
+                    clothing: clothing || null,
+                    category: category || null,
+                    brandName: brandName || null,
+                    minPrice: minPrice || null,
+                    maxPrice: maxPrice || null,
+                    search: search || null
+                }
+            }
         });
-
+        
     } catch (error) {
-        console.error("Error in category and search:", error);
-        res.status(500).json({ message: "Internal server error" });
+        console.error("Error in filterProducts:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
     }
-}
+};
 
 export const updateProduct = async (req, res) => {
     try {

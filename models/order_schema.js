@@ -16,13 +16,20 @@ const orderSchema = new mongoose.Schema({
             type: Number,
             required: true,
             default: 1
+        },
+        price: {
+            type: Number,
+            required: true
+        },
+        size: {
+            type: String
         }
     }],
     shippingAddress: {
         firstname: { type: String, required: true },
         lastname: { type: String, required: true },
         street: { type: String, required: true },
-        address: { type: String, required: true },  // Optional for extra details
+        address: { type: String },
         city: { type: String, required: true },
         state: { type: String, required: true },
         postalCode: { type: String, required: true },
@@ -31,12 +38,18 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: {
         type: String,
         required: true,
-        enum: ["CashOnDelivery", "CreditCard", "PayPal"]
+        enum: ["CashOnDelivery", "Stripe"]
     },
     paymentStatus: {
         type: String,
         enum: ["Pending", "Paid", "Failed"],
         default: "Pending"
+    },
+    stripePaymentIntentId: {
+        type: String
+    },
+    stripeSessionId: {
+        type: String
     },
     shippingCost: {
         type: Number,

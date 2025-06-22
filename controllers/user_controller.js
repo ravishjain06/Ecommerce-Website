@@ -13,17 +13,15 @@ export const Register = async (req, res, next) => {
         const { name, email, password, role } = req.body;
         const file = req.file;
 
-
         let profilePictureUrl = null;
-
         if (file) {
             const uploadedImage = await imagekit.upload({
-                file: fs.readFileSync(file.path), // Binary file data
-                fileName: file.originalname, // Image name
-                folder: "my_uploads", // Optional folder in ImageKit
+                file: fs.readFileSync(file.path),
+                fileName: file.originalname,
+                folder: "my_uploads",
             });
-            profilePictureUrl = uploadedImage.url; // Get the URL of the uploaded image
-            fs.unlinkSync(file.path); // Clean up the temporary file
+            profilePictureUrl = uploadedImage.url;
+            fs.unlinkSync(file.path);
         }
 
         if (!name || !email || !password || !role) {
@@ -33,38 +31,45 @@ export const Register = async (req, res, next) => {
             });
         }
 
-        const userExits = await User.findOne({ email });
-
-        if (userExits) {
+        // Check if user already exists in User collection
+        const userExists = await User.findOne({ email });
+        if (userExists) {
             return res.status(400).json({
                 success: false,
                 message: "User with this email already exists."
             });
         }
 
+        // Hash password
         const hashPassword = await argon2.hash(password);
 
-        const user = await User.create({
+        // Generate OTP
+        const OTP = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Save registration data and OTP in EmailVerification collection
+        await new EmailVerification({
+            email, // <-- must be present
+            otp: OTP,
             name,
-            email,
             password: hashPassword,
             role,
-            profilePicture: profilePictureUrl, // Use the uploaded URL or default
-        });
+            profilePicture: profilePictureUrl,
+            createdAt: new Date()
+        }).save();
 
-        sendEmailVerifyOTP(req, user);
-        
-        await user.save();
+        // Send OTP email
+        await sendEmailVerifyOTP(req, { email, name }, OTP);
 
-        return res.status(201).json({
+        console.log("Registering email for verification:", email);
+
+        return res.status(200).json({
             success: true,
-            message: "User registered successfully.",
-            user
+            message: "OTP sent to your email. Please verify to complete registration."
         });
     } catch (error) {
         next(error);
     }
-}
+};
 
 export const VerifyEmail = async (req, res, next) => {
     try {
@@ -77,57 +82,58 @@ export const VerifyEmail = async (req, res, next) => {
             });
         }
 
-        const user = await User.findOne({ email });
-
-        if (!user) {
+        // Find pending registration
+        const pending = await EmailVerification.findOne({ email });
+        if (!pending) {
             return res.status(404).json({
                 success: false,
-                message: "User not found.",
+                message: "No pending registration found. Please register again.",
             });
         }
 
-        // If user is already verified
-        if (user.isVerified) {
-            return res.status(200).json({
-                success: true,
-                message: "User is already verified.",
-            });
-        }
-
-        const emailVerification = await EmailVerification.findOne({ userId: user._id });
-
-        // If no OTP record found, resend OTP
-        if (!emailVerification) {
-            await sendEmailVerifyOTP(req, user);
-            return res.status(400).json({
-                success: false,
-                message: "OTP not found or expired. A new OTP has been sent to your email.",
-            });
-        }
-
-        // Check if OTP is valid using argon2
-        const isValidOTP = emailVerification.otp === otp;
-
-
-        if (!isValidOTP) {
+        if (pending.otp !== otp) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid OTP.",
             });
         }
 
-        // Mark user as verified
-        user.isVerified = true;
+        // Check if user already exists (race condition check)
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            await EmailVerification.deleteOne({ _id: pending._id });
+            return res.status(400).json({
+                success: false,
+                message: "User with this email already exists."
+            });
+        }
+
+        // Save user in User collection
+        const user = new User({
+            name: pending.name,
+            email: pending.email,
+            password: pending.password,
+            role: pending.role,
+            profilePicture: pending.profilePicture,
+            isVerified: true
+        });
         await user.save();
 
-        // Delete the OTP record after successful verification
-        await EmailVerification.deleteOne({ _id: emailVerification._id });
+        // Remove pending registration
+        await EmailVerification.deleteOne({ _id: pending._id });
 
-        return res.status(200).json({
+        return res.status(201).json({
             success: true,
-            message: "Email verified successfully.",
+            message: "Email verified and user registered successfully.",
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                profilePicture: user.profilePicture,
+                isVerified: user.isVerified
+            }
         });
-
     } catch (error) {
         next(error);
     }
@@ -171,15 +177,13 @@ export const Login = async (req, res, next) => {
         return res
             .cookie('accessToken', accessToken, {
                 httpOnly: true,
-                secure: true,         // set true in production (HTTPS)
-                sameSite: 'strict',
-                maxAge: 15 * 60 * 1000, // 15 minutes
+                maxAge: 3 * 24 * 60 * 60 * 1000,
+                sameSite: 'lax'
             })
             .cookie('refreshToken', refreshToken, {
                 httpOnly: true,
-                secure: true,
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                maxAge: 6 * 24 * 60 * 60 * 1000,
+                sameSite: 'lax'
             })
             .status(200)
             .json({
@@ -259,6 +263,8 @@ export const Logout = async (req, res, next) => {
 export const getUserProfile = async (req, res, next) => {
     try {
         const userId = req.id
+        console.log("User ID:", userId);
+
         if (!userId) {
             return res.status(400).json({
                 success: false,
@@ -287,7 +293,7 @@ export const updateUserProfile = async (req, res, next) => {
         const { name, email, profilePicture } = req.body
         const file = req.file;
         console.log(req.body);
-        
+
         if (!userId) {
             return res.status(400).json({
                 success: false,

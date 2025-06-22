@@ -1,6 +1,6 @@
 import express from "express";
 import upload from "../middleware/multer.js";
-import { categoryAndSearch, createProduct, deleteProduct, getAllPorducts, getProductBytId, updateProduct } from "../controllers/product_controller.js";
+import { filterProducts, createProduct, deleteProduct, getAllPorducts, getProductById, updateProduct } from "../controllers/product_controller.js";
 import { isUserAuthenticated } from "../utils/Auth.js";
 import { isSeller } from "../middleware/roleBasedAuth.js";
 
@@ -14,12 +14,12 @@ router.route('/create-product')
         createProduct
     );
 
-router.route('/all/products').get(isUserAuthenticated, getAllPorducts)
+router.route('/all/products').get(getAllPorducts)
 
-router.route('/:id').get(isUserAuthenticated, getProductBytId)
+router.route('/:id').get(isUserAuthenticated, getProductById)
 
-// GET /api/products?category=xyz&search=abc
-router.route('/').get(categoryAndSearch)
+
+router.route('/search/filter').get(filterProducts)
 
 router.route('/:id').delete(isUserAuthenticated, isSeller, deleteProduct)
 
@@ -30,5 +30,5 @@ router.route('/edit/product/:id')
         upload.array("image", 5),
         updateProduct // Reusing createProduct for edit functionality
     );
-//  http://localhost:5000/api/products?category=electronics&search=phone
+
 export default router;

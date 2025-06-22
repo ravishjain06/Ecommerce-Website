@@ -13,6 +13,10 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    brandName: {
+        type: String,
+        required: true,
+    },
     rating: {
         type: Number,
         required: true,
@@ -29,6 +33,13 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    
+    clothing: {
+        type: String,
+        enum: ["mens", "women", "genz", "luxury"], 
+        required: true,
+    },
+
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

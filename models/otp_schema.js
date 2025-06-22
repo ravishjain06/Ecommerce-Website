@@ -1,22 +1,24 @@
 import mongoose from "mongoose";
 
-const emailVerficationSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
+const emailVerificationSchema = new mongoose.Schema({
+    email: {
+        type: String,
         required: true,
-        ref: "User"
+        unique: true
     },
     otp: {
         type: String,
         required: true,
     },
+    name: String,
+    password: String,
+    role: String,
+    profilePicture: String,
     createdAt: {
         type: Date,
         default: Date.now,
-        expires: '15min' // OTP expires in 5 minutes
+        expires: '15m' // OTP expires in 15 minutes
     }
+});
 
-})
-
-export const EmailVerification = mongoose.model("EmailVerification", emailVerficationSchema)
-    
+export const EmailVerification = mongoose.model("EmailVerification", emailVerificationSchema);
