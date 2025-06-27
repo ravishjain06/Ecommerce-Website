@@ -14,20 +14,17 @@ const Register = () => {
     name: '',
     email: '',
     password: '',
-    role: 'customer', // Default role
+    role: 'customer',
   });
 
- 
-  
-  const [register, { data, error, loading }] = useRegisterMutation();
+  const [register, { loading }] = useRegisterMutation();
 
   const handleShow = () => setShow(!show);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    console.log("Form Data:", { ...form, [e.target.name]: e.target.value });
   };
-  // console.log(import.meta.env.VITE_BASE_URL);
+
   const handleRoleChange = (value) => {
     setForm({ ...form, role: value });
   };
@@ -41,63 +38,51 @@ const Register = () => {
         password: form.password,
         role: form.role,
       });
-  
-
-      console.log("Registration Response:", res);
-
       if (res?.data?.success) {
         toast.success(res?.data?.message)
-        navigate('/auth/verify-code',{state:{email:form.email}});
+        navigate('/auth/verify-code', { state: { email: form.email } });
       } else if (res?.error) {
         toast.error(res?.error?.data?.message || 'Registration failed!')
       }
-
     } catch (err) {
-      console.error("Error while Register", err);
       toast.error('Registration failed. Please try again.')
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-[calc(100vh-4rem)] px-4">
-
-      <div className="flex flex-col md:flex-row w-full max-w-5xl h-[40rem] md:shadow-[var(--shadow)] xl:shadow-[var(--shadow)] lg:shadow-[var(--shadow)] overflow-hidden">
-
-        <div className="w-full md:w-1/2  hidden md:block ">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+      <div className="flex flex-col md:flex-row w-full max-w-5xl h-[40rem] bg-white shadow-lg overflow-hidden rounded-lg">
+        <div className="w-full md:w-1/2 hidden md:block">
           <img
             src="/public/img2.avif"
-            alt="Login"
-            className="relative top-[-66px] left-0  w-full h-[707px] object-cover"
+            alt="Register"
+            className="object-cover w-full h-full"
           />
         </div>
-        <form className="w-full md:w-1/2 p-6 flex flex-col" onSubmit={handleRegister}>
-          <div className='mb-4 space-y-2'>
-            <h1 className="text-2xl font-bold  text-[#333333] text-center sm:text-left ">Sign Up. Shop Better</h1>
-            <span className="block text-sm text-[#666666] text-center sm:text-left mx-auto">
-              Create your Euphoria account to unlock exclusive styles and offers.
+        <form className="w-full md:w-1/2 p-8 flex flex-col justify-center" onSubmit={handleRegister}>
+          <div className='mb-6 space-y-2'>
+            <h1 className="text-3xl font-bold text-black text-center">Sign Up. Shop Better</h1>
+            <span className="block text-sm text-gray-500 text-center">
+              Create your W E A R E X account to unlock exclusive styles and offers.
             </span>
           </div>
-          <div className="flex items-center justify-center mb-4 w-full ">
+          <div className="flex items-center justify-center mb-4 w-full">
             <button
               type="button"
-              className="flex items-center cursor-pointer justify-center space-x-2 bg-white text-black px-4 py-2 rounded-md transition w-full"
-              style={{
-                boxShadow:
-                  'rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px',
-              }}
+              className="flex items-center justify-center space-x-2 bg-white text-black px-4 py-2 rounded-md transition w-full border border-gray-200 shadow-sm"
             >
               <img src="/google.png" alt="Google" className="h-5 w-5" />
               <span className="text-sm font-medium">Continue With Google</span>
             </button>
           </div>
-          <div className="flex items-center w-full my-5 space-x-4 text-gray-500 text-sm">
-            <hr className="flex-grow border-t border-gray-300" />
+          <div className="flex items-center w-full my-5 space-x-4 text-gray-400 text-sm">
+            <hr className="flex-grow border-t border-gray-200" />
             <span className="whitespace-nowrap">OR</span>
-            <hr className="flex-grow border-t border-gray-300" />
+            <hr className="flex-grow border-t border-gray-200" />
           </div>
           <div className='space-y-5 w-full'>
-            <div className="grid w-full  items-center gap-1.5">
-              <label htmlFor="name" className='text-sm text-gray-600' >Name</label>
+            <div>
+              <label htmlFor="name" className='text-sm text-gray-600'>Name</label>
               <Input
                 id="name"
                 name="name"
@@ -108,8 +93,8 @@ const Register = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="grid w-full  items-center gap-1.5">
-              <label htmlFor="email" className='text-sm text-gray-600' >Email</label>
+            <div>
+              <label htmlFor="email" className='text-sm text-gray-600'>Email</label>
               <Input
                 id="email"
                 name="email"
@@ -120,14 +105,12 @@ const Register = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="grid w-full items-center gap-1.5">
+            <div>
               <div className='flex justify-between items-center'>
                 <label htmlFor="password" className='text-sm text-gray-600'>Password</label>
-                <div className='flex items-center' onClick={handleShow}>
-                  {
-                    show ? <EyeIcon className='h-3' /> : <EyeOffIcon className='h-3' />
-                  }
-                  <span className='text-[12px] text-gray-500'>{show ? "Show" : "Hide"}</span>
+                <div className='flex items-center cursor-pointer' onClick={handleShow}>
+                  {show ? <EyeIcon className='h-4 w-4' /> : <EyeOffIcon className='h-4 w-4' />}
+                  <span className='text-xs text-gray-500 ml-1'>{show ? "Show" : "Hide"}</span>
                 </div>
               </div>
               <Input
@@ -140,7 +123,7 @@ const Register = () => {
                 onChange={handleChange}
               />
             </div>
-            <div className="grid w-full items-center gap-1.5">
+            <div>
               <label className='text-sm text-gray-600 mb-1'>Choose an Option</label>
               <RadioGroup defaultValue={form.role} className="flex gap-6" onValueChange={handleRoleChange}>
                 <div className="flex items-center space-x-2">
@@ -158,19 +141,18 @@ const Register = () => {
               </RadioGroup>
             </div>
           </div>
-          <div className='mt-5'>
+          <div className='mt-6'>
             <Button
               type="submit"
-              className="bg-[var(--purple)] hover:bg-[var(--purple)] text-white  cursor-pointer w-28"
+              className="bg-black hover:bg-gray-800 text-white w-full py-3 rounded transition"
               disabled={loading}
             >
               {loading ? "Signing Up..." : "Sign Up"}
             </Button>
-            <div className='text-gray-500 mt-2' onClick={() => navigate('/auth/login')}>
-              <span className='text-[12px]'>Already have an account? </span>
-              <span className='text-[12px] cursor-pointer underline hover:text-[var(--purple)]'>Sign In</span>
+            <div className='text-gray-500 mt-4 text-center'>
+              <span className='text-xs'>Already have an account? </span>
+              <NavLink to="/auth/login" className='text-xs cursor-pointer underline hover:text-black'>Sign In</NavLink>
             </div>
-
           </div>
         </form>
       </div>

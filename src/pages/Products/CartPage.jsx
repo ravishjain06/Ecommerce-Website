@@ -56,10 +56,10 @@ const CartPage = () => {
   // Show loading state
   if (isLoading) {
     return (
-      <div className='min-h-screen flex items-center justify-center'>
+      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
         <div className='text-center'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4'></div>
-          <p className='text-gray-600'>Loading your cart...</p>
+          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className='text-gray-600 font-light'>Loading your cart...</p>
         </div>
       </div>
     )
@@ -68,9 +68,27 @@ const CartPage = () => {
   // Show error state
   if (isError) {
     return (
-      <div className='min-h-screen flex items-center justify-center'>
-        <div className='text-center text-red-600'>
-          <p>Error loading cart: {error?.message || 'Unknown error'}</p>
+      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+        <div className='text-center max-w-md mx-auto p-8'>
+          <div className="mb-6">
+            <div className="w-16 h-16 mx-auto bg-gray-100 border border-gray-300 flex items-center justify-center">
+              <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.996-.833-2.764 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+          </div>
+          <h3 className="text-xl font-light text-black mb-2 tracking-wide">
+            Error loading cart
+          </h3>
+          <p className='text-gray-600 font-light mb-6'>
+            {error?.message || 'Unable to load your cart right now'}
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-black text-white font-medium px-6 py-3 hover:bg-gray-800 transition-colors text-sm tracking-wide"
+          >
+            TRY AGAIN
+          </button>
         </div>
       </div>
     )
@@ -83,234 +101,292 @@ const CartPage = () => {
   // Show empty cart
   if (!cart || items.length === 0) {
     return (
-      <div className='min-h-screen flex items-center justify-center'>
-        <div className='text-center'>
-          <p className='text-gray-600 text-lg mb-4'>Your cart is empty</p>
-          <button className='bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800'>
-            Continue Shopping
-          </button>
+      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+        <div className='text-center max-w-md mx-auto p-8'>
+          <div className="mb-6">
+            <div className="w-16 h-16 mx-auto bg-gray-100 border border-gray-300 flex items-center justify-center">
+              <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+            </div>
+          </div>
+          <h3 className="text-xl font-light text-black mb-2 tracking-wide">
+            Your cart is empty
+          </h3>
+          <p className='text-gray-600 font-light mb-6'>
+            Looks like you haven't added anything to your cart yet
+          </p>
+          <NavLink to="/products">
+            <button className='bg-black text-white font-medium px-8 py-3 hover:bg-gray-800 transition-colors text-sm tracking-wide'>
+              CONTINUE SHOPPING
+            </button>
+          </NavLink>
         </div>
       </div>
     )
   }
 
   return (
-    <div className='min-h-screen'>
-      <div className='max-w-6xl mx-auto bg-white p-4 md:p-8'>
-        
-        {/* Breadcrumb */}
-        <div className='flex items-center text-xs md:text-sm text-gray-600 mb-4'>
-          <span>Home</span>
-          <ChevronRightIcon className='h-3 w-3 md:h-4 md:w-4 mx-1 md:mx-2' />
-          <span>Cart</span>
-          <ChevronRightIcon className='h-3 w-3 md:h-4 md:w-4 mx-1 md:mx-2' />
-          <span className='text-gray-900'>Shopping Cart ({items.length} items)</span>
-        </div>
-
-        {/* Title and Subline */}
-        <div className='mb-6 md:mb-8'>
-          <h1 className='text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 md:mb-2'>Your Shopping Cart</h1>
-          <p className='text-sm md:text-base text-gray-600'>Review your items before checkout</p>
-        </div>
-
-        {/* Mobile Card Layout */}
-        <div className='block md:hidden space-y-4 mb-6'>
-          {items.map((item) => (
-            <div key={item._id} className='border border-gray-200 rounded-lg p-4'>
-              <div className='flex justify-between items-start mb-3'>
-                <div className='flex space-x-3 flex-1'>
-                  <img 
-                    src={item.productId.img || item.productId.image?.[0] || '/public/jackets.jpg'}
-                    alt={item.productId.name}
-                    className='w-16 h-16 object-cover rounded-lg flex-shrink-0'
-                  />
-                  <div className='flex-1 min-w-0'>
-                    <h3 className='font-semibold text-gray-900 text-sm'>{item.productId.name}</h3>
-                    <p className='text-xs text-gray-600'>{item.productId.brandName}</p>
-                    <p className='text-xs text-gray-500'>Size: {item.size}, Qty: {item.quantity}</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => handleRemoveItem(item.productId._id)}
-                  disabled={isRemoving}
-                  className='p-1 text-gray-500 hover:text-red-600 disabled:opacity-50'
-                >
-                  <XIcon className='h-4 w-4' />
-                </button>
-              </div>
-              
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center space-x-2'>
-                  <button 
-                    onClick={() => handleUpdateQuantity(item.productId._id, item.quantity - 1, item.size)}
-                    disabled={isUpdating || item.quantity <= 1}
-                    className='p-1 border border-gray-300 rounded disabled:opacity-50'
-                  >
-                    <MinusIcon className='h-3 w-3' />
-                  </button>
-                  <span className='text-sm min-w-[24px] text-center'>{item.quantity}</span>
-                  <button 
-                    onClick={() => handleUpdateQuantity(item.productId._id, item.quantity + 1, item.size)}
-                    disabled={isUpdating}
-                    className='p-1 border border-gray-300 rounded disabled:opacity-50'
-                  >
-                    <PlusIcon className='h-3 w-3' />
-                  </button>
-                </div>
-                
-                <div className='text-right'>
-                  <div className='font-semibold text-base text-gray-900'>₹{(item.price * item.quantity).toLocaleString()}</div>
-                  <div className='text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded mt-1'>₹{item.price} each</div>
-                </div>
-              </div>
+    <div className='min-h-screen bg-gray-50'>
+      <div className='max-w-7xl mx-auto'>
+        <div className='bg-white'>
+          
+          {/* Breadcrumb */}
+          <div className='px-4 md:px-8 py-6 border-b border-gray-200'>
+            <div className='flex items-center text-sm text-gray-500 font-light'>
+              <NavLink to="/" className='hover:text-black transition-colors cursor-pointer'>Home</NavLink>
+              <ChevronRightIcon className='h-3 w-3 mx-3' />
+              <span className='text-black font-medium'>Shopping Cart ({items.length} items)</span>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Desktop Table Layout */}
-        <div className='hidden md:block mb-8'>
-          <div className='overflow-x-auto'>
-            <table className='w-full border-collapse'>
-              <thead>
-                <tr className='border-b border-gray-200'>
-                  <th className='text-left py-3 md:py-4 px-2 font-semibold text-gray-900 text-sm md:text-base'>Product Details</th>
-                  <th className='text-left py-3 md:py-4 px-2 font-semibold text-gray-900 text-sm md:text-base'>Price</th>
-                  <th className='text-left py-3 md:py-4 px-2 font-semibold text-gray-900 text-sm md:text-base'>Quantity</th>
-                  <th className='text-left py-3 md:py-4 px-2 font-semibold text-gray-900 text-sm md:text-base'>Size</th>
-                  <th className='text-left py-3 md:py-4 px-2 font-semibold text-gray-900 text-sm md:text-base'>Subtotal</th>
-                  <th className='text-left py-3 md:py-4 px-2 font-semibold text-gray-900 text-sm md:text-base'>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <tr key={item._id} className='border-b border-gray-100'>
-                    <td className='py-3 md:py-4 px-2'>
-                      <div className='flex items-center space-x-3 md:space-x-4'>
-                        <img 
-                          src={item.productId.img || item.productId.image?.[0] || '/public/jackets.jpg'}
-                          alt={item.productId.name}
-                          className='w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg flex-shrink-0'
-                        />
-                        <div className='min-w-0'>
-                          <h3 className='font-semibold text-gray-900 text-sm md:text-base'>{item.productId.name}</h3>
-                          <p className='text-xs md:text-sm text-gray-600'>{item.productId.brandName}</p>
-                          <p className='text-xs md:text-sm text-gray-500'>{item.productId.category}</p>
+          <div className='p-4 md:p-6 lg:p-8'>
+            
+            {/* Page Header */}
+            <div className='mb-16'>
+              <p className="text-xs font-medium tracking-[0.3em] text-gray-500 uppercase mb-2">
+                Shopping Cart
+              </p>
+              <h1 className='text-3xl md:text-4xl lg:text-5xl font-light text-black mb-4'>
+                Your 
+                <span className="block font-extralight text-gray-600">
+                  Cart
+                </span>
+              </h1>
+              <p className="text-gray-600 font-light mb-6 max-w-2xl">
+                Review your selected items and proceed to checkout when ready
+              </p>
+            </div>
+
+            {/* Mobile Card Layout */}
+            <div className='block md:hidden space-y-6 mb-8'>
+              {items.map((item) => (
+                <div key={item._id} className='bg-white border border-gray-200 overflow-hidden'>
+                  <div className='p-6'>
+                    <div className='flex justify-between items-start mb-4'>
+                      <div className='flex space-x-4 flex-1'>
+                        <div className="w-20 h-20 bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+                          <img 
+                            src={item.productId.img || item.productId.image?.[0] || '/public/jackets.jpg'}
+                            alt={item.productId.name}
+                            className='w-full h-full object-cover'
+                          />
+                        </div>
+                        <div className='flex-1 min-w-0'>
+                          <h3 className='font-light text-black text-lg tracking-wide mb-1'>{item.productId.name}</h3>
+                          <p className='text-sm text-gray-600 font-light uppercase tracking-wide'>{item.productId.brandName}</p>
+                          <p className='text-xs text-gray-500 font-light uppercase tracking-wide'>{item.productId.category}</p>
                         </div>
                       </div>
-                    </td>
-                    <td className='py-3 md:py-4 px-2'>
-                      <span className='font-semibold text-sm md:text-base'>₹{item.price.toLocaleString()}</span>
-                    </td>
-                    <td className='py-3 md:py-4 px-2'>
-                      <div className='flex items-center space-x-1 md:space-x-2'>
-                        <button 
-                          onClick={() => handleUpdateQuantity(item.productId._id, item.quantity - 1, item.size)}
-                          disabled={isUpdating || item.quantity <= 1}
-                          className='p-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
-                        >
-                          <MinusIcon className='h-3 w-3 md:h-4 md:w-4' />
-                        </button>
-                        <span className='w-6 md:w-8 text-center text-sm md:text-base'>{item.quantity}</span>
-                        <button 
-                          onClick={() => handleUpdateQuantity(item.productId._id, item.quantity + 1, item.size)}
-                          disabled={isUpdating}
-                          className='p-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
-                        >
-                          <PlusIcon className='h-3 w-3 md:h-4 md:w-4' />
-                        </button>
-                      </div>
-                    </td>
-                    <td className='py-3 md:py-4 px-2'>
-                      <span className='text-gray-600 bg-gray-100 px-2 py-1 rounded text-xs md:text-sm'>{item.size}</span>
-                    </td>
-                    <td className='py-3 md:py-4 px-2'>
-                      <span className='font-semibold text-sm md:text-base'>₹{(item.price * item.quantity).toLocaleString()}</span>
-                    </td>
-                    <td className='py-3 md:py-4 px-2'>
                       <button 
                         onClick={() => handleRemoveItem(item.productId._id)}
                         disabled={isRemoving}
-                        className='p-1 md:p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed'
+                        className='w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors duration-300 disabled:opacity-50'
                       >
-                        <TrashIcon className='h-3 w-3 md:h-4 md:w-4' />
+                        <XIcon className='h-4 w-4 text-gray-600' />
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                    </div>
+                    
+                    <div className='space-y-4'>
+                      <div className='flex items-center justify-between'>
+                        <div>
+                          <span className='text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Size</span>
+                          <div className='text-sm text-gray-700 font-light mt-1'>{item.size}</div>
+                        </div>
+                        <div>
+                          <span className='text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Price</span>
+                          <div className='text-lg font-light text-black mt-1'>₹{item.price.toLocaleString()}</div>
+                        </div>
+                      </div>
 
-        {/* Loading overlay for updates */}
-        {(isRemoving || isUpdating) && (
-          <div className='fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50'>
-            <div className='bg-white p-4 rounded-lg'>
-              <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2'></div>
-              <p className='text-sm text-gray-600'>Updating cart...</p>
+                      <div className='flex items-center justify-between'>
+                        <div>
+                          <span className='text-xs font-medium text-gray-500 uppercase tracking-[0.2em] mb-3 block'>Quantity</span>
+                          <div className='flex items-center border border-gray-300 w-fit'>
+                            <button 
+                              onClick={() => handleUpdateQuantity(item.productId._id, item.quantity - 1, item.size)}
+                              disabled={isUpdating || item.quantity <= 1}
+                              className='p-3 hover:bg-gray-50 transition-colors duration-300 disabled:opacity-50'
+                            >
+                              <MinusIcon className='h-4 w-4 text-gray-600' />
+                            </button>
+                            <span className='px-6 py-3 font-medium text-black border-x border-gray-300 min-w-[60px] text-center'>
+                              {item.quantity}
+                            </span>
+                            <button 
+                              onClick={() => handleUpdateQuantity(item.productId._id, item.quantity + 1, item.size)}
+                              disabled={isUpdating}
+                              className='p-3 hover:bg-gray-50 transition-colors duration-300 disabled:opacity-50'
+                            >
+                              <PlusIcon className='h-4 w-4 text-gray-600' />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className='text-right'>
+                          <span className='text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Subtotal</span>
+                          <div className='text-xl font-light text-black mt-1'>₹{(item.price * item.quantity).toLocaleString()}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        )}
 
-        {/* Discount Code and Total Section */}
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 mb-6 md:mb-8'>
-          
-          {/* Discount Codes */}
-          <div className='bg-gray-50 p-4 md:p-6 rounded-lg'>
-            <h3 className='text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4'>Discount Codes</h3>
-            <div className='flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2'>
-              <input
-                type='text'
-                placeholder='Enter discount code'
-                className='flex-1 px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base'
-              />
-              <button className='px-4 md:px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm md:text-base'>
-                Apply
-              </button>
+            {/* Desktop Table Layout */}
+            <div className='hidden md:block mb-12'>
+              <div className='bg-white border border-gray-200 overflow-hidden'>
+                <table className='w-full'>
+                  <thead className='bg-gray-50 border-b border-gray-200'>
+                    <tr>
+                      <th className='text-left py-4 px-6 text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Product</th>
+                      <th className='text-left py-4 px-6 text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Price</th>
+                      <th className='text-left py-4 px-6 text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Quantity</th>
+                      <th className='text-left py-4 px-6 text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Size</th>
+                      <th className='text-left py-4 px-6 text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Subtotal</th>
+                      <th className='text-left py-4 px-6 text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Remove</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item) => (
+                      <tr key={item._id} className='border-b border-gray-100 hover:bg-gray-50 transition-colors duration-300'>
+                        <td className='py-6 px-6'>
+                          <div className='flex items-center space-x-4'>
+                            <div className="w-16 h-16 bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+                              <img 
+                                src={item.productId.img || item.productId.image?.[0] || '/public/jackets.jpg'}
+                                alt={item.productId.name}
+                                className='w-full h-full object-cover'
+                              />
+                            </div>
+                            <div className='min-w-0'>
+                              <h3 className='font-light text-black text-lg tracking-wide mb-1'>{item.productId.name}</h3>
+                              <p className='text-sm text-gray-600 font-light uppercase tracking-wide'>{item.productId.brandName}</p>
+                              <p className='text-xs text-gray-500 font-light uppercase tracking-wide'>{item.productId.category}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className='py-6 px-6'>
+                          <span className='text-lg font-light text-black'>₹{item.price.toLocaleString()}</span>
+                        </td>
+                        <td className='py-6 px-6'>
+                          <div className='flex items-center border border-gray-300 w-fit'>
+                            <button 
+                              onClick={() => handleUpdateQuantity(item.productId._id, item.quantity - 1, item.size)}
+                              disabled={isUpdating || item.quantity <= 1}
+                              className='p-3 hover:bg-gray-50 transition-colors duration-300 disabled:opacity-50'
+                            >
+                              <MinusIcon className='h-4 w-4 text-gray-600' />
+                            </button>
+                            <span className='px-6 py-3 font-medium text-black border-x border-gray-300 min-w-[60px] text-center'>
+                              {item.quantity}
+                            </span>
+                            <button 
+                              onClick={() => handleUpdateQuantity(item.productId._id, item.quantity + 1, item.size)}
+                              disabled={isUpdating}
+                              className='p-3 hover:bg-gray-50 transition-colors duration-300 disabled:opacity-50'
+                            >
+                              <PlusIcon className='h-4 w-4 text-gray-600' />
+                            </button>
+                          </div>
+                        </td>
+                        <td className='py-6 px-6'>
+                          <span className='text-sm text-gray-700 font-light'>{item.size}</span>
+                        </td>
+                        <td className='py-6 px-6'>
+                          <span className='text-lg font-light text-black'>₹{(item.price * item.quantity).toLocaleString()}</span>
+                        </td>
+                        <td className='py-6 px-6'>
+                          <button 
+                            onClick={() => handleRemoveItem(item.productId._id)}
+                            disabled={isRemoving}
+                            className='w-10 h-10 flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition-colors duration-300 disabled:opacity-50'
+                          >
+                            <TrashIcon className='h-4 w-4' />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            {cart.coupon && (
-              <div className='mt-3 p-2 bg-green-100 text-green-800 rounded text-sm'>
-                Coupon applied: {cart.coupon}
+
+            {/* Loading overlay for updates */}
+            {(isRemoving || isUpdating) && (
+              <div className='fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50'>
+                <div className='bg-white p-6 border border-gray-200'>
+                  <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className='text-sm text-gray-600 font-light'>Updating cart...</p>
+                </div>
               </div>
             )}
-          </div>
 
-          {/* Order Summary */}
-          <div className='bg-gray-50 p-4 md:p-6 rounded-lg'>
-            <h3 className='text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4'>Order Summary</h3>
-            <div className='space-y-2 md:space-y-3 mb-4 md:mb-6'>
-              <div className='flex justify-between text-sm md:text-base'>
-                <span className='text-gray-600'>Subtotal ({items.length} items)</span>
-                <span className='font-semibold'>₹{totalPrice.toLocaleString()}</span>
-              </div>
-              <div className='flex justify-between text-sm md:text-base'>
-                <span className='text-gray-600'>Shipping</span>
-                <span className='font-semibold'>Free</span>
-              </div>
-              {cart.coupon && (
-                <div className='flex justify-between text-green-600 text-sm md:text-base'>
-                  <span>Discount</span>
-                  <span className='font-semibold'>Applied</span>
+            {/* Summary Section */}
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12'>
+              
+              {/* Discount Codes */}
+              <div className='bg-white border border-gray-200 p-8'>
+                <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] mb-6'>
+                  Discount Code
+                </h3>
+                <div className='flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3'>
+                  <input
+                    type='text'
+                    placeholder='Enter discount code'
+                    className='flex-1 px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm'
+                  />
+                  <button className='px-8 py-3 bg-black text-white hover:bg-gray-800 transition-colors duration-300 text-sm font-medium tracking-wide'>
+                    APPLY
+                  </button>
                 </div>
-              )}
-              <hr className='border-gray-300' />
-              <div className='flex justify-between text-base md:text-lg font-bold'>
-                <span>Grand Total</span>
-                <span>₹{totalPrice.toLocaleString()}</span>
+                {cart.coupon && (
+                  <div className='mt-4 p-4 bg-green-50 border border-green-200'>
+                    <p className='text-sm text-green-700 font-light'>
+                      Coupon applied: {cart.coupon}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Order Summary */}
+              <div className='bg-white border border-gray-200 p-8'>
+                <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] mb-6'>
+                  Order Summary
+                </h3>
+                <div className='space-y-4 mb-8'>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-gray-600 font-light'>Subtotal ({items.length} items)</span>
+                    <span className='font-light text-black'>₹{totalPrice.toLocaleString()}</span>
+                  </div>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-gray-600 font-light'>Shipping</span>
+                    <span className='font-light text-black'>Free</span>
+                  </div>
+                  {cart.coupon && (
+                    <div className='flex justify-between items-center text-green-600'>
+                      <span className='font-light'>Discount</span>
+                      <span className='font-light'>Applied</span>
+                    </div>
+                  )}
+                  <div className='border-t border-gray-200 pt-4'>
+                    <div className='flex justify-between items-center'>
+                      <span className='text-lg font-medium text-black tracking-wide'>Grand Total</span>
+                      <span className='text-xl font-light text-black'>₹{totalPrice.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <NavLink to={`/check-out`} className='block w-full'>
+                  <button className='w-full bg-black text-white font-medium py-4 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide'>
+                    PROCEED TO CHECKOUT
+                  </button>
+                </NavLink>
               </div>
             </div>
-            
-          <NavLink to={`/check-out`} className='w-full'>
-            <button className='w-full bg-black text-white py-2 md:py-3 rounded-lg hover:bg-gray-800 transition-colors font-semibold text-sm md:text-base'>
-              Proceed to Checkout
-            </button>
-          </NavLink>
           </div>
         </div>
-
-        {/* HR Line */}
-        <hr className='border-gray-200' />
-
       </div>
     </div>
   )

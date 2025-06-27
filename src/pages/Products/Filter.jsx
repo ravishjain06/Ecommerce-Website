@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ChevronDownIcon, ChevronUpIcon, XIcon } from 'lucide-react'
+import { ChevronDownIcon, ChevronUpIcon, XIcon, Search } from 'lucide-react'
 
 const Filter = ({ 
   isMobile = false, 
@@ -19,7 +19,7 @@ const Filter = ({
     mainCategory: appliedFilters.mainCategory || [],
     priceRange: appliedFilters.priceRange || '',
     brands: appliedFilters.brands || [],
-    search: appliedFilters.search || '' // <-- add this
+    search: appliedFilters.search || ''
   })
 
   // Update local state when applied filters change
@@ -28,7 +28,7 @@ const Filter = ({
       mainCategory: appliedFilters.mainCategory || [],
       priceRange: appliedFilters.priceRange || '',
       brands: appliedFilters.brands || [],
-      search: appliedFilters.search || '' // <-- add this 
+      search: appliedFilters.search || ''
     })
   }, [appliedFilters])
 
@@ -48,39 +48,44 @@ const Filter = ({
         ...prev,
         mainCategory: updatedMainCategory
       };
-      console.log('Selected mainCategory:', updatedMainCategory); // Log immediately
-
-    
+      console.log('Selected mainCategory:', updatedMainCategory);
       onFiltersApply(updatedFilters);
-
       return updatedFilters;
     });
   }
 
   const handleBrandChange = (brand) => {
-    setSelectedFilters(prev => ({
-      ...prev,
-      brands: prev.brands.includes(brand)
+    setSelectedFilters(prev => {
+      const updatedBrands = prev.brands.includes(brand)
         ? prev.brands.filter(b => b !== brand)
-        : [...prev.brands, brand]
-    }))
+        : [...prev.brands, brand];
+      const updatedFilters = { ...prev, brands: updatedBrands };
+      onFiltersApply(updatedFilters);
+      return updatedFilters;
+    });
   }
+
+  const handlePriceRangeChange = (value) => {
+    setSelectedFilters(prev => {
+      const updatedFilters = { ...prev, priceRange: value };
+      onFiltersApply(updatedFilters);
+      return updatedFilters;
+    });
+  };
 
   const clearAllFilters = () => {
     setSelectedFilters({
       mainCategory: [],
       priceRange: '',
       brands: [],
-      search: '' // <-- add this
+      search: ''
     })
     onClearFilters()
   }
 
   const applyFilters = () => {
-    onFiltersApply(selectedFilters)
-    if (isMobile) {
-      onClose()
-    }
+    onFiltersApply(selectedFilters);
+    if (isMobile) onClose();
   }
 
   // Prevent body scroll when mobile filter is open
@@ -123,10 +128,15 @@ const Filter = ({
   // Desktop Filter
   if (!isMobile) {
     return (
-      <div className="w-72 bg-white border-r border-l border-b border-gray-200 h-fit">
-        <div className="p-4">
-          <div className="mb-4">
-            <h2 className='text-lg font-bold text-gray-800'>Filters</h2>
+      <div className="w-80 bg-white border-r border-gray-200 h-fit sticky top-16">
+        <div className="p-6 lg:p-8">
+          <div className="mb-8">
+            <p className="text-xs font-medium tracking-[0.3em] text-gray-500 uppercase mb-2">
+              Refine Selection
+            </p>
+            <h2 className='text-2xl font-light text-black tracking-wide'>
+              Filters
+            </h2>
           </div>
 
           <FilterContent
@@ -138,6 +148,7 @@ const Filter = ({
             toggleSection={toggleSection}
             handleMainCategoryChange={handleMainCategoryChange}
             handleBrandChange={handleBrandChange}
+            handlePriceRangeChange={handlePriceRangeChange} // <-- add this line
             setSelectedFilters={setSelectedFilters}
             applyFilters={applyFilters}
             clearAllFilters={clearAllFilters}
@@ -161,19 +172,31 @@ const Filter = ({
       <div className={`fixed inset-x-0 bottom-0 z-50 transform transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-y-0' : 'translate-y-full'
       }`}>
-        <div className="bg-white rounded-t-2xl max-h-[90vh] flex flex-col">
-          <div className="flex justify-center py-2">
-            <div className="w-10 h-1 bg-gray-300 rounded-full"></div>
+        <div className="bg-white max-h-[90vh] flex flex-col">
+          
+          {/* Mobile Header */}
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex justify-center mb-4">
+              <div className="w-12 h-1 bg-gray-300"></div>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-xs font-medium tracking-[0.3em] text-gray-500 uppercase mb-1">
+                  Refine Selection
+                </p>
+                <h2 className='text-xl font-light text-black tracking-wide'>Filters</h2>
+              </div>
+              <button 
+                onClick={onClose} 
+                className='w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors duration-300'
+              >
+                <XIcon className='h-5 w-5 text-gray-600' />
+              </button>
+            </div>
           </div>
 
-          <div className="flex justify-between items-center px-4 pb-3 border-b border-gray-200">
-            <h2 className='text-lg font-bold text-gray-800'>Filters</h2>
-            <button onClick={onClose} className='p-1 hover:bg-gray-100 rounded-full'>
-              <XIcon className='h-4 w-4 text-gray-600' />
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto px-4 py-3">
+          <div className="flex-1 overflow-y-auto p-6">
             <FilterContent
               categories={categories}
               priceRanges={priceRanges}
@@ -183,6 +206,7 @@ const Filter = ({
               toggleSection={toggleSection}
               handleMainCategoryChange={handleMainCategoryChange}
               handleBrandChange={handleBrandChange}
+              handlePriceRangeChange={handlePriceRangeChange}
               setSelectedFilters={setSelectedFilters}
               applyFilters={applyFilters}
               clearAllFilters={clearAllFilters}
@@ -190,14 +214,30 @@ const Filter = ({
             />
           </div>
 
-          
+          {/* Mobile Action Buttons */}
+          <div className="p-6 border-t border-gray-200 bg-gray-50">
+            <div className="flex gap-4">
+              <button
+                onClick={clearAllFilters}
+                className="flex-1 border border-gray-300 text-gray-700 font-medium py-3 hover:bg-gray-100 transition-colors duration-300 text-sm tracking-wide"
+              >
+                CLEAR ALL
+              </button>
+              <button
+                onClick={applyFilters}
+                className="flex-1 bg-black text-white font-medium py-3 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide"
+              >
+                APPLY FILTERS
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </>
   )
 }
 
-// Filter Content Component remains the same but with updated prop names
+// Filter Content Component
 const FilterContent = ({
   categories,
   priceRanges,
@@ -207,51 +247,78 @@ const FilterContent = ({
   toggleSection,
   handleMainCategoryChange,
   handleBrandChange,
+  handlePriceRangeChange, // <-- add this line
   setSelectedFilters,
   applyFilters,
   clearAllFilters,
   isMobile
 }) => {
   return (
-    <div className="space-y-4">
-      {/* Search Input - New Section */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={selectedFilters.search}
-          onChange={e => setSelectedFilters(prev => ({
-            ...prev,
-            search: e.target.value
-          }))}
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-        />
+    <div className="space-y-8">
+      
+      {/* Search Input */}
+      <div>
+        <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] mb-4'>
+          Search Products
+        </h3>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={selectedFilters.search}
+            onChange={e => setSelectedFilters(prev => ({
+              ...prev,
+              search: e.target.value
+            }))}
+            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm"
+          />
+        </div>
       </div>
 
-      {/* Main Category Filter */}
-      <div>
+      {/* Category Filter */}
+      <div className="border-b border-gray-200 pb-6">
         <div
-          className='flex justify-between items-center cursor-pointer py-2'
+          className='flex justify-between items-center cursor-pointer py-2 group'
           onClick={() => toggleSection('mainCategory')}
         >
-          <h3 className='text-sm font-semibold text-gray-700'>Category</h3>
-          {openSections.mainCategory ?
-            <ChevronUpIcon className='h-4 w-4 text-gray-500' /> :
-            <ChevronDownIcon className='h-4 w-4 text-gray-500' />
-          }
+          <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] group-hover:text-black transition-colors duration-300'>
+            Category
+          </h3>
+          <div className="w-6 h-6 flex items-center justify-center">
+            {openSections.mainCategory ?
+              <ChevronUpIcon className='h-4 w-4 text-gray-500 group-hover:text-black transition-colors duration-300' /> :
+              <ChevronDownIcon className='h-4 w-4 text-gray-500 group-hover:text-black transition-colors duration-300' />
+            }
+          </div>
         </div>
 
         {openSections.mainCategory && (
-          <div className='space-y-2 pt-2'>
+          <div className='space-y-3 pt-4'>
             {categories.map((category) => (
-              <label key={category} className='flex items-center cursor-pointer'>
-                <input
-                  type="checkbox"
-                  checked={selectedFilters.mainCategory.includes(category)}
-                  onChange={() => handleMainCategoryChange(category)}
-                  className='w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-3 flex-shrink-0'
-                />
-                <span className='text-sm text-gray-700 select-none flex-1'>{category}</span>
+              <label key={category} className='flex items-center cursor-pointer group'>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={selectedFilters.mainCategory.includes(category)}
+                    onChange={() => handleMainCategoryChange(category)}
+                    className='sr-only'
+                  />
+                  <div className={`w-4 h-4 border-2 flex items-center justify-center transition-all duration-300 ${
+                    selectedFilters.mainCategory.includes(category)
+                      ? 'bg-black border-black'
+                      : 'border-gray-300 group-hover:border-gray-400'
+                  }`}>
+                    {selectedFilters.mainCategory.includes(category) && (
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <span className='ml-3 text-sm text-gray-700 font-light group-hover:text-black transition-colors duration-300'>
+                  {category}
+                </span>
               </label>
             ))}
           </div>
@@ -259,34 +326,48 @@ const FilterContent = ({
       </div>
 
       {/* Price Filter */}
-      <div>
+      <div className="border-b border-gray-200 pb-6">
         <div
-          className='flex justify-between items-center cursor-pointer py-2'
+          className='flex justify-between items-center cursor-pointer py-2 group'
           onClick={() => toggleSection('price')}
         >
-          <h3 className='text-sm font-semibold text-gray-700'>Price Range</h3>
-          {openSections.price ?
-            <ChevronUpIcon className='h-4 w-4 text-gray-500' /> :
-            <ChevronDownIcon className='h-4 w-4 text-gray-500' />
-          }
+          <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] group-hover:text-black transition-colors duration-300'>
+            Price Range
+          </h3>
+          <div className="w-6 h-6 flex items-center justify-center">
+            {openSections.price ?
+              <ChevronUpIcon className='h-4 w-4 text-gray-500 group-hover:text-black transition-colors duration-300' /> :
+              <ChevronDownIcon className='h-4 w-4 text-gray-500 group-hover:text-black transition-colors duration-300' />
+            }
+          </div>
         </div>
 
         {openSections.price && (
-          <div className='space-y-2 pt-2'>
+          <div className='space-y-3 pt-4'>
             {priceRanges.map((range) => (
-              <label key={range.value} className='flex items-center cursor-pointer'>
-                <input
-                  type="radio"
-                  name="priceRange"
-                  value={range.value}
-                  checked={selectedFilters.priceRange === range.value}
-                  onChange={(e) => setSelectedFilters(prev => ({
-                    ...prev,
-                    priceRange: e.target.value
-                  }))}
-                  className='w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 mr-3 flex-shrink-0'
-                />
-                <span className='text-sm text-gray-700 select-none flex-1'>{range.label}</span>
+              <label key={range.value} className='flex items-center cursor-pointer group'>
+                <div className="relative">
+                  <input
+                    type="radio"
+                    name="priceRange"
+                    value={range.value}
+                    checked={selectedFilters.priceRange === range.value}
+                    onChange={(e) => handlePriceRangeChange(e.target.value)}
+                    className='sr-only'
+                  />
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                    selectedFilters.priceRange === range.value
+                      ? 'bg-black border-black'
+                      : 'border-gray-300 group-hover:border-gray-400'
+                  }`}>
+                    {selectedFilters.priceRange === range.value && (
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    )}
+                  </div>
+                </div>
+                <span className='ml-3 text-sm text-gray-700 font-light group-hover:text-black transition-colors duration-300'>
+                  {range.label}
+                </span>
               </label>
             ))}
           </div>
@@ -294,35 +375,71 @@ const FilterContent = ({
       </div>
 
       {/* Brand Filter */}
-      <div>
+      <div className="pb-6">
         <div
-          className='flex justify-between items-center cursor-pointer py-2'
+          className='flex justify-between items-center cursor-pointer py-2 group'
           onClick={() => toggleSection('brand')}
         >
-          <h3 className='text-sm font-semibold text-gray-700'>Brand</h3>
-          {openSections.brand ?
-            <ChevronUpIcon className='h-4 w-4 text-gray-500' /> :
-            <ChevronDownIcon className='h-4 w-4 text-gray-500' />
-          }
+          <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] group-hover:text-black transition-colors duration-300'>
+            Brand
+          </h3>
+          <div className="w-6 h-6 flex items-center justify-center">
+            {openSections.brand ?
+              <ChevronUpIcon className='h-4 w-4 text-gray-500 group-hover:text-black transition-colors duration-300' /> :
+              <ChevronDownIcon className='h-4 w-4 text-gray-500 group-hover:text-black transition-colors duration-300' />
+            }
+          </div>
         </div>
 
         {openSections.brand && (
-          <div className='space-y-2 pt-2'>
+          <div className='space-y-3 pt-4'>
             {brands.map((brand) => (
-              <label key={brand} className='flex items-center cursor-pointer'>
-                <input
-                  type="checkbox"
-                  checked={selectedFilters.brands.includes(brand)}
-                  onChange={() => handleBrandChange(brand)}
-                  className='w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-3 flex-shrink-0'
-                />
-                <span className='text-sm text-gray-700 select-none flex-1'>{brand}</span>
+              <label key={brand} className='flex items-center cursor-pointer group'>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={selectedFilters.brands.includes(brand)}
+                    onChange={() => handleBrandChange(brand)}
+                    className='sr-only'
+                  />
+                  <div className={`w-4 h-4 border-2 flex items-center justify-center transition-all duration-300 ${
+                    selectedFilters.brands.includes(brand)
+                      ? 'bg-black border-black'
+                      : 'border-gray-300 group-hover:border-gray-400'
+                  }`}>
+                    {selectedFilters.brands.includes(brand) && (
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <span className='ml-3 text-sm text-gray-700 font-light group-hover:text-black transition-colors duration-300'>
+                  {brand}
+                </span>
               </label>
             ))}
           </div>
         )}
       </div>
 
+      {/* Desktop Action Buttons */}
+      {!isMobile && (
+        <div className="pt-6 space-y-3">
+          <button
+            onClick={applyFilters}
+            className="w-full bg-black text-white font-medium py-3 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide"
+          >
+            APPLY FILTERS
+          </button>
+          <button
+            onClick={clearAllFilters}
+            className="w-full border border-gray-300 text-gray-700 font-medium py-3 hover:bg-gray-50 transition-colors duration-300 text-sm tracking-wide"
+          >
+            CLEAR ALL
+          </button>
+        </div>
+      )}
     </div>
   )
 }

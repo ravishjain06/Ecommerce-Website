@@ -17,8 +17,7 @@ const Home = () => {
       <HeroSection />
       <FaishonCard />
       <NewArrival />
-      <BigSavingZone />
-      <Poster />
+   
       <MenCategory />
       <WomenCategory />
       <TopBrand />

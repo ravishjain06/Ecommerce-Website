@@ -4,20 +4,42 @@ import { Button } from '../../components/ui/button'
 const AuthHeader = () => {
   return (
     <div>
-      <div className='flex justify-between items-center h-16 px-15 border-b-2 relative'>
-        
-        <div className='w-full md:w-auto text-center md:text-left absolute left-1/2 -translate-x-1/2 md:relative md:left-0 md:translate-x-0'>
-          <h1 className='love-light-regular text-3xl font-bold'>Euphoria</h1>
+      {/* Top Bar */}
+      <div className="bg-black text-white text-xs py-2 px-4 md:px-8">
+        <div className="flex justify-between items-center max-w-7xl mx-auto">
+          <p className="font-light tracking-wide">Secure authentication powered by W E A R E X</p>
+          <div className="hidden md:flex items-center gap-4">
+            <span>Need help? Call +91 98765 43210</span>
+            <span>|</span>
+            <span>Support Center</span>
+          </div>
         </div>
+      </div>
 
-      
-        <div className='gap-5 hidden md:flex ml-auto'>
-          <NavLink to="/auth/login">
-            <Button className="bg-[var(--purple)] hover:bg-[var(--purple)] text-white cursor-pointer w-20">Login</Button>
+      {/* Main Auth Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="flex justify-between items-center h-16 px-4 md:px-8 max-w-7xl mx-auto">
+          
+          {/* Logo */}
+          <NavLink to="/" className="flex-shrink-0 flex items-center">
+            <h1 className='text-2xl md:text-3xl font-light tracking-wide text-black'>
+              W E A R E X
+            </h1>
           </NavLink>
-          <NavLink to="/auth/register">
-            <Button className="bg-white hover:bg-white text-[#8A33FD] border-1 shadow-[var(--shadow)] font-semibold cursor-pointer w-24">Sign Up</Button>
-          </NavLink>
+
+          {/* Auth Buttons */}
+          <div className='flex gap-3'>
+            <NavLink to="/auth/login">
+              <Button className="bg-black hover:bg-gray-800 text-white font-light px-6 py-2 text-sm tracking-wide transition-all duration-300">
+                LOGIN
+              </Button>
+            </NavLink>
+            <NavLink to="/auth/register">
+              <Button className="bg-white hover:bg-gray-50 text-black border border-gray-300 font-light px-6 py-2 text-sm tracking-wide transition-all duration-300">
+                SIGN UP
+              </Button>
+            </NavLink>
+          </div>
         </div>
       </div>
 

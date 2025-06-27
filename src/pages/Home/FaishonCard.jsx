@@ -1,45 +1,141 @@
 import React from 'react'
+import { motion } from 'framer-motion'
 
-const FaishonCard = () => {
+const FashionCard = () => {
   return (
-    <div className="p-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Card 1 */}
-        <div
-          className="relative w-full h-80 bg-cover bg-center bg-no-repeat rounded-xl overflow-hidden bg-gradient-to-r from-yellow-600 to-yellow-400"
-          style={{ backgroundImage: 'url(/Card1.png)', backgroundColor: '#ca8a04' }}
+    <section className="bg-gray-50 py-16 px-4 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Section Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-12"
         >
-          <div className="relative z-10 flex items-start justify-start h-full p-8">
-            <div className="text-left text-black max-w-xs">
-              <h2 className="text-2xl md:text-3xl font-bold mb-2">Low Price</h2>
-              <h3 className="text-xl md:text-2xl font-semibold mb-3">High Coziness</h3>
-              <p className="text-lg font-medium mb-4">Up to 50% Off</p>
-              <button className="text-white font-semibold underline hover:no-underline transition-all">
-                Explore Items
-              </button>
+          <p className="text-xs font-medium tracking-[0.3em] text-gray-500 uppercase mb-2">
+            Trending Now
+          </p>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-black">
+            Style 
+            <span className="block font-extralight text-gray-600">
+              Collections
+            </span>
+          </h2>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
+          {/* Card 1 - Premium Collection */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="group relative bg-white border border-gray-200 overflow-hidden"
+          >
+            <div className="relative h-96 overflow-hidden">
+              <img 
+                src="/Card1.png" 
+                alt="Premium Collection"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/20"></div>
             </div>
-          </div>
+            
+            <div className="absolute inset-0 flex items-end p-8">
+              <div className="text-white space-y-3">
+                <div className="space-y-1">
+                  <p className="text-xs tracking-[0.2em] uppercase opacity-80">
+                    Premium Collection
+                  </p>
+                  <h3 className="text-2xl md:text-3xl font-light">
+                    Minimalist
+                    <span className="block font-extralight">
+                      Comfort
+                    </span>
+                  </h3>
+                </div>
+                <p className="text-sm opacity-90 font-light">
+                  Carefully crafted pieces for everyday elegance
+                </p>
+                <button className="inline-flex items-center text-white text-sm tracking-wide border-b border-white/40 pb-1 hover:border-white transition-all duration-300">
+                  DISCOVER MORE
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Geometric accent */}
+            <div className="absolute top-6 right-6 w-12 h-12 border border-white/30"></div>
+          </motion.div>
+
+          {/* Card 2 - Seasonal Collection */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="group relative bg-gray-900 overflow-hidden"
+          >
+            <div className="relative h-96 overflow-hidden">
+              <img 
+                src="/Card2.png" 
+                alt="Seasonal Collection"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/40"></div>
+            </div>
+            
+            <div className="absolute inset-0 flex items-end p-8">
+              <div className="text-white space-y-3">
+                <div className="space-y-1">
+                  <p className="text-xs tracking-[0.2em] uppercase opacity-80">
+                    New Season
+                  </p>
+                  <h3 className="text-2xl md:text-3xl font-light">
+                    Contemporary
+                    <span className="block font-extralight">
+                      Classics
+                    </span>
+                  </h3>
+                </div>
+                <p className="text-sm opacity-90 font-light">
+                  Timeless designs with modern sensibility
+                </p>
+                <button className="inline-flex items-center text-white text-sm tracking-wide border-b border-white/40 pb-1 hover:border-white transition-all duration-300">
+                  VIEW COLLECTION
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Geometric accent */}
+            <div className="absolute top-6 right-6 w-16 h-16 bg-white/10"></div>
+          </motion.div>
+
         </div>
 
-        {/* Card 2 */}
-        <div
-          className="relative w-full h-80 bg-cover bg-center bg-no-repeat rounded-xl overflow-hidden"
-          style={{ backgroundImage: 'url(/Card2.png)', backgroundColor: '#9333ea' }}
+        {/* Bottom CTA Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="mt-16 text-center border-t border-gray-200 pt-12"
         >
-          <div className="relative z-10 flex items-start justify-start h-full p-8">
-            <div className="text-left text-white max-w-xs">
-              <h2 className="text-xl md:text-2xl font-bold mb-2">Beyoung Presents</h2>
-              <h3 className="text-2xl md:text-3xl font-semibold mb-3">Breezy Summer Style</h3>
-              <p className="text-lg font-medium mb-4">Up to 50% Off</p>
-              <button className="text-white font-semibold underline hover:no-underline transition-all">
-                Explore Items
-              </button>
-            </div>
-          </div>
-        </div>
+          <p className="text-gray-600 font-light mb-6 max-w-2xl mx-auto">
+            Experience our complete range of meticulously designed pieces that define contemporary fashion
+          </p>
+          <button className="bg-black text-white font-medium px-8 py-3 hover:bg-gray-800 transition-all duration-300 text-sm tracking-wide">
+            EXPLORE ALL COLLECTIONS
+          </button>
+        </motion.div>
+
       </div>
-    </div>
+    </section>
   )
 }
 
-export default FaishonCard
+export default FashionCard

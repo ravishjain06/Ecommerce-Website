@@ -35,16 +35,7 @@ export const orderApi = createApi({
             providesTags: ['Order'], // Provide order data tag
         }),
 
-        // Get single order by ID
-        getOrderById: builder.query({
-            query: (orderId) => ({
-                url: `${orderId}`,
-                method: 'GET',
-            }),
-            providesTags: (result, error, orderId) => [
-                { type: 'Order', id: orderId }
-            ],
-        }),
+      
 
         // Update order status (admin)
         updateOrderStatus: builder.mutation({
