@@ -10,7 +10,7 @@ import { generateAccessToken, generateRefreshToken } from "../utils/tokens.js";
 
 export const Register = async (req, res, next) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role  } = req.body;
         const file = req.file;
 
         let profilePictureUrl = null;
@@ -290,7 +290,7 @@ export const getUserProfile = async (req, res, next) => {
 export const updateUserProfile = async (req, res, next) => {
     try {
         const userId = req.id
-        const { name, email, profilePicture } = req.body
+        const { name, email, phone, profilePicture, currentPassword, newPassword } = req.body
         const file = req.file;
         console.log(req.body);
 
@@ -309,10 +309,52 @@ export const updateUserProfile = async (req, res, next) => {
             });
         }
 
+        // If user wants to update password
+        if (newPassword) {
+            if (!currentPassword) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Current password is required to update password."
+                });
+            }
+
+            // Verify current password
+            const isCurrentPasswordValid = await argon2.verify(user.password, currentPassword);
+            if (!isCurrentPasswordValid) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Current password is incorrect."
+                });
+            }
+
+            // Validate new password (optional - add your validation rules)
+            if (newPassword.length < 6) {
+                return res.status(400).json({
+                    success: false,
+                    message: "New password must be at least 6 characters long."
+                });
+            }
+
+            // Hash new password
+            const hashedNewPassword = await argon2.hash(newPassword);
+            user.password = hashedNewPassword;
+        }
+
         let profilePictureUrl = null
 
         if (name) user.name = name;
-        if (email) user.email = email;
+        if (email) {
+            // Check if email is already taken by another user
+            const emailExists = await User.findOne({ email, _id: { $ne: userId } });
+            if (emailExists) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Email is already taken by another user."
+                });
+            }
+            user.email = email;
+        }
+        if (phone) user.phone = phone;
         if (file) {
             const uploadedImage = await imagekit.upload({
                 file: fs.readFileSync(file.path), // Binary file data
@@ -329,10 +371,13 @@ export const updateUserProfile = async (req, res, next) => {
             success: true,
             message: "User profile updated successfully.",
             user: {
+                _id: user._id,
                 name: user.name,
                 email: user.email,
+                phone: user.phone,
                 profilePicture: user.profilePicture,
-
+                role: user.role,
+                isVerified: user.isVerified
             }
         });
 

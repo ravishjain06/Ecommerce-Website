@@ -117,34 +117,34 @@ export const filterProducts = async (req, res) => {
             limit = 10 
         } = req.query;
         
-        // Build the query object
+        // Build the query object (AND logic)
         const query = {};
-        
-        // 1. Main category filter (clothing field)
+
+        // 1. Clothing filter (partial, case-insensitive)
         if (clothing) {
             const clothingArr = clothing.split(',').map(c => c.trim());
-            query.clothing = { $in: clothingArr };
+            query.clothing = { $in: clothingArr.map(c => new RegExp(c, 'i')) };
         }
-        
-        // 2. Category filter
+
+        // 2. Category filter (partial, case-insensitive)
         if (category) {
-            const categories = category.split(',').map(c => c.trim());
-            query.category = { $in: categories };
+            const categoryArr = category.split(',').map(c => c.trim());
+            query.category = { $in: categoryArr.map(cat => new RegExp(cat, 'i')) };
         }
-        
+
         // 3. Brand name filter
         if (brandName) {
             const brands = brandName.split(',').map(b => b.trim());
-            query.brandName = { $in: brands };
+            query.brandName = { $in: brands.map(b => new RegExp(b, 'i')) };
         }
-        
+
         // 4. Price range filter
         if (minPrice || maxPrice) {
             query.price = {};
             if (minPrice) query.price.$gte = parseInt(minPrice);
             if (maxPrice) query.price.$lte = parseInt(maxPrice);
         }
-        
+
         // 5. Search filter (search in name, description, brandName)
         if (search) {
             query.$or = [
@@ -153,19 +153,19 @@ export const filterProducts = async (req, res) => {
                 { brandName: { $regex: search, $options: 'i' } }
             ];
         }
-        
+
         // Pagination
         const skip = (parseInt(page) - 1) * parseInt(limit);
-        
+
         // Get total count for pagination
         const totalProducts = await Product.countDocuments(query);
-        
+
         // Fetch products
         const products = await Product.find(query)
             .sort({ createdAt: -1, _id: -1 })
             .skip(skip)
             .limit(parseInt(limit));
-        
+
         // Check if products found
         if (!products || products.length === 0) {
             return res.status(201).json({
@@ -173,7 +173,7 @@ export const filterProducts = async (req, res) => {
                 message: "No products found matching your criteria"
             });
         }
-        
+
         res.status(200).json({
             success: true,
             message: "Products fetched successfully",
@@ -197,7 +197,7 @@ export const filterProducts = async (req, res) => {
                 }
             }
         });
-        
+
     } catch (error) {
         console.error("Error in filterProducts:", error);
         res.status(500).json({
