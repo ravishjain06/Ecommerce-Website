@@ -84,14 +84,13 @@ const HeroSection = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 1.4 }}
-            className="absolute -top-4 -left-4 w-20 h-20 border border-gray-300"
+            className="absolute -top-4 -left-4 w-12 h-12 md:w-20 md:h-20 border border-gray-300"
           ></motion.div>
-
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 1.6 }}
-            className="absolute -bottom-4 -right-4 w-16 h-16 bg-gray-900"
+            className="absolute -bottom-4 -right-4 w-10 h-10 md:w-16 md:h-16 bg-gray-900"
           ></motion.div>
         </motion.div>
 
@@ -139,9 +138,7 @@ const HeroSection = () => {
                 VIEW COLLECTION
               </button>
             </NavLink>
-            <button className="border border-gray-300 text-gray-700 font-medium px-8 py-3 hover:bg-gray-50 transition-all duration-300 text-sm tracking-wide">
-              LOOKBOOK
-            </button>
+
           </motion.div>
 
           {/* Minimal Stats */}
@@ -149,7 +146,7 @@ const HeroSection = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex gap-8 pt-8 border-t border-gray-200"
+            className="flex gap-8 pt-8 pb-6 border-t border-gray-200"
           >
             <div>
               <p className="text-xl font-light text-black">

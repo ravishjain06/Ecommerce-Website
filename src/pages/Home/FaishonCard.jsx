@@ -5,9 +5,9 @@ const FashionCard = () => {
   return (
     <section className="bg-gray-50 py-16 px-4 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        
+
         {/* Section Header */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -17,7 +17,7 @@ const FashionCard = () => {
             Trending Now
           </p>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-black">
-            Style 
+            Style
             <span className="block font-extralight text-gray-600">
               Collections
             </span>
@@ -25,7 +25,7 @@ const FashionCard = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
+
           {/* Card 1 - Premium Collection */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -34,14 +34,14 @@ const FashionCard = () => {
             className="group relative bg-white border border-gray-200 overflow-hidden"
           >
             <div className="relative h-96 overflow-hidden">
-              <img 
-                src="/Card1.png" 
+              <img
+                src="/Card1.png"
                 alt="Premium Collection"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/20"></div>
             </div>
-            
+
             <div className="absolute inset-0 flex items-end p-8">
               <div className="text-white space-y-3">
                 <div className="space-y-1">
@@ -67,8 +67,7 @@ const FashionCard = () => {
               </div>
             </div>
 
-            {/* Geometric accent */}
-            <div className="absolute top-6 right-6 w-12 h-12 border border-white/30"></div>
+
           </motion.div>
 
           {/* Card 2 - Seasonal Collection */}
@@ -76,17 +75,17 @@ const FashionCard = () => {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="group relative bg-gray-900 overflow-hidden"
+            className="group relative  overflow-hidden"
           >
-            <div className="relative h-96 overflow-hidden">
-              <img 
-                src="/Card2.png" 
+            <div className="relative  h-96 overflow-hidden group">
+              <img
+                src="/Card2.png"
                 alt="Seasonal Collection"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-full object-cover object-[center_30%] transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/40"></div>
             </div>
-            
+
             <div className="absolute inset-0 flex items-end p-8">
               <div className="text-white space-y-3">
                 <div className="space-y-1">
@@ -112,26 +111,11 @@ const FashionCard = () => {
               </div>
             </div>
 
-            {/* Geometric accent */}
-            <div className="absolute top-6 right-6 w-16 h-16 bg-white/10"></div>
+
           </motion.div>
 
         </div>
 
-        {/* Bottom CTA Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-16 text-center border-t border-gray-200 pt-12"
-        >
-          <p className="text-gray-600 font-light mb-6 max-w-2xl mx-auto">
-            Experience our complete range of meticulously designed pieces that define contemporary fashion
-          </p>
-          <button className="bg-black text-white font-medium px-8 py-3 hover:bg-gray-800 transition-all duration-300 text-sm tracking-wide">
-            EXPLORE ALL COLLECTIONS
-          </button>
-        </motion.div>
 
       </div>
     </section>

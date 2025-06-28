@@ -74,18 +74,7 @@ const ProductDetail = () => {
             <div className='max-w-7xl mx-auto'>
                 <div className='bg-white'>
                     
-                    {/* Breadcrumb */}
-                    <div className='px-4 md:px-8 py-6 border-b border-gray-200'>
-                        <div className='flex items-center text-sm text-gray-500 font-light'>
-                            <span className='hover:text-black transition-colors cursor-pointer'>Home</span>
-                            <ChevronRightIcon className='h-3 w-3 mx-3' />
-                            <span className='hover:text-black transition-colors cursor-pointer'>Men</span>
-                            <ChevronRightIcon className='h-3 w-3 mx-3' />
-                            <span className='hover:text-black transition-colors cursor-pointer'>Jackets</span>
-                            <ChevronRightIcon className='h-3 w-3 mx-3' />
-                            <span className='text-black font-medium'>{data?.product?.name || 'Product'}</span>
-                        </div>
-                    </div>
+                
 
                     <div className='grid grid-cols-1 lg:grid-cols-2 gap-0'>
 

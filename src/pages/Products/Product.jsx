@@ -26,12 +26,13 @@ const Product = () => {
   const [searchParams] = useSearchParams()
   const categoryFromUrl = searchParams.get('category') || ''
   const clothingFromUrl = searchParams.get('clothing') || ''
+  const brandNameFromUrl = searchParams.get('brandName') || ''
 
   // Filter state - Initialize with URL params
   const [appliedFilters, setAppliedFilters] = useState({
     mainCategory: categoryFromUrl ? [categoryFromUrl] : [],
     priceRange: '',
-    brands: [],
+    brands: brandNameFromUrl ? [brandNameFromUrl] : [], // <-- add this
     search: '',
     clothing: clothingFromUrl || ''
   })
@@ -47,9 +48,10 @@ const Product = () => {
     setAppliedFilters(prev => ({
       ...prev,
       mainCategory: categoryFromUrl ? [categoryFromUrl] : [],
-      clothing: clothingFromUrl || ''
+      clothing: clothingFromUrl || '',
+      brands: brandNameFromUrl ? [brandNameFromUrl] : [], // <-- add this
     }))
-  }, [categoryFromUrl, clothingFromUrl])
+  }, [categoryFromUrl, clothingFromUrl, brandNameFromUrl])
 
   // Debounced search function
   const debouncedSearch = useCallback(
@@ -277,6 +279,44 @@ const Product = () => {
                     )}
                   </button>
                 </div>
+
+                {/* Show active filters on mobile */}
+                {activeFilters.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    {activeFilters.map((filter, idx) => (
+                      <span
+                        key={filter.key + filter.value + idx}
+                        className="flex items-center bg-gray-100 text-black px-2 py-1 rounded-full text-xs font-medium capitalize"
+                      >
+                        {filter.value}
+                        <button
+                          onClick={() => {
+                            // Remove only this filter
+                            setAppliedFilters(prev => {
+                              const updated = { ...prev };
+                              if (filter.key === 'clothing') updated.clothing = '';
+                              if (filter.key === 'mainCategory') updated.mainCategory = prev.mainCategory.filter(cat => cat !== filter.value);
+                              if (filter.key === 'brands') updated.brands = prev.brands.filter(brand => brand !== filter.value);
+                              if (filter.key === 'priceRange') updated.priceRange = '';
+                              if (filter.key === 'search') {
+                                updated.search = '';
+                                setSearchTerm('');
+                              }
+                              return updated;
+                            });
+                            setCurrentPage(1);
+                          }}
+                          className="ml-1 flex items-center justify-center w-4 h-4 rounded-full hover:bg-gray-200 text-gray-500 hover:text-black transition-colors"
+                          title="Remove filter"
+                          type="button"
+                        >
+                          <X className="w-2 h-2" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 {/* Mobile Search Bar */}
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -504,7 +544,8 @@ const Product = () => {
                             )}
                           </div>
                           
-                          <NavLink to={product?._id}>
+                          {/* Hide Shop Now button on mobile */}
+                          <NavLink to={product?._id} className="hidden md:block">
                             <span className="inline-flex items-center text-black text-sm tracking-wide border-b border-gray-300 pb-1 hover:border-black transition-all duration-300 cursor-pointer">
                               SHOP NOW
                               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

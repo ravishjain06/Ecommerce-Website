@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { BsCart2 } from 'react-icons/bs'
 import { CiHeart, CiUser, CiSearch } from 'react-icons/ci'
 import { HiMenu, HiX } from 'react-icons/hi'
 import { useSelector } from 'react-redux'
 import { Button } from '../../components/ui/button'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const navLinks = [
     { to: '/product?clothing=mens', label: 'Men' },
@@ -26,8 +27,14 @@ const Navbar = () => {
     const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
     console.log(isAuthenticated)
 
+    const location = useLocation();
 
-    
+    // Helper to get current clothing param
+    const getActiveClothing = () => {
+        const params = new URLSearchParams(location.search);
+        return params.get('clothing');
+    };
+    const activeClothing = getActiveClothing();
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -64,21 +71,26 @@ const Navbar = () => {
 
                     {/* Navigation Items - Desktop */}
                     <div className="hidden lg:flex items-center gap-8 ml-12">
-                        {navLinks.map(link => (
-                            <NavLink
-                                key={link.to}
-                                to={link.to}
-                                className={({ isActive }) => 
-                                    `text-sm font-light tracking-wide transition-all duration-300 py-2 relative ${
-                                        isActive 
-                                            ? 'text-black border-b-2 border-black' 
-                                            : 'text-gray-600 hover:text-black'
-                                    }`
-                                }
-                            >
-                                {link.label}
-                            </NavLink>
-                        ))}
+                        {navLinks.map(link => {
+                            // Extract clothing value from link.to
+                            const clothingValue = new URLSearchParams(link.to.split('?')[1]).get('clothing');
+                            const isActive = activeClothing === clothingValue;
+                            return (
+                                <NavLink
+                                    key={link.to}
+                                    to={link.to}
+                                    className={
+                                        `text-sm font-light tracking-wide transition-all duration-300 py-2 relative ${
+                                            isActive
+                                                ? 'text-black border-b-2 border-black'
+                                                : 'text-gray-600 hover:text-black'
+                                        }`
+                                    }
+                                >
+                                    {link.label}
+                                </NavLink>
+                            );
+                        })}
                     </div>
 
            
@@ -98,15 +110,11 @@ const Navbar = () => {
                             <div className="hidden md:flex gap-2 items-center">
                                 <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
                                     <CiHeart className="text-xl text-gray-700" />
-                                    <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                        3
-                                    </span>
+                                   
                                 </button>
                                 <NavLink to={"/cart"} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
                                     <BsCart2 className="text-xl text-gray-700" />
-                                    <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                        2
-                                    </span>
+                                
                                 </NavLink>
                                 <NavLink to={"/profile"} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300">
                                     <CiUser className="text-xl text-gray-700" />
@@ -155,106 +163,114 @@ const Navbar = () => {
             </div>
 
             {/* Mobile Sidebar Menu */}
-            {isMobileMenuOpen && (
-                <>
-                    {/* Overlay */}
-                    <div
-                        className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden"
-                        onClick={toggleMobileMenu}
-                    ></div>
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <>
+                        {/* Overlay */}
+                        <div
+                            className="fixed inset-0 bg-[#0000005e] bg-opacity-50 z-50 lg:hidden"
+                            onClick={toggleMobileMenu}
+                        ></div>
 
-                    {/* Sidebar */}
-                    <div className="fixed top-0 right-0 h-full w-80 bg-white z-50 shadow-2xl lg:hidden flex flex-col">
-                        
-                        {/* Sidebar Header */}
-                        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-                            <h1 className='text-xl font-light tracking-wide text-black'>MENU</h1>
-                            <button
-                                onClick={toggleMobileMenu}
-                                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
-                            >
-                                <HiX className="text-xl text-gray-700" />
-                            </button>
-                        </div>
-
-                        {/* Sidebar Content */}
-                        <div className="flex-1 overflow-y-auto">
+                        {/* Sidebar with animation */}
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'tween', duration: 0.35 }}
+                            className="fixed top-0 right-0 h-full w-80 bg-white z-50 shadow-2xl lg:hidden flex flex-col"
+                        >
                             
-                            {/* Navigation Links */}
-                            <div className="p-6 border-b border-gray-200">
-                                <h3 className="text-xs font-medium tracking-[0.2em] text-gray-500 uppercase mb-4">
-                                    Categories
-                                </h3>
-                                <div className="space-y-3">
-                                    {navLinks.map(link => (
-                                        <NavLink
-                                            key={link.to}
-                                            to={link.to}
-                                            className="block text-gray-700 hover:text-black font-light transition-colors duration-300 py-2"
-                                            onClick={toggleMobileMenu}
-                                        >
-                                            {link.label}
-                                        </NavLink>
-                                    ))}
-                                </div>
+                            {/* Sidebar Header */}
+                            <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+                                <h1 className='text-xl font-light tracking-wide text-black'>MENU</h1>
+                                <button
+                                    onClick={toggleMobileMenu}
+                                    className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
+                                >
+                                    <HiX className="text-xl text-gray-700" />
+                                </button>
                             </div>
 
-                            {/* Account Section */}
-                            {isAuthenticated && (
+                            {/* Sidebar Content */}
+                            <div className="flex-1 overflow-y-auto">
+                                
+                                {/* Navigation Links */}
                                 <div className="p-6 border-b border-gray-200">
                                     <h3 className="text-xs font-medium tracking-[0.2em] text-gray-500 uppercase mb-4">
-                                        Account
+                                        Categories
                                     </h3>
                                     <div className="space-y-3">
-                                        {accountLinks.map(link => (
+                                        {navLinks.map(link => (
                                             <NavLink
                                                 key={link.to}
                                                 to={link.to}
-                                                className="flex items-center gap-3 text-gray-700 hover:text-black font-light transition-colors duration-300 py-2"
+                                                className="block text-gray-700 hover:text-black font-light transition-colors duration-300 py-2"
                                                 onClick={toggleMobileMenu}
                                             >
-                                                {link.icon}
                                                 {link.label}
                                             </NavLink>
                                         ))}
                                     </div>
                                 </div>
-                            )}
 
-                            {/* Auth Buttons for Mobile */}
-                            {!isAuthenticated && (
+                                {/* Account Section */}
+                                {isAuthenticated && (
+                                    <div className="p-6 border-b border-gray-200">
+                                        <h3 className="text-xs font-medium tracking-[0.2em] text-gray-500 uppercase mb-4">
+                                            Account
+                                        </h3>
+                                        <div className="space-y-3">
+                                            {accountLinks.map(link => (
+                                                <NavLink
+                                                    key={link.to}
+                                                    to={link.to}
+                                                    className="flex items-center gap-3 text-gray-700 hover:text-black font-light transition-colors duration-300 py-2"
+                                                    onClick={toggleMobileMenu}
+                                                >
+                                                    {link.icon}
+                                                    {link.label}
+                                                </NavLink>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Auth Buttons for Mobile */}
+                                {!isAuthenticated && (
+                                    <div className="p-6 ">
+                                        <div className="space-y-3">
+                                            <NavLink to="/auth/login" onClick={toggleMobileMenu}>
+                                                <Button className="w-full mb-2 bg-black hover:bg-gray-800 text-white font-light py-3 text-sm tracking-wide transition-all duration-300">
+                                                    LOGIN
+                                                </Button>
+                                            </NavLink>
+                                            <NavLink to="/auth/register" onClick={toggleMobileMenu}>
+                                                <Button className="w-full mb- bg-white hover:bg-gray-50 text-black border border-gray-300 font-light py-3 text-sm tracking-wide transition-all duration-300">
+                                                    SIGN UP
+                                                </Button>
+                                            </NavLink>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Quick Links */}
                                 <div className="p-6">
-                                    <div className="space-y-3">
-                                        <NavLink to="/auth/login" onClick={toggleMobileMenu}>
-                                            <Button className="w-full bg-black hover:bg-gray-800 text-white font-light py-3 text-sm tracking-wide transition-all duration-300">
-                                                LOGIN
-                                            </Button>
-                                        </NavLink>
-                                        <NavLink to="/auth/register" onClick={toggleMobileMenu}>
-                                            <Button className="w-full bg-white hover:bg-gray-50 text-black border border-gray-300 font-light py-3 text-sm tracking-wide transition-all duration-300">
-                                                SIGN UP
-                                            </Button>
-                                        </NavLink>
+                                    <h3 className="text-xs font-medium tracking-[0.2em] text-gray-500 uppercase mb-4">
+                                        Quick Links
+                                    </h3>
+                                    <div className="space-y-3 text-sm">
+                                        <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Track Order</a>
+                                        <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Size Guide</a>
+                                        <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Contact Us</a>
+                                        <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Help Center</a>
                                     </div>
                                 </div>
-                            )}
-
-                            {/* Quick Links */}
-                            <div className="p-6">
-                                <h3 className="text-xs font-medium tracking-[0.2em] text-gray-500 uppercase mb-4">
-                                    Quick Links
-                                </h3>
-                                <div className="space-y-3 text-sm">
-                                    <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Track Order</a>
-                                    <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Size Guide</a>
-                                    <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Contact Us</a>
-                                    <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Help Center</a>
-                                </div>
                             </div>
-                        </div>
-                    </div>
-                </>
-            )}
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
 
             <Outlet />
         </div>

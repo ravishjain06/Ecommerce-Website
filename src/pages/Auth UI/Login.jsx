@@ -28,7 +28,7 @@ const Login = () => {
         dispatch(setAccessToken(res?.data?.accessToken));
         navigate('/');
       } else if (res?.error) {
-        toast.error(res?.error?.data?.message || 'Login failed!')
+        toast.error(res?.error?.data?.message)
       }
     } catch (error) {
       toast.error('Login failed. Please try again.')

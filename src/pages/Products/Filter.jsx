@@ -214,23 +214,6 @@ const Filter = ({
             />
           </div>
 
-          {/* Mobile Action Buttons */}
-          <div className="p-6 border-t border-gray-200 bg-gray-50">
-            <div className="flex gap-4">
-              <button
-                onClick={clearAllFilters}
-                className="flex-1 border border-gray-300 text-gray-700 font-medium py-3 hover:bg-gray-100 transition-colors duration-300 text-sm tracking-wide"
-              >
-                CLEAR ALL
-              </button>
-              <button
-                onClick={applyFilters}
-                className="flex-1 bg-black text-white font-medium py-3 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide"
-              >
-                APPLY FILTERS
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </>
@@ -255,26 +238,7 @@ const FilterContent = ({
 }) => {
   return (
     <div className="space-y-8">
-      
-      {/* Search Input */}
-      <div>
-        <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] mb-4'>
-          Search Products
-        </h3>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={selectedFilters.search}
-            onChange={e => setSelectedFilters(prev => ({
-              ...prev,
-              search: e.target.value
-            }))}
-            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm"
-          />
-        </div>
-      </div>
+  
 
       {/* Category Filter */}
       <div className="border-b border-gray-200 pb-6">
@@ -423,23 +387,8 @@ const FilterContent = ({
         )}
       </div>
 
-      {/* Desktop Action Buttons */}
-      {!isMobile && (
-        <div className="pt-6 space-y-3">
-          <button
-            onClick={applyFilters}
-            className="w-full bg-black text-white font-medium py-3 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide"
-          >
-            APPLY FILTERS
-          </button>
-          <button
-            onClick={clearAllFilters}
-            className="w-full border border-gray-300 text-gray-700 font-medium py-3 hover:bg-gray-50 transition-colors duration-300 text-sm tracking-wide"
-          >
-            CLEAR ALL
-          </button>
-        </div>
-      )}
+     
+    
     </div>
   )
 }

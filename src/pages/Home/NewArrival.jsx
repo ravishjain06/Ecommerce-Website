@@ -22,8 +22,8 @@ const NewArrival = () => {
         
         {/* Section Header */}
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
@@ -43,24 +43,39 @@ const NewArrival = () => {
           {products.map((product, index) => (
             <motion.div
               key={product.name}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.2 + index * 0.15 }}
               className="group relative bg-white border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300"
             >
               {/* Product Image */}
-              <div className="relative overflow-hidden aspect-square">
+              <motion.div
+                initial={{ scale: 0.96, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, delay: 0.3 + index * 0.15 }}
+                className="relative overflow-hidden aspect-square"
+              >
                 <img 
                   src={product.src} 
                   alt={product.alt}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-black/5 group-hover:bg-black/10 transition-all duration-300"></div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.4, delay: 0.45 + index * 0.15 }}
+                  className="absolute inset-0 bg-black/5 group-hover:bg-black/10 transition-all duration-300"
+                ></motion.div>
                 
                 {/* Hover Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div
+                  className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                >
                   <button
-                    className="bg-white text-black px-4 py-2 text-sm font-medium tracking-wide hover:bg-gray-100 transition-colors duration-200"
+                    className="bg-white cursor-pointer text-black px-4 py-2 text-sm font-medium tracking-wide hover:bg-gray-100 transition-colors duration-200"
                     onClick={() => handleQuickView(product.name)}
                   >
                     QUICK VIEW
@@ -68,39 +83,37 @@ const NewArrival = () => {
                 </div>
 
                 {/* New Badge */}
-                <div className="absolute top-3 left-3 bg-black text-white px-2 py-1 text-xs font-medium tracking-wide">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.4, delay: 0.65 + index * 0.15 }}
+                  className="absolute top-3 left-3 bg-black text-white px-2 py-1 text-xs font-medium tracking-wide"
+                >
                   NEW
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
 
               {/* Product Info */}
-              <div className="p-4 space-y-2">
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, delay: 0.8 + index * 0.15 }}
+                className="p-4 space-y-2"
+              >
                 <h3 className="text-base font-light text-black tracking-wide uppercase">
                   {product.name}
                 </h3>
                 <p className="text-sm text-gray-600 font-light">
                   {product.price}
                 </p>
-              </div>
-
-              {/* Geometric Accent */}
-              <div className="absolute top-3 right-3 w-6 h-6 border border-gray-300 opacity-50"></div>
+              </motion.div>
             </motion.div>
           ))}
         </div>
 
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-center mt-12 pt-8 border-t border-gray-200"
-        >
-          <p className="text-gray-600 font-light mb-6 max-w-xl mx-auto">
-            Discover our latest pieces crafted with precision and attention to detail
-          </p>
-   
-        </motion.div>
+      
 
       </div>
     </section>

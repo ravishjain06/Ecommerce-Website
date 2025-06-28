@@ -1,7 +1,10 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom' // <-- Add this
 
 const TopBrand = () => {
+  const navigate = useNavigate(); // <-- Add this
+
   const brands = [
     {
       id: 1,
@@ -36,10 +39,15 @@ const TopBrand = () => {
     {
       id: 6,
       name: "Uniqlo",
-      logo: "/uniqlo-logo.jpg",
+      logo: "/uniqlo-logo.png",
       description: "LifeWear"
     }
   ]
+
+  // Handler for brand click
+  const handleBrandClick = (brandName) => {
+    navigate(`/product?brandName=${encodeURIComponent(brandName)}`);
+  };
 
   return (
     <section className="bg-gray-50 py-16 px-4 lg:px-8">
@@ -47,8 +55,8 @@ const TopBrand = () => {
         
         {/* Section Header */}
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
@@ -71,30 +79,50 @@ const TopBrand = () => {
           {brands.map((brand, index) => (
             <motion.div
               key={brand.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.2 + index * 0.15 }}
               className="group relative bg-white border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+              onClick={() => handleBrandClick(brand.name)}
             >
               {/* Brand Logo Container */}
-              <div className="relative aspect-square p-8 flex items-center justify-center">
+              <motion.div
+                initial={{ scale: 0.96, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, delay: 0.3 + index * 0.15 }}
+                className="relative aspect-square p-8 flex items-center justify-center"
+              >
                 <img 
                   src={brand.logo} 
                   alt={brand.name}
                   className="h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300"></div>
-              </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.4, delay: 0.45 + index * 0.15 }}
+                  className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300"
+                ></motion.div>
+              </motion.div>
 
               {/* Brand Info */}
-              <div className="p-4 border-t border-gray-100">
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, delay: 0.8 + index * 0.15 }}
+                className="p-4 border-t border-gray-100"
+              >
                 <h3 className="text-sm font-medium text-black tracking-wide uppercase text-center">
                   {brand.name}
                 </h3>
                 <p className="text-xs text-gray-500 text-center mt-1 font-light">
                   {brand.description}
                 </p>
-              </div>
+              </motion.div>
 
               {/* Hover Overlay */}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/10">
@@ -102,17 +130,14 @@ const TopBrand = () => {
                   SHOP {brand.name.toUpperCase()}
                 </span>
               </div>
-
-              {/* Geometric Accent */}
-              <div className="absolute top-2 right-2 w-4 h-4 border border-gray-300 opacity-30"></div>
             </motion.div>
           ))}
         </div>
 
         {/* Featured Deal Section */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.7 }}
           className="bg-white border border-gray-200 rounded-lg overflow-hidden"
         >
@@ -156,8 +181,8 @@ const TopBrand = () => {
 
         {/* Brand Stats */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.9 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 pt-12 border-t border-gray-200"
         >
@@ -167,14 +192,21 @@ const TopBrand = () => {
             { number: "95%", label: "Customer Satisfaction" },
             { number: "24/7", label: "Brand Support" }
           ].map((stat, index) => (
-            <div key={index} className="text-center">
+            <motion.div
+              key={index}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6, delay: 1 + index * 0.2 }}
+              className="text-center"
+            >
               <div className="text-2xl md:text-3xl font-light text-black">
                 {stat.number}
               </div>
               <div className="text-sm text-gray-600 font-light mt-1">
                 {stat.label}
               </div>
-            </div>
+            </motion.div>
           ))}
         </motion.div>
 

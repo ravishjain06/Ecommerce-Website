@@ -138,32 +138,7 @@ const Footer = () => {
           </motion.div>
         </div>
 
-        {/* App Download Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="border-t border-gray-800 pt-12 mb-12"
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <h3 className="text-xl font-light text-white mb-4">
-                Download Our App
-              </h3>
-              <p className="text-gray-400 font-light text-sm mb-6">
-                Shop on the go with exclusive app-only deals and early access to new collections.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <a href="#" className="flex items-center bg-gray-900 border border-gray-700 px-6 py-3 hover:border-white transition-colors duration-300">
-                <img src="/google-play.png" alt="Google Play" className="h-8 w-auto"/>
-              </a>
-              <a href="#" className="flex items-center bg-gray-900 border border-gray-700 px-6 py-3 hover:border-white transition-colors duration-300">
-                <img src="/app-store.png" alt="App Store" className="h-8 w-auto"/>
-              </a>
-            </div>
-          </div>
-        </motion.div>
+     
 
         {/* Bottom Section */}
         <motion.div
