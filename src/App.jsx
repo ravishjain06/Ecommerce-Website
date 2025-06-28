@@ -16,6 +16,7 @@ import AddProduct from './pages/Seller/AddProduct';
 import Order from './pages/Dashboard/Order';
 import Checkout from './pages/Dashboard/Checkout';
 import SuccessPage from './pages/Home/SuccessPage';
+import Whishlist from './pages/Dashboard/Whishlist';
 
 function App() {
   return (
@@ -39,8 +40,9 @@ function App() {
           <Route path="cart" element={<CartPage />} />
           <Route path="add-product" element={<AddProduct />} />
           <Route path="orders" element={<Order />} />
-          <Route path="check-out" element={<Checkout />} />
+          <Route path="check-out" element={<Checkout />} />                  
           <Route path="success" element={<SuccessPage />} />
+          <Route path="wishlist" element={<Whishlist />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -108,10 +108,9 @@ const Navbar = () => {
 
                         {isAuthenticated ? (
                             <div className="hidden md:flex gap-2 items-center">
-                                <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
+                                <NavLink to={"/wishlist"} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
                                     <CiHeart className="text-xl text-gray-700" />
-                                   
-                                </button>
+                                </NavLink>
                                 <NavLink to={"/cart"} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
                                     <BsCart2 className="text-xl text-gray-700" />
                                 

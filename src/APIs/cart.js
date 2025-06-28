@@ -47,6 +47,14 @@ export const cartApi = createApi({
             }),
             invalidatesTags: ['Cart'], // Automatically refetch cart data
         }),
+        applyCoupon: builder.mutation({
+            query: (coupon) => ({
+                url: `apply-coupon`,
+                method: "POST",
+                body: { coupon },
+            }),
+            invalidatesTags: ['Cart'],
+        }),
     })
 })
 
@@ -54,5 +62,6 @@ export const {
     useAddToCartMutation,
     useGetCartQuery,
     useRemoveFromCartMutation,
-    useUpdateQuantityMutation
+    useUpdateQuantityMutation,
+    useApplyCouponMutation
 } = cartApi

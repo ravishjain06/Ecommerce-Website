@@ -4,6 +4,7 @@ import { useGetProductByIdQuery } from '../../APIs/product'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useAddToCartMutation } from '../../APIs/cart'
+import { useWishlistAddMutation, useGetWishlistQuery, useWishlistRemoveMutation } from '../../APIs/product'
 
 const ProductDetail = () => {
     const [selectedImage, setSelectedImage] = useState(0)
@@ -37,6 +38,10 @@ const ProductDetail = () => {
     const navigate = useNavigate()
 
     const [addToCart, { data: cartData, isLoading, isError }] = useAddToCartMutation()
+    const [addToWishlist, { isLoading: isWishlistLoading }] = useWishlistAddMutation();
+    const [removeFromWishlist, { isLoading: isRemoveLoading }] = useWishlistRemoveMutation();
+    const { data: wishlistData, refetch: refetchWishlist } = useGetWishlistQuery();
+    const wishlistIds = wishlistData?.wishlist?.map(p => p._id) || [];
 
     useEffect(() => {
         if (cartData) {
@@ -251,9 +256,21 @@ const ProductDetail = () => {
                                 </button>
 
                                 <div className='grid grid-cols-2 gap-4'>
-                                    <button className='flex items-center justify-center space-x-2 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm font-medium tracking-wide'>
+                                    <button
+                                        className={`flex items-center justify-center space-x-2 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm font-medium tracking-wide ${wishlistIds.includes(id) ? 'text-red-500 border-red-300 bg-red-50' : ''}`}
+                                        onClick={async () => {
+                                          if (!wishlistIds.includes(id)) {
+                                            await addToWishlist({ productId: id });
+                                          } else {
+                                            await removeFromWishlist({ productId: id });
+                                          }
+                                          refetchWishlist();
+                                        }}
+                                        disabled={isWishlistLoading || isRemoveLoading}
+                                        type="button"
+                                    >
                                         <HeartIcon className='h-4 w-4' />
-                                        <span>WISHLIST</span>
+                                        <span>{wishlistIds.includes(id) ? (isRemoveLoading ? 'REMOVING...' : 'REMOVE WISHLIST') : (isWishlistLoading ? 'ADDING...' : 'WISHLIST')}</span>
                                     </button>
                                     <button className='flex items-center justify-center space-x-2 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm font-medium tracking-wide'>
                                         <ShareIcon className='h-4 w-4' />

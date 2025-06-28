@@ -3,12 +3,14 @@ import { ChevronRightIcon, CreditCardIcon, TruckIcon, ShieldCheckIcon, CheckCirc
 import { useCreateOrderMutation } from '../../APIs/order'
 import { useGetCartQuery } from '../../APIs/cart'
 import { useSelector } from 'react-redux'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 const Checkout = () => {
   const user = useSelector(state => state.auth.user)
   const { data: cartData } = useGetCartQuery()
   const [createOrder, { isLoading }] = useCreateOrderMutation()
+  const navigate = useNavigate()
 
   const [billingDetails, setBillingDetails] = useState({
     firstName: '',
@@ -22,6 +24,7 @@ const Checkout = () => {
   })
 
   const [paymentMethod, setPaymentMethod] = useState('CashOnDelivery')
+  const [missingFields, setMissingFields] = useState([])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -33,22 +36,17 @@ const Checkout = () => {
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault()
-    
-    // Validate form
     const requiredFields = ['firstName', 'lastName', 'street', 'address', 'city', 'state', 'postalCode', 'phone']
-    const missingFields = requiredFields.filter(field => !billingDetails[field])
-    
-    if (missingFields.length > 0) {
-      alert(`Please fill in all required fields: ${missingFields.join(', ')}`)
+    const missing = requiredFields.filter(field => !billingDetails[field])
+    setMissingFields(missing)
+    if (missing.length > 0) {
+      window.scrollTo({ top: 250, behavior: 'smooth' })
       return
     }
-
-    // Check if cart has items
     if (!cart?.items || cart.items.length === 0) {
-      alert('Your cart is empty')
+      toast.error('Your cart is empty')
       return
     }
-
     try {
       const shippingAddress = {
         firstname: billingDetails.firstName,
@@ -60,7 +58,6 @@ const Checkout = () => {
         postalCode: billingDetails.postalCode,
         phone: billingDetails.phone
       }
-
       const orderData = {
         shippingAddress,
         paymentMethod,
@@ -73,11 +70,8 @@ const Checkout = () => {
       console.log('Order created:', result)
 
       if (paymentMethod === 'CashOnDelivery') {
-        alert(`Order placed successfully! Order ID: ${result.orderId}. You will pay on delivery.`)
-        
-        // Optional: Navigate to order success page
-        // navigate(`/order-success/${result.orderId}`)
-        
+        toast.success(`Order placed successfully!`)
+        navigate('/orders')
       } else if (paymentMethod === 'Stripe') {
         // Handle Stripe checkout redirection
         if (result.success && result.checkoutUrl) {
@@ -93,7 +87,7 @@ const Checkout = () => {
           window.location.href = result.checkoutUrl
           
         } else {
-          throw new Error('No Stripe checkout URL received from server')
+          toast.error('No Stripe checkout URL received from server')
         }
       }
       
@@ -102,11 +96,11 @@ const Checkout = () => {
       
       // Enhanced error handling
       if (error.data) {
-        alert(`Order failed: ${error.data.message || 'Unknown server error'}`)
+        toast.error(`Order failed: ${error.data.message || 'Unknown server error'}`)
       } else if (error.message) {
-        alert(`Order failed: ${error.message}`)
+        toast.error(`Order failed: ${error.message}`)
       } else {
-        alert('Failed to place order. Please try again.')
+        toast.error('Failed to place order. Please try again.')
       }
     }
   }
@@ -119,16 +113,7 @@ const Checkout = () => {
       <div className='max-w-7xl mx-auto'>
         <div className='bg-white'>
           
-          {/* Breadcrumb */}
-          <div className='px-4 md:px-8 py-6 border-b border-gray-200'>
-            <div className='flex items-center text-sm text-gray-500 font-light'>
-              <NavLink to="/" className='hover:text-black transition-colors cursor-pointer'>Home</NavLink>
-              <ChevronRightIcon className='h-3 w-3 mx-3' />
-              <NavLink to="/cart" className='hover:text-black transition-colors cursor-pointer'>Cart</NavLink>
-              <ChevronRightIcon className='h-3 w-3 mx-3' />
-              <span className='text-black font-medium'>Checkout</span>
-            </div>
-          </div>
+ 
 
           <div className='p-4 md:p-6 lg:p-8'>
             
@@ -172,7 +157,7 @@ const Checkout = () => {
                           name='firstName'
                           type='text'
                           placeholder="Enter your first name"
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm"
+                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('firstName') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
                           value={billingDetails.firstName}
                           onChange={handleInputChange}
                           required
@@ -187,7 +172,7 @@ const Checkout = () => {
                           name='lastName'
                           type='text'
                           placeholder="Enter your last name"
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm"
+                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('lastName') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
                           value={billingDetails.lastName}
                           onChange={handleInputChange}
                           required
@@ -205,7 +190,7 @@ const Checkout = () => {
                         name='street'
                         type='text'
                         placeholder="Enter your street address"
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm"
+                        className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('street') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
                         value={billingDetails.street}
                         onChange={handleInputChange}
                         required
@@ -222,7 +207,7 @@ const Checkout = () => {
                         name='address'
                         type='text'
                         placeholder="Apartment, suite, etc. (optional)"
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm"
+                        className={`w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
                         value={billingDetails.address}
                         onChange={handleInputChange}
                       />
@@ -239,7 +224,7 @@ const Checkout = () => {
                           name='city'
                           type='text'
                           placeholder="Enter your city"
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm"
+                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('city') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
                           value={billingDetails.city}
                           onChange={handleInputChange}
                           required
@@ -254,7 +239,7 @@ const Checkout = () => {
                           name='state'
                           type='text'
                           placeholder="Enter your state"
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm"
+                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('state') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
                           value={billingDetails.state}
                           onChange={handleInputChange}
                           required
@@ -269,7 +254,7 @@ const Checkout = () => {
                           name='postalCode'
                           type='text'
                           placeholder="Enter postal code"
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm"
+                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('postalCode') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
                           value={billingDetails.postalCode}
                           onChange={handleInputChange}
                           required
@@ -287,7 +272,7 @@ const Checkout = () => {
                         name='phone'
                         type='tel'
                         placeholder="Enter your phone number"
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm"
+                        className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('phone') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
                         value={billingDetails.phone}
                         onChange={handleInputChange}
                         required

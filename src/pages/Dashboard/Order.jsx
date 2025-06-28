@@ -16,9 +16,9 @@ const Order = () => {
   const getStatusDisplay = (status) => {
     switch (status?.toLowerCase()) {
       case 'processing':
-        return { icon: ClockIcon, color: 'text-yellow-600', bg: 'bg-yellow-50', text: 'Processing' }
+        return { icon: ClockIcon, color: 'text-blue-700', bg: 'bg-blue-100', text: 'Processing' } // Changed to blue
       case 'shipped':
-        return { icon: TruckIcon, color: 'text-blue-600', bg: 'bg-blue-50', text: 'Shipped' }
+        return { icon: TruckIcon, color: 'text-indigo-600', bg: 'bg-indigo-50', text: 'Shipped' } // Slightly different
       case 'delivered':
         return { icon: CheckCircleIcon, color: 'text-green-600', bg: 'bg-green-50', text: 'Delivered' }
       case 'cancelled':
@@ -34,7 +34,7 @@ const Order = () => {
       case 'paid':
         return { color: 'text-green-600', bg: 'bg-green-50', text: 'Paid' }
       case 'pending':
-        return { color: 'text-yellow-600', bg: 'bg-yellow-50', text: 'Pending' }
+        return { color: 'text-blue-700', bg: 'bg-blue-100', text: 'Pending' } // Changed to blue
       case 'failed':
         return { color: 'text-red-600', bg: 'bg-red-50', text: 'Failed' }
       default:
@@ -64,7 +64,7 @@ const Order = () => {
           </div>
           <h3 className="text-xl font-light text-black mb-2 tracking-wide">Error loading orders</h3>
           <p className='text-gray-600 font-light mb-6'>Unable to load your orders right now</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="bg-black text-white font-medium px-6 py-3 hover:bg-gray-800 transition-colors text-sm tracking-wide"
           >
@@ -80,21 +80,15 @@ const Order = () => {
       <div className='min-h-screen bg-gray-50'>
         <div className='max-w-7xl mx-auto'>
           <div className='bg-white'>
-            <div className='px-4 md:px-8 py-6 border-b border-gray-200'>
-              <div className='flex items-center text-sm text-gray-500 font-light'>
-                <NavLink to="/" className='hover:text-black transition-colors cursor-pointer'>Home</NavLink>
-                <ChevronRightIcon className='h-3 w-3 mx-3' />
-                <NavLink to="/dashboard" className='hover:text-black transition-colors cursor-pointer'>Dashboard</NavLink>
-                <ChevronRightIcon className='h-3 w-3 mx-3' />
-                <span className='text-black font-medium'>My Orders</span>
-              </div>
-            </div>
             <div className='p-4 md:p-6 lg:p-8'>
               <div className='mb-16'>
                 <p className="text-xs font-medium tracking-[0.3em] text-gray-500 uppercase mb-2">Order Management</p>
                 <h1 className='text-3xl md:text-4xl lg:text-5xl font-light text-black mb-4'>
                   My<span className="block font-extralight text-gray-600">Orders</span>
                 </h1>
+                <p className="text-gray-600 font-light mb-6 max-w-2xl">
+                  Track and manage your orders, view order history, and download invoices.
+                </p>
               </div>
               <div className='text-center py-16'>
                 <div className="mb-6">
@@ -121,17 +115,7 @@ const Order = () => {
     <div className='min-h-screen bg-gray-50'>
       <div className='max-w-7xl mx-auto'>
         <div className='bg-white'>
-          {/* Breadcrumb */}
-          <div className='px-4 md:px-8 py-6 border-b border-gray-200'>
-            <div className='flex items-center text-sm text-gray-500 font-light'>
-              <NavLink to="/" className='hover:text-black transition-colors cursor-pointer'>Home</NavLink>
-              <ChevronRightIcon className='h-3 w-3 mx-3' />
-              <NavLink to="/dashboard" className='hover:text-black transition-colors cursor-pointer'>Dashboard</NavLink>
-              <ChevronRightIcon className='h-3 w-3 mx-3' />
-              <span className='text-black font-medium'>My Orders</span>
-            </div>
-          </div>
-
+    
           <div className='p-4 md:p-6 lg:p-8'>
             {/* Page Header */}
             <div className='mb-16'>
@@ -158,14 +142,17 @@ const Order = () => {
                         </div>
                         <div>
                           <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>Order Date</p>
-                          <p className='text-sm text-gray-700'>{new Date(order.createdAt).toLocaleDateString()}</p>
+                          <p className='text-sm text-gray-700'>{(() => {
+                            const d = new Date(order.createdAt);
+                            return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+                          })()}</p>
                         </div>
                         <div>
                           <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>Total Amount</p>
                           <p className='font-medium text-black text-sm'>₹{order.totalAmount.toLocaleString()}</p>
                         </div>
                       </div>
-                      
+
                       <div className='flex items-center gap-3'>
                         {/* Order Status */}
                         <div className={`px-3 py-1 rounded-full ${getStatusDisplay(order.orderStatus).bg} flex items-center gap-2`}>
@@ -176,7 +163,7 @@ const Order = () => {
                             {getStatusDisplay(order.orderStatus).text}
                           </span>
                         </div>
-                        
+
                         {/* Payment Status */}
                         <div className={`px-3 py-1 rounded-full ${getPaymentDisplay(order.paymentStatus).bg}`}>
                           <span className={`text-xs font-medium ${getPaymentDisplay(order.paymentStatus).color}`}>
@@ -192,23 +179,31 @@ const Order = () => {
                     <div className='space-y-4'>
                       {order.products.map((item) => (
                         <div key={item._id} className='flex items-center gap-4 p-4 bg-gray-50 rounded-lg'>
-                          {/* Product Image */}
-                          <div className='w-16 h-16 bg-white border border-gray-200 rounded-lg overflow-hidden flex-shrink-0'>
-                            <img 
+                          {/* Product Image (clickable) */}
+                          <NavLink
+                            to={`/product/${item.productId._id}`}
+                            className='w-16 h-16 bg-white border border-gray-200 rounded-lg overflow-hidden flex-shrink-0 block group'
+                            title='View Product'
+                          >
+                            <img
                               src={item.productId.img || item.productId.image?.[0] || '/public/jackets.jpg'}
                               alt={item.productId.name}
-                              className='w-full h-full object-cover'
+                              className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
                               onError={(e) => {
                                 e.target.src = "/public/jackets.jpg";
                               }}
                             />
-                          </div>
+                          </NavLink>
 
-                          {/* Product Details */}
+                          {/* Product Details (title clickable) */}
                           <div className='flex-1 min-w-0'>
-                            <h3 className='font-medium text-black text-sm mb-1 truncate'>
+                            <NavLink
+                              to={`/product/${item.productId._id}`}
+                              className='font-medium text-black text-sm mb-1 truncate block hover:underline'
+                              title='View Product'
+                            >
                               {item.productId.name}
-                            </h3>
+                            </NavLink>
                             <p className='text-xs text-gray-600 uppercase tracking-wide mb-1'>
                               {item.productId.brandName}
                             </p>
@@ -245,25 +240,17 @@ const Order = () => {
                             <p>Phone: {order.shippingAddress.phone}</p>
                           </div>
                         </div>
-                        
+
                         <div>
                           <h4 className='text-xs text-gray-500 uppercase tracking-wider mb-2'>Payment Method</h4>
-                          <p className='text-sm text-gray-700 font-medium'>{order.paymentMethod}</p>
+                          <p className='text-sm text-gray-700 font-medium'>
+                            {order.paymentMethod === 'CashOnDelivery' ? 'Cash On Delivery' : order.paymentMethod}
+                          </p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Order Actions */}
-                    <div className='mt-6 pt-6 border-t border-gray-100 flex justify-end gap-3'>
-                      <button className='px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors'>
-                        View Details
-                      </button>
-                      {order.orderStatus.toLowerCase() === 'delivered' && (
-                        <button className='px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 transition-colors'>
-                          Download Invoice
-                        </button>
-                      )}
-                    </div>
+                 
                   </div>
                 </div>
               ))}

@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import Filter from './Filter'
 import { SlidersHorizontalIcon, Search, X } from 'lucide-react'
-import { useAllProductQuery, useFilterProductQuery } from '../../APIs/product'
+import { useAllProductQuery, useFilterProductQuery, useGetWishlistQuery, useWishlistAddMutation, useWishlistRemoveMutation } from '../../APIs/product'
 import { NavLink, useParams, useSearchParams } from 'react-router-dom'
 import { debounce } from 'lodash'
-import { BiLoaderCircle } from "react-icons/bi";
 
 import {
   Pagination,
@@ -241,6 +240,11 @@ const Product = () => {
 
     return items;
   };
+
+  const [addToWishlist] = useWishlistAddMutation();
+  const [removeFromWishlist] = useWishlistRemoveMutation();
+  const { data: wishlistData, refetch: refetchWishlist } = useGetWishlistQuery();
+  const wishlistIds = wishlistData?.wishlist?.map(p => p._id) || [];
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -512,8 +516,21 @@ const Product = () => {
                         )}
 
                         {/* Wishlist Icon */}
-                        <button className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110">
-                          <svg className="w-4 h-4 text-gray-700 hover:text-red-500 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button
+                          className={`absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white hover:scale-110 ${wishlistIds.includes(product._id) ? 'text-red-500' : 'text-gray-700'}`}
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (!wishlistIds.includes(product._id)) {
+                              await addToWishlist({ productId: product._id });
+                            } else {
+                              await removeFromWishlist({ productId: product._id });
+                            }
+                            refetchWishlist();
+                          }}
+                          title={wishlistIds.includes(product._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                          type="button"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                           </svg>
                         </button>

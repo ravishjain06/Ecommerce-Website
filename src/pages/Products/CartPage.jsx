@@ -1,8 +1,8 @@
 import React from 'react'
 import { ChevronRightIcon, MinusIcon, PlusIcon, TrashIcon, XIcon } from 'lucide-react'
 import { useSelector } from 'react-redux'
-import { useGetCartQuery, useRemoveFromCartMutation, useUpdateQuantityMutation } from '../../APIs/cart'
 import { NavLink } from 'react-router-dom'
+import { useAddToCartMutation, useGetCartQuery, useRemoveFromCartMutation, useUpdateQuantityMutation, useApplyCouponMutation } from '../../APIs/cart'
 
 const CartPage = () => {
 
@@ -13,6 +13,9 @@ const CartPage = () => {
   // Add mutations
   const [removeFromCart, { isLoading: isRemoving }] = useRemoveFromCartMutation()
   const [updateQuantity, { isLoading: isUpdating }] = useUpdateQuantityMutation()
+  const [applyCoupon, { isLoading: isApplyingCoupon }] = useApplyCouponMutation();
+  
+  const [couponInput, setCouponInput] = React.useState("");
   
   console.log('Cart Data:', cartData)
   console.log('Is Loading:', isLoading)
@@ -101,26 +104,49 @@ const CartPage = () => {
   // Show empty cart
   if (!cart || items.length === 0) {
     return (
-      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
-        <div className='text-center max-w-md mx-auto p-8'>
-          <div className="mb-6">
-            <div className="w-16 h-16 mx-auto bg-gray-100 border border-gray-300 flex items-center justify-center">
-              <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
+      <div className='min-h-screen bg-gray-50'>
+        <div className='max-w-7xl mx-auto'>
+          <div className='bg-white'>
+            <div className='p-4 md:p-6 lg:p-8'>
+              
+              {/* Page Header */}
+              <div className='mb-16'>
+                <p className="text-xs font-medium tracking-[0.3em] text-gray-500 uppercase mb-2">
+                  Shopping Cart
+                </p>
+                <h1 className='text-3xl md:text-4xl lg:text-5xl font-light text-black mb-4'>
+                  Your
+                  <span className="block font-extralight text-gray-600">
+                    Cart
+                  </span>
+                </h1>
+                <p className="text-gray-600 font-light mb-6 max-w-2xl">
+                  Review your selected items and proceed to checkout when ready
+                </p>
+              </div>
+
+              <div className='text-center py-16'>
+                <div className="mb-6">
+                  <div className="w-16 h-16 mx-auto bg-gray-100 border border-gray-300 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 className="text-xl font-light text-black mb-2 tracking-wide">
+                  Your cart is empty
+                </h3>
+                <p className='text-gray-600 font-light mb-6'>
+                  Looks like you haven't added anything to your cart yet
+                </p>
+                <NavLink to="/product">
+                  <button className='bg-black text-white font-medium px-8 py-3 hover:bg-gray-800 transition-colors text-sm tracking-wide'>
+                    CONTINUE SHOPPING
+                  </button>
+                </NavLink>
+              </div>
             </div>
           </div>
-          <h3 className="text-xl font-light text-black mb-2 tracking-wide">
-            Your cart is empty
-          </h3>
-          <p className='text-gray-600 font-light mb-6'>
-            Looks like you haven't added anything to your cart yet
-          </p>
-          <NavLink to="/products">
-            <button className='bg-black text-white font-medium px-8 py-3 hover:bg-gray-800 transition-colors text-sm tracking-wide'>
-              CONTINUE SHOPPING
-            </button>
-          </NavLink>
         </div>
       </div>
     )
@@ -131,14 +157,7 @@ const CartPage = () => {
       <div className='max-w-7xl mx-auto'>
         <div className='bg-white'>
           
-          {/* Breadcrumb */}
-          <div className='px-4 md:px-8 py-6 border-b border-gray-200'>
-            <div className='flex items-center text-sm text-gray-500 font-light'>
-              <NavLink to="/" className='hover:text-black transition-colors cursor-pointer'>Home</NavLink>
-              <ChevronRightIcon className='h-3 w-3 mx-3' />
-              <span className='text-black font-medium'>Shopping Cart ({items.length} items)</span>
-            </div>
-          </div>
+   
 
           <div className='p-4 md:p-6 lg:p-8'>
             
@@ -335,10 +354,24 @@ const CartPage = () => {
                   <input
                     type='text'
                     placeholder='Enter discount code'
+                    value={couponInput}
+                    onChange={e => setCouponInput(e.target.value)}
                     className='flex-1 px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm'
                   />
-                  <button className='px-8 py-3 bg-black text-white hover:bg-gray-800 transition-colors duration-300 text-sm font-medium tracking-wide'>
-                    APPLY
+                  <button
+                    className='px-8 py-3 bg-black text-white hover:bg-gray-800 transition-colors duration-300 text-sm font-medium tracking-wide disabled:opacity-50'
+                    onClick={async () => {
+                      if (!couponInput) return;
+                      try {
+                        await applyCoupon(couponInput).unwrap();
+                        setCouponInput("");
+                      } catch (err) {
+                       console.log(err)
+                      }
+                    }}
+                    disabled={isApplyingCoupon || !couponInput}
+                  >
+                    {isApplyingCoupon ? "Applying..." : "APPLY"}
                   </button>
                 </div>
                 {cart.coupon && (

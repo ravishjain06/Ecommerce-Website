@@ -110,10 +110,32 @@ export const productApi = createApi({
             })
         }),
     
+        // Wishlist endpoints
+        wishlistAdd: builder.mutation({
+            query: ({ productId }) => ({
+                url: '/wishlist/add',
+                method: 'POST',
+                body: { productId },
+            }),
+        }),
+        wishlistRemove: builder.mutation({
+            query: ({ productId }) => ({
+                url: '/wishlist/remove',
+                method: 'POST',
+                body: { productId },
+            }),
+        }),
+        getWishlist: builder.query({
+            query: () => ({
+                url: '/wishlist',
+                method: 'GET',
+            }),
+        }),
  
     })
 })
 
 export const { 
     
-    useAllProductQuery, useFilterProductQuery, useAddProductMutation ,useGetProductByIdQuery } = productApi
+    useAllProductQuery, useFilterProductQuery, useAddProductMutation ,useGetProductByIdQuery,
+    useWishlistAddMutation, useWishlistRemoveMutation, useGetWishlistQuery } = productApi
