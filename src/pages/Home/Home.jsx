@@ -1,5 +1,4 @@
 import React from 'react'
-import Navbar from './Navbar'
 import HeroSection from './HeroSection'
 import FaishonCard from './FaishonCard'
 import NewArrival from './NewArrival'
@@ -9,7 +8,6 @@ import MenCategory from './MenCategory'
 import WomenCategory from './WomenCategory'
 import TopBrand from './TopBrand'
 import Limelight from './Limelight'
-import Footer from './Footer'
 
 const Home = () => {
   return (
@@ -17,12 +15,12 @@ const Home = () => {
       <HeroSection />
       <FaishonCard />
       <NewArrival />
-   
+      {/* <BigSavingZone /> */}
       <MenCategory />
       <WomenCategory />
       <TopBrand />
+      
       <Limelight />
-
     </div>
   )
 }

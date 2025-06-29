@@ -24,7 +24,7 @@ const Footer = () => {
               Your destination for premium clothing that speaks to your style.
             </p>
             <div className="space-y-2 text-sm text-gray-400">
-              <p>support@W E A R E X.in</p>
+              <p>support@wearex.in</p>
               <p>+91 98765 43210</p>
             </div>
           </motion.div>

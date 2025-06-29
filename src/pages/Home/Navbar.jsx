@@ -49,7 +49,7 @@ const Navbar = () => {
             {/* Top Bar */}
             <div className="bg-black text-white text-xs py-2 px-4 md:px-8">
                 <div className="flex justify-between items-center max-w-7xl mx-auto">
-                    <p className="font-light tracking-wide">Free shipping on orders over $99</p>
+                    <p className="font-light tracking-wide">Free shipping on orders over ₹500</p>
                     <div className="hidden md:flex items-center gap-4">
                         <span>Need help? Call +91 98765 43210</span>
                         <span>|</span>
@@ -122,14 +122,14 @@ const Navbar = () => {
                         ) : (
                             <div className='gap-3 hidden md:flex'>
                                 <NavLink to="/auth/login">
-                                    <Button className="bg-black hover:bg-gray-800 text-white font-light px-6 py-2 text-sm tracking-wide transition-all duration-300">
+                                    <button className="bg-black hover:bg-gray-800 text-white font-light px-4 py-1.5 text-xs tracking-wide transition-all duration-300 w-full md:w-auto">
                                         LOGIN
-                                    </Button>
+                                    </button>
                                 </NavLink>
                                 <NavLink to="/auth/register">
-                                    <Button className="bg-white hover:bg-gray-50 text-black border border-gray-300 font-light px-6 py-2 text-sm tracking-wide transition-all duration-300">
+                                    <button className="bg-white hover:bg-gray-50 text-black border border-gray-300 font-light px-4 py-1.5 text-xs tracking-wide transition-all duration-300 w-full md:w-auto">
                                         SIGN UP
-                                    </Button>
+                                    </button>
                                 </NavLink>
                             </div>
                         )}
@@ -240,14 +240,14 @@ const Navbar = () => {
                                     <div className="p-6 ">
                                         <div className="space-y-3">
                                             <NavLink to="/auth/login" onClick={toggleMobileMenu}>
-                                                <Button className="w-full mb-2 bg-black hover:bg-gray-800 text-white font-light py-3 text-sm tracking-wide transition-all duration-300">
+                                                <button className="w-full mb-2 bg-black hover:bg-gray-800 text-white font-light py-3 text-sm tracking-wide transition-all duration-300">
                                                     LOGIN
-                                                </Button>
+                                                </button>
                                             </NavLink>
                                             <NavLink to="/auth/register" onClick={toggleMobileMenu}>
-                                                <Button className="w-full mb- bg-white hover:bg-gray-50 text-black border border-gray-300 font-light py-3 text-sm tracking-wide transition-all duration-300">
+                                                <button className="w-full bg-white hover:bg-gray-50 text-black border border-gray-300 font-light py-3 text-sm tracking-wide transition-all duration-300">
                                                     SIGN UP
-                                                </Button>
+                                                </button>
                                             </NavLink>
                                         </div>
                                     </div>

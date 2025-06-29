@@ -17,6 +17,10 @@ import Order from './pages/Dashboard/Order';
 import Checkout from './pages/Dashboard/Checkout';
 import SuccessPage from './pages/Home/SuccessPage';
 import Whishlist from './pages/Dashboard/Whishlist';
+import Dashboard from './pages/Admin/Dashboard';
+import AllUser from './pages/Admin/AllUser';
+import AllOrder from './pages/Admin/AllOrder';
+import ManageProduct from './pages/Admin/ManageProduct';
 
 function App() {
   return (
@@ -38,12 +42,20 @@ function App() {
           <Route path="product" element={<Product />} />
           <Route path="product/:id" element={<SingleProductPage />} />
           <Route path="cart" element={<CartPage />} />
-          <Route path="add-product" element={<AddProduct />} />
           <Route path="orders" element={<Order />} />
           <Route path="check-out" element={<Checkout />} />                  
           <Route path="success" element={<SuccessPage />} />
           <Route path="wishlist" element={<Whishlist />} />
         </Route>
+
+        {/* ADMIN ROUTES */}
+        <Route path="/admin" element={<Dashboard />} />
+        <Route path="/admin/users" element={<AllUser />} />
+        <Route path="/admin/orders" element={<AllOrder />} />
+        <Route path="/admin/products" element={<ManageProduct />} />
+          <Route path="/admin/add-product" element={<AddProduct />} />
+       
+
       </Routes>
     </BrowserRouter>
   );

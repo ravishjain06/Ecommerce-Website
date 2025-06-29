@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from '../../components/ui/button';
 import { TbLoader3 } from "react-icons/tb";
-import { toast } from 'react-toastify';
-import Sidebar from '../Dashboard/Sidebar';
+import Sidebar from '../Admin/Sidebar';
 
 const AddProduct = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +42,7 @@ const AddProduct = () => {
 
     return (
         <div className='min-h-screen'>
-            <div className='max-w-7xl mx-auto bg-white'>
+            <div className=' mx-auto bg-white'>
                 <div className='flex'>
                     {/* Sidebar */}
                     <div className="hidden md:block">
@@ -55,8 +54,8 @@ const AddProduct = () => {
                         <div className='p-4 md:p-10'>
                             {/* Header */}
                             <div className="mb-2">
-                                <h1 className="text-2xl font-bold text-gray-800 mb-1">Add New Product</h1>
-                                <p className="text-gray-600">Create a new product listing for your store</p>
+                                <h1 className="text-2xl font-light text-black mb-1 tracking-wide">Add New Product</h1>
+                             
                             </div>
 
                             {/* Product Form Card - Left aligned, less gap */}
@@ -216,7 +215,7 @@ const AddProduct = () => {
                                     <div className='mt-8'>
                                         <Button
                                             type="submit"
-                                            className="bg-purple-600 hover:bg-purple-700 text-white cursor-pointer px-8 py-3 rounded-lg font-medium transition-colors"
+                                            className="bg-black hover:bg-gray-800 text-white cursor-pointer px-8 py-3 font-medium transition-colors"
                                             disabled={isLoading}
                                         >
                                             {isLoading ? <TbLoader3 className="animate-spin mr-2" /> : null}

@@ -247,8 +247,8 @@ const Product = () => {
   const wishlistIds = wishlistData?.wishlist?.map(p => p._id) || [];
 
   return (
-    <div className='min-h-screen bg-gray-50'>
-      <div className='max-w-7xl mx-auto'>
+    <div className='flex flex-col min-h-screen bg-gray-50'>
+      <div className='max-w-7xl mx-auto flex-1'>
         <div className='flex'>
           {/* Filter Component */}
           <Filter
@@ -499,12 +499,9 @@ const Product = () => {
                       {/* Product Image - Fixed aspect ratio */}
                       <div className="relative aspect-[3/4] overflow-hidden">
                         <img 
-                          src={product?.image?.[0]} 
+                          src={product?.image?.[0]}
                           alt={product?.name}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          onError={(e) => {
-                            e.target.src = "/public/jackets.jpg";
-                          }}
                         />
                         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all duration-300"></div>
 

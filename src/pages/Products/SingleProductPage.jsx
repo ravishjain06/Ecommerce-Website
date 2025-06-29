@@ -16,13 +16,18 @@ const ProductDetail = () => {
     const user = useSelector((state) => state.auth.user);
     const userId = user?._id
     
-    const images = [
-        '/public/jackets.jpg',
-        '/public/jackets.jpg',
-        '/public/joggers.webp',
-        '/public/jackets.jpg',
-        '/public/jackets.jpg'
-    ]
+    const params = useParams();
+    const id = params.id;
+    // Use backend images
+    const { data } = useGetProductByIdQuery(id)
+    let images = [];
+    if (Array.isArray(data?.product?.image) && data.product.image.length > 0) {
+        images = data.product.image;
+    } else if (data?.product?.img) {
+        images = [data.product.img];
+    } else {
+        images = ['/public/jackets.jpg']; // fallback placeholder
+    }
 
     const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
     const colors = [
@@ -32,9 +37,6 @@ const ProductDetail = () => {
         { name: 'Red', code: '#DC2626' }
     ]
 
-    const params = useParams()
-    const id = params.id
-    const { data } = useGetProductByIdQuery(id)
     const navigate = useNavigate()
 
     const [addToCart, { data: cartData, isLoading, isError }] = useAddToCartMutation()
@@ -64,7 +66,7 @@ const ProductDetail = () => {
             };
 
             const result = await addToCart({ data: cartItemData, productId: id }).unwrap();
-            navigate('/cart');
+           
         } catch (error) {
             console.error('Failed to add product to cart:', error);
             alert(`Failed to add product to cart: ${error.message || 'Unknown error'}`);
@@ -73,6 +75,10 @@ const ProductDetail = () => {
 
     const incrementQuantity = () => setQuantity(prev => prev + 1)
     const decrementQuantity = () => setQuantity(prev => prev > 1 ? prev - 1 : 1)
+
+    // Stock logic
+    const stock = data?.product?.inStock ?? 0;
+    const isOutOfStock = stock <= 0;
 
     return (
         <div className='min-h-screen bg-gray-50'>
@@ -85,11 +91,10 @@ const ProductDetail = () => {
 
                         {/* Left Side - Images */}
                         <div className='p-8 lg:p-12 border-r border-gray-200'>
-                            
                             {/* Main Image */}
                             <div className='aspect-square bg-gray-100 border border-gray-200 overflow-hidden mb-6'>
                                 <img
-                                    src={images[selectedImage]}
+                                    src={images[selectedImage] || '/public/jackets.jpg'}
                                     alt="Product"
                                     className='w-full h-full object-cover hover:scale-105 transition-transform duration-500'
                                 />
@@ -97,23 +102,27 @@ const ProductDetail = () => {
 
                             {/* Thumbnail Images */}
                             <div className='grid grid-cols-4 gap-4'>
-                                {images.slice(0, 4).map((image, index) => (
-                                    <div
-                                        key={index}
-                                        onClick={() => setSelectedImage(index)}
-                                        className={`aspect-square bg-gray-100 border-2 overflow-hidden cursor-pointer transition-all duration-300 ${
-                                            selectedImage === index 
-                                                ? 'border-black' 
-                                                : 'border-gray-200 hover:border-gray-400'
-                                        }`}
-                                    >
-                                        <img
-                                            src={image}
-                                            alt={`Product ${index + 1}`}
-                                            className='w-full h-full object-cover'
-                                        />
-                                    </div>
-                                ))}
+                                {images.length > 0 ? (
+                                    images.slice(0, 4).map((image, index) => (
+                                        <div
+                                            key={index}
+                                            onClick={() => setSelectedImage(index)}
+                                            className={`aspect-square bg-gray-100 border-2 overflow-hidden cursor-pointer transition-all duration-300 ${
+                                                selectedImage === index 
+                                                    ? 'border-black' 
+                                                    : 'border-gray-200 hover:border-gray-400'
+                                            }`}
+                                        >
+                                            <img
+                                                src={image}
+                                                alt={`Product ${index + 1}`}
+                                                className='w-full h-full object-cover'
+                                            />
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className='col-span-4 text-center text-gray-400 text-sm'>No images available</div>
+                                )}
                             </div>
                         </div>
 
@@ -163,9 +172,17 @@ const ProductDetail = () => {
 
                             {/* Size Selection */}
                             <div className='space-y-4'>
-                                <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em]'>
-                                    Size {!selectedSize && <span className='text-red-500'>*</span>}
-                                </h3>
+                                <div className="flex items-center gap-4">
+                                    <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] m-0'>
+                                        Size {!selectedSize && <span className='text-red-500'>*</span>}
+                                    </h3>
+                                    {isOutOfStock && (
+                                        <span className='px-4 py-1 text-xs font-light tracking-wide bg-red-50 text-red-600 border border-red-200'>Out of Stock</span>
+                                    )}
+                                    {!isOutOfStock && (
+                                        <span className='px-4 py-1 text-xs font-light tracking-wide bg-green-50 text-green-700 border border-green-200'>In Stock</span>
+                                    )}
+                                </div>
                                 <div className='flex flex-wrap gap-3'>
                                     {sizes.map((size) => (
                                         <button
@@ -176,6 +193,7 @@ const ProductDetail = () => {
                                                     ? 'border-black bg-black text-white'
                                                     : 'border-gray-300 text-gray-700 hover:border-gray-400'
                                             }`}
+                                            disabled={isOutOfStock}
                                         >
                                             {size}
                                         </button>
@@ -244,15 +262,15 @@ const ProductDetail = () => {
                             <div className='space-y-4'>
                                 <button
                                     onClick={handleAddToCart}
-                                    disabled={isLoading || !selectedSize || !selectedColor}
+                                    disabled={isLoading || !selectedSize || !selectedColor || isOutOfStock}
                                     className={`w-full flex items-center justify-center space-x-3 py-4 px-6 text-sm font-medium tracking-wide transition-all duration-300 ${
-                                        isLoading || !selectedSize || !selectedColor
+                                        isLoading || !selectedSize || !selectedColor || isOutOfStock
                                             ? 'bg-gray-400 cursor-not-allowed text-white'
                                             : 'bg-black text-white hover:bg-gray-800'
                                     }`}
                                 >
                                     <ShoppingCartIcon className='h-5 w-5' />
-                                    <span>{isLoading ? 'Adding to Cart...' : 'ADD TO CART'}</span>
+                                    <span>{isOutOfStock ? 'OUT OF STOCK' : isLoading ? 'Adding to Cart...' : 'ADD TO CART'}</span>
                                 </button>
 
                                 <div className='grid grid-cols-2 gap-4'>
@@ -269,7 +287,14 @@ const ProductDetail = () => {
                                         disabled={isWishlistLoading || isRemoveLoading}
                                         type="button"
                                     >
-                                        <HeartIcon className='h-4 w-4' />
+                                        { (isWishlistLoading || isRemoveLoading) ? (
+                                            <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                                            </svg>
+                                        ) : (
+                                            <HeartIcon className='h-4 w-4' />
+                                        )}
                                         <span>{wishlistIds.includes(id) ? (isRemoveLoading ? 'REMOVING...' : 'REMOVE WISHLIST') : (isWishlistLoading ? 'ADDING...' : 'WISHLIST')}</span>
                                     </button>
                                     <button className='flex items-center justify-center space-x-2 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm font-medium tracking-wide'>

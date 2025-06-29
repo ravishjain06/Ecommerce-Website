@@ -55,7 +55,7 @@ const HeroSection = () => {
               alt="Premium fashion collection"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 "
             />
-            <div className="absolute inset-0 bg-black/10"></div>
+            <div className="absolute inset-0 "></div>
           </motion.div>
 
           {/* Minimal Floating Elements */}

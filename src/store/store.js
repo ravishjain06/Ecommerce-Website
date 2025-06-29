@@ -6,6 +6,7 @@ import authReducer from "../features/userSlice";
 import { productApi } from "../APIs/product";
 import { cartApi } from "../APIs/cart";
 import { orderApi } from "../APIs/order";
+import { adminApi } from "../APIs/admin";
 
 // Step 1: Create persist config
 const persistConfig = {
@@ -20,7 +21,8 @@ const rootReducer = combineReducers({
   [userApi.reducerPath]: userApi.reducer,
   [productApi.reducerPath] : productApi.reducer,
   [cartApi.reducerPath] : cartApi.reducer,
-  [orderApi.reducerPath] : orderApi.reducer
+  [orderApi.reducerPath] : orderApi.reducer,
+  [adminApi.reducerPath] : adminApi.reducer,
 });
 
 // Step 3: Create persisted reducer
@@ -35,7 +37,14 @@ export const store = configureStore({
         // fixes warning caused by redux-persist actions
         ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
       },
-    }).concat(userApi.middleware,productApi.middleware,cartApi.middleware,orderApi.middleware),
+    })
+      .concat(
+        userApi.middleware,
+        productApi.middleware,
+        cartApi.middleware,
+        orderApi.middleware,
+        adminApi.middleware // <-- FIX: use .middleware, not .reducer
+      ),
 });
 
 // Step 5: Persistor
