@@ -1,5 +1,4 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { Button } from '../../components/ui/button'
 
 const AuthHeader = () => {
   return (
@@ -31,14 +30,14 @@ const AuthHeader = () => {
             {/* Auth Buttons */}
             <div className='flex gap-3'>
               <NavLink to="/auth/login">
-                <Button className="bg-black hover:bg-gray-800 text-white font-light px-6 py-2 text-sm tracking-wide transition-all duration-300">
+                <button className="bg-black hover:bg-gray-800 text-white font-light px-6 py-2 text-sm tracking-wide transition-all duration-300">
                   LOGIN
-                </Button>
+                </button>
               </NavLink>
               <NavLink to="/auth/register">
-                <Button className="bg-white hover:bg-gray-50 text-black border border-gray-300 font-light px-6 py-2 text-sm tracking-wide transition-all duration-300">
+                <button className="bg-white hover:bg-gray-50 text-black border border-gray-300 font-light px-6 py-2 text-sm tracking-wide transition-all duration-300">
                   SIGN UP
-                </Button>
+                </button>
               </NavLink>
             </div>
           </div>

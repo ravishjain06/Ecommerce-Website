@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Input } from "@/components/ui/input"
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../../components/ui/button';
 import { useLoginMutation } from '../../APIs/user';
 import { toast } from 'react-toastify';
 import { TbLoader3 } from "react-icons/tb";
@@ -97,13 +96,13 @@ const Login = () => {
             <span>Forgot your Password?</span>
           </div>
           <div className='mt-6'>
-            <Button
+            <button
               type="submit"
-              className="bg-black hover:bg-gray-800 text-white w-full py-3 rounded transition"
+              className="bg-black hover:bg-gray-800 text-white w-full py-3 transition"
               disabled={isLoading}
             >
               {isLoading ? <TbLoader3 className="animate-spin" /> : "Sign In"}
-            </Button>
+            </button>
             <div className='text-gray-500 mt-4 text-center'>
               <span className='text-xs'>Don't have an account? </span>
               <span className='text-xs cursor-pointer underline hover:text-black' onClick={() => navigate('/auth/register')}>Sign Up</span>

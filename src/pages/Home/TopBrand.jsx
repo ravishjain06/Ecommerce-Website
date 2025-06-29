@@ -159,12 +159,13 @@ const TopBrand = () => {
                   Get exclusive access to premium collections from our partner brands with special member pricing and early access to new releases.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <button className="bg-black text-white font-medium px-6 py-3 hover:bg-gray-800 transition-all duration-300 text-sm tracking-wide">
+                  <button
+                    className="bg-black text-white font-medium px-6 py-3 hover:bg-gray-800 transition-all duration-300 text-sm tracking-wide"
+                    onClick={() => navigate('/product?brandName=Nike')}
+                  >
                     EXPLORE BRANDS
                   </button>
-                  <button className="border border-gray-300 text-gray-700 font-medium px-6 py-3 hover:bg-gray-50 transition-all duration-300 text-sm tracking-wide">
-                    MEMBER BENEFITS
-                  </button>
+       
                 </div>
               </div>
             </div>

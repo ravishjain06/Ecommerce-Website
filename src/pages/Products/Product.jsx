@@ -111,7 +111,7 @@ const Product = () => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
   // When user applies filters, always keep clothing if set
@@ -245,6 +245,11 @@ const Product = () => {
   const [removeFromWishlist] = useWishlistRemoveMutation();
   const { data: wishlistData, refetch: refetchWishlist } = useGetWishlistQuery();
   const wishlistIds = wishlistData?.wishlist?.map(p => p._id) || [];
+
+  // Scroll to top on mount or when filters change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [categoryFromUrl, clothingFromUrl, brandNameFromUrl, currentPage]);
 
   return (
     <div className='flex flex-col min-h-screen bg-gray-50'>

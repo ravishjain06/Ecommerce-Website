@@ -161,10 +161,12 @@ const WomenCategory = () => {
                   Discover our curated selection of sophisticated pieces designed for the modern woman who values both style and comfort.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <button className="bg-black text-white font-medium px-6 py-3 hover:bg-gray-800 transition-all duration-300 text-sm tracking-wide">
+                  <button
+                    className="bg-black text-white font-medium px-6 py-3 hover:bg-gray-800 transition-all duration-300 text-sm tracking-wide"
+                    onClick={() => navigate('/product?clothing=women')}
+                  >
                     EXPLORE COLLECTION
                   </button>
-                
                 </div>
               </div>
             </div>
