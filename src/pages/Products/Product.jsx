@@ -48,9 +48,10 @@ const Product = () => {
       ...prev,
       mainCategory: categoryFromUrl ? [categoryFromUrl] : [],
       clothing: clothingFromUrl || '',
-      brands: brandNameFromUrl ? [brandNameFromUrl] : [], // <-- add this
+      brands: brandNameFromUrl ? [brandNameFromUrl] : [],
+      search: searchParams.get('search') || '', // <-- sync search param from URL
     }))
-  }, [categoryFromUrl, clothingFromUrl, brandNameFromUrl])
+  }, [categoryFromUrl, clothingFromUrl, brandNameFromUrl, searchParams])
 
   // Debounced search function
   const debouncedSearch = useCallback(

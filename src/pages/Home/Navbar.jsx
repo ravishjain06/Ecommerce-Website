@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { BsCart2 } from 'react-icons/bs'
 import { CiHeart, CiUser, CiSearch } from 'react-icons/ci'
 import { HiMenu, HiX } from 'react-icons/hi'
@@ -23,6 +23,9 @@ const accountLinks = [
 const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [isSearchOpen, setIsSearchOpen] = useState(false)
+    const [searchInput, setSearchInput] = useState('') // Use for input value
+    const [searchParams] = useSearchParams()
+    const navigate = useNavigate(); // Add navigate
 
     const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
     console.log(isAuthenticated)
@@ -43,6 +46,21 @@ const Navbar = () => {
     const toggleSearch = () => {
         setIsSearchOpen(!isSearchOpen)
     }
+
+    // Handle search submit
+    const handleMobileSearch = (e) => {
+        e.preventDefault();
+        let url = '/product?';
+        if (activeClothing) url += `clothing=${activeClothing}&`;
+        if (searchInput) url += `search=${encodeURIComponent(searchInput)}`;
+        else url = '/product'; // fallback if no search
+        navigate(url);
+        setIsSearchOpen(false);
+    };
+
+    useEffect(() => {
+        setSearchInput(searchParams.get('search') || '');
+    }, [searchParams]);
 
     return (
         <div>
@@ -147,16 +165,18 @@ const Navbar = () => {
                 {/* Mobile Search Bar */}
                 {isSearchOpen && (
                     <div className="md:hidden px-4 pb-4 border-t border-gray-200">
-                        <div className="relative">
+                        <form className="relative" onSubmit={handleMobileSearch}>
                             <input
                                 type="text"
                                 placeholder="Search for products..."
                                 className="w-full bg-gray-50 border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black transition-colors duration-300"
+                                value={searchInput}
+                                onChange={e => setSearchInput(e.target.value)}
                             />
-                            <button className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <button type="submit" className="absolute right-3 top-1/2 transform -translate-y-1/2">
                                 <CiSearch className="text-lg text-gray-500" />
                             </button>
-                        </div>
+                        </form>
                     </div>
                 )}
             </div>
