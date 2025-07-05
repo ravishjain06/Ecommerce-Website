@@ -61,7 +61,7 @@ export const createOrder = async (req, res) => {
                 payment_method_types: ['card'],
                 line_items: cart.items.map(item => ({
                     price_data: {
-                        currency: 'usd',
+                        currency: 'inr',
                         product_data: {
                             name: item.productId.name,
                             description: item.size ? `Size: ${item.size}` : '',
@@ -75,7 +75,7 @@ export const createOrder = async (req, res) => {
                         type: 'fixed_amount',
                         fixed_amount: {
                             amount: Math.round(shippingCost * 100),
-                            currency: 'usd',
+                            currency: 'inr', // changed from 'usd' to 'inr'
                         },
                         display_name: 'Shipping',
                     },
@@ -412,7 +412,7 @@ export const verifyPayment = async (req, res) => {
         const session = await stripe.checkout.sessions.retrieve(session_id);
         
         // Find order in database
-        const order = await Order.findOne({ stripeSessionId: session_id });
+        const order = await Order.findOne({ stripeSessionId: req.query.session_id });
         
         if (!order) {
             return res.status(404).json({
@@ -423,8 +423,9 @@ export const verifyPayment = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            paymentStatus: session.payment_status,
-            orderStatus: order.paymentStatus,
+            stripePaymentStatus: session.payment_status, // from Stripe
+            orderPaymentStatus: order.paymentStatus,     // from DB
+            orderStatus: order.orderStatus,              // from DB
             order: order
         });
         

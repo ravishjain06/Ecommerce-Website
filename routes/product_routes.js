@@ -1,6 +1,6 @@
 import express from "express";
 import upload from "../middleware/multer.js";
-import { filterProducts, createProduct, deleteProduct, getAllPorducts, getProductById, updateProduct } from "../controllers/product_controller.js";
+import { filterProducts, createProduct, deleteProduct, getAllPorducts, getProductById, updateProduct, addToWishlist, removeFromWishlist, getWishlist } from "../controllers/product_controller.js";
 import { isUserAuthenticated } from "../utils/Auth.js";
 import { isSeller } from "../middleware/roleBasedAuth.js";
 
@@ -16,6 +16,11 @@ router.route('/create-product')
 
 router.route('/all/products').get(getAllPorducts)
 
+// Wishlist routes (must be before any "/:id" route)
+router.route("/wishlist/add").post(isUserAuthenticated, addToWishlist);
+router.route("/wishlist/remove").post(isUserAuthenticated, removeFromWishlist);
+router.route("/wishlist").get(isUserAuthenticated, getWishlist);
+
 router.route('/:id').get(isUserAuthenticated, getProductById)
 
 
@@ -30,5 +35,6 @@ router.route('/edit/product/:id')
         upload.array("image", 5),
         updateProduct // Reusing createProduct for edit functionality
     );
+
 
 export default router;

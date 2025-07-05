@@ -1,7 +1,6 @@
-
 import express from "express"
 import { registerSchema } from "../validators/validate_user.js";
-import { getUserProfile, Login, Logout, Register, renewRefreshToken, updateUserProfile, VerifyEmail } from "../controllers/user_controller.js";
+import { forgotPassword, getUserProfile, Login, Logout, Register, renewRefreshToken, resetPassword, updateUserProfile, VerifyEmail, resendVerificationEmail } from "../controllers/user_controller.js";
 import { validate } from '../middleware/validation_middleware.js';
 import upload from "../middleware/multer.js";
 import { isUserAuthenticated } from "../utils/Auth.js";
@@ -17,8 +16,13 @@ router.route('/login').post(Login)
 router.route('/refresh-token').post(renewRefreshToken)
 router.route('/logout').post(Logout)
 router.route('/profile').get(isUserAuthenticated,getUserProfile)
+router.route('/forgot-password').post(forgotPassword)
+router.route('/reset-password/:token').post(resetPassword)
+
+
 router.route('/update/profile').put(upload.single("profilePicture"),isUserAuthenticated,updateUserProfile)
 
+router.post("/resend-verification", resendVerificationEmail);
 
 
 export default router

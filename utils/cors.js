@@ -4,7 +4,8 @@ dotenv.config();
 
 const allowedOrigins = [
   'http://localhost:5173',
-    
+  'http://192.168.202.190:5173',
+  'http://192.168.202.190:3000',
 ];
 
 export const corsOptions = {

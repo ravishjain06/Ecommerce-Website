@@ -11,7 +11,7 @@ import {
 
 const router = express.Router();
 
-// Public route for payment verification (no auth needed)
+
 router.get('/verify-payment', verifyPayment);
 
 // Protected routes

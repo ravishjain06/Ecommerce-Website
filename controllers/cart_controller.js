@@ -255,3 +255,44 @@ export const removeFromCart = async (req, res) => {
     }
 };
 
+export const applyCouponToCart = async (req, res) => {
+    try {
+        const userId = req.id;
+        const { coupon } = req.body;
+
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
+        if (!cart) {
+            return res.status(404).json({
+                success: false,
+                message: "Cart not found"
+            });
+        }
+
+        // Store the coupon in the cart
+        cart.coupon = coupon;
+
+        // Recalculate total price with coupon
+        let total = 0;
+        for (let item of cart.items) {
+            total += item.price * item.quantity;
+        }
+        total = applyCoupon(total, coupon);
+        cart.totalPrice = total;
+
+        await cart.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Coupon applied successfully",
+            data: cart,
+            totalPrice: total,
+            coupon
+        });
+    } catch (error) {
+        console.error("Error in applyCouponToCart:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};

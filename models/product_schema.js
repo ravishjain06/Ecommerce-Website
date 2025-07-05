@@ -36,7 +36,7 @@ const productSchema = new mongoose.Schema({
     
     clothing: {
         type: String,
-        enum: ["mens", "women", "genz", "luxury"], 
+        enum: ["mens", "women", "gen-z", "classic luxury"], 
         required: true,
     },
 

@@ -2,7 +2,8 @@ import argon2 from "argon2"
 import { User } from "../models/user_schema.js";
 import sendEmailVerifyOTP from "../utils/sendEmailVerifyOTP.js";
 import { EmailVerification } from "../models/otp_schema.js";
-
+import crypto from "crypto";
+import transporter from "../utils/emailConfig.js";
 import fs from "fs";
 import imagekit from "../utils/imagekit.js";
 import jwt from "jsonwebtoken";
@@ -10,7 +11,7 @@ import { generateAccessToken, generateRefreshToken } from "../utils/tokens.js";
 
 export const Register = async (req, res, next) => {
     try {
-        const { name, email, password, role  } = req.body;
+        const { name, email, password } = req.body;
         const file = req.file;
 
         let profilePictureUrl = null;
@@ -24,7 +25,7 @@ export const Register = async (req, res, next) => {
             fs.unlinkSync(file.path);
         }
 
-        if (!name || !email || !password || !role) {
+        if (!name || !email || !password ) {
             return res.status(400).json({
                 success: false,
                 message: "Required fields are missing or empty."
@@ -52,7 +53,7 @@ export const Register = async (req, res, next) => {
             otp: OTP,
             name,
             password: hashPassword,
-            role,
+            
             profilePicture: profilePictureUrl,
             createdAt: new Date()
         }).save();
@@ -389,3 +390,111 @@ export const updateUserProfile = async (req, res, next) => {
         });
     }
 }
+
+// Send reset link to email
+export const forgotPassword = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ success: false, message: "Email is required." });
+
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ success: false, message: "User not found." });
+
+        // Generate JWT token for reset (expires in 30 min)
+        const resetToken = jwt.sign(
+            { id: user._id, email: user.email },
+            process.env.REFRESH_TOKEN_SECRET, // or a dedicated RESET_TOKEN_SECRET
+            { expiresIn: "10m" }
+        );
+
+        // Send email
+        const resetUrl = `${process.env.CLIENT_URL}/auth/reset-password/${resetToken}`;
+        await transporter.sendMail({
+            from: process.env.EMAIL_FROM,
+            to: user.email,
+            subject: "Password Reset",
+            html: `
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px; padding: 32px 24px; background: #fafbfc;">
+            <h2 style="color: #333; margin-bottom: 16px;">Reset Your Password</h2>
+            <p style="color: #444; font-size: 16px;">
+                We received a request to reset your password for <b>WeAreX</b>. Click the button below to set a new password. This link is valid for <b>10 minutes</b>.
+            </p>
+            <div style="text-align: center; margin: 32px 0;">
+                <a href="${resetUrl}" style="background: #007bff; color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 5px; font-size: 16px; display: inline-block;">
+                    Reset Password
+                </a>
+            </div>
+            <p style="color: #888; font-size: 13px;">
+                If you did not request this, you can safely ignore this email.<br>
+                <br>
+                <b>Link not working?</b> Copy and paste this URL into your browser:<br>
+                <span style="color: #007bff; word-break: break-all;">${resetUrl}</span>
+            </p>
+            <hr style="margin: 32px 0 12px 0; border: none; border-top: 1px solid #eee;">
+            <div style="color: #aaa; font-size: 12px; text-align: center;">
+                &copy; ${new Date().getFullYear()} WEAREX
+            </div>
+        </div>
+    `
+        });
+
+        res.status(200).json({ success: true, message: "Reset link sent to your email." });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+export const resetPassword = async (req, res, next) => {
+    try {
+        const { token } = req.params;
+        const { newPassword } = req.body;
+        if (!token || !newPassword) return res.status(400).json({ success: false, message: "Token and new password required." });
+
+
+        let payload;
+        try {
+            payload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+        } catch (err) {
+            return res.status(400).json({ success: false, message: "Invalid or expired token." });
+        }
+
+        const user = await User.findById(payload.id);
+        if (!user) return res.status(404).json({ success: false, message: "User not found." });
+
+        user.password = await argon2.hash(newPassword);
+        await user.save();
+
+        res.status(200).json({ success: true, message: "Password reset successful." });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const resendVerificationEmail = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: "Email is required." });
+        }
+
+        const pending = await EmailVerification.findOne({ email });
+        if (!pending) {
+            return res.status(404).json({ success: false, message: "No pending registration found for this email." });
+        }
+
+        // Generate new OTP
+        const OTP = Math.floor(100000 + Math.random() * 900000).toString();
+        pending.otp = OTP;
+        pending.createdAt = new Date();
+        await pending.save();
+
+        // Send verification email
+        await sendEmailVerifyOTP(req, { email: pending.email, name: pending.name }, OTP);
+
+        return res.status(200).json({ success: true, message: "Verification email resent. Please check your inbox." });
+    } catch (error) {
+        next(error);
+    }
+};
