@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ChevronRightIcon, MinusIcon, PlusIcon, TrashIcon, XIcon } from 'lucide-react'
 import { useSelector } from 'react-redux'
 import { NavLink } from 'react-router-dom'
@@ -16,12 +16,10 @@ const CartPage = () => {
   const [applyCoupon, { isLoading: isApplyingCoupon }] = useApplyCouponMutation();
   
   const [couponInput, setCouponInput] = React.useState("");
-  
-  console.log('Cart Data:', cartData)
-  console.log('Is Loading:', isLoading)
-  console.log('Is Error:', isError)
-  console.log('Error:', error)
 
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [cartData]);
   // Handle remove item
   const handleRemoveItem = async (productId) => {
     try {

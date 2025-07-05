@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useGetWishlistQuery } from '../../APIs/product'
 import { NavLink } from 'react-router-dom'
 import { HeartIcon } from 'lucide-react'
@@ -6,6 +6,10 @@ import { HeartIcon } from 'lucide-react'
 const Whishlist = () => {
   const { data, isLoading, isError } = useGetWishlistQuery()
   const wishlist = data?.wishlist || []
+  
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [wishlist]);
 
   if (isLoading) {
     return (

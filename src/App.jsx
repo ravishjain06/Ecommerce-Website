@@ -19,6 +19,7 @@ import SuccessPage from './pages/Home/SuccessPage';
 import Whishlist from './pages/Dashboard/Whishlist';
 import Dashboard from './pages/Admin/Dashboard';
 import AllUser from './pages/Admin/AllUser';
+import SetNewPassword from './pages/Auth UI/SetNewPassword';
 
 function App() {
   return (
@@ -29,8 +30,8 @@ function App() {
           <Route path="register" element={<Register />} />
           <Route path="login" element={<Login />} />
           <Route path="reset-password" element={<ResetPassword />} />
-          <Route path="create-new-password" element={<CreateNewPassword />} />
           <Route path="verify-code" element={<Verification />} />
+          <Route path="reset-password/:token" element={<SetNewPassword />} />
         </Route>
 
         {/* MAIN ROUTES */}

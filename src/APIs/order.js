@@ -1,4 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const orderApi = createApi({
     reducerPath: "orderApi",
@@ -35,7 +37,13 @@ export const orderApi = createApi({
             providesTags: ['Order'], // Provide order data tag
         }),
 
-      
+        // Get payment verification (for Stripe success page)
+        verifyPayment: builder.query({
+            query: (sessionId) => ({
+                url: `verify-payment?session_id=${sessionId}`,
+                method: 'GET',
+            }),
+        }),
 
         // Update order status (admin)
         updateOrderStatus: builder.mutation({
@@ -65,7 +73,25 @@ export const orderApi = createApi({
 export const {
     useCreateOrderMutation,
     useGetUserOrdersQuery,
-    useGetOrderByIdQuery,
+    useVerifyPaymentQuery,
     useUpdateOrderStatusMutation,
     useStripeWebhookMutation
-} = orderApi
+} = orderApi;
+
+export function useVerifyPayment() {
+    const navigate = useNavigate();
+    useEffect(() => {
+        const sessionId = getSessionIdFromUrl();
+        fetch(`/api/v1/order/verify-payment?session_id=${sessionId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.paymentStatus === "paid") {
+                    setStatus("success");
+                    navigate("/success"); // Only redirect if payment is successful
+                } else {
+                    setStatus("error");
+                }
+            })
+            .catch(() => setStatus("error"));
+    }, [navigate]);
+}

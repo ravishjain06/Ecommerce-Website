@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/button';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useRegisterMutation } from '../../APIs/user';
 import { toast } from 'react-toastify';
+import { TbLoader3 } from 'react-icons/tb';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const Register = () => {
     role: 'customer',
   });
 
-  const [register, { loading }] = useRegisterMutation();
+  const [register, { isLoading }] = useRegisterMutation();
 
   const handleShow = () => setShow(!show);
 
@@ -59,27 +60,14 @@ const Register = () => {
             className="object-cover w-full h-full"
           />
         </div>
-        <form className="w-full md:w-1/2 p-8 flex flex-col justify-center" onSubmit={handleRegister}>
-          <div className='mb-6 space-y-2'>
-            <h1 className="text-3xl font-bold text-black text-center">Sign Up. Shop Better</h1>
-            <span className="block text-sm text-gray-500 text-center">
-              Create your W E A R E X account to unlock exclusive styles and offers.
+        <form className="w-full md:w-1/2 p-8 flex flex-col" onSubmit={handleRegister}>
+          <div className='mb-6 space-y-2 text-center'>
+            <h1 className="text-3xl font-bold text-black ">Sign Up. Shop Better</h1>
+            <span className="block text-sm text-gray-500 ">
+              Create your WEAREX account to unlock exclusive styles and offers.
             </span>
           </div>
-          <div className="flex items-center justify-center mb-4 w-full">
-            <button
-              type="button"
-              className="flex items-center justify-center space-x-2 bg-white text-black px-4 py-2 rounded-md transition w-full border border-gray-200 shadow-sm"
-            >
-              <img src="/google.png" alt="Google" className="h-5 w-5" />
-              <span className="text-sm font-medium">Continue With Google</span>
-            </button>
-          </div>
-          <div className="flex items-center w-full my-5 space-x-4 text-gray-400 text-sm">
-            <hr className="flex-grow border-t border-gray-200" />
-            <span className="whitespace-nowrap">OR</span>
-            <hr className="flex-grow border-t border-gray-200" />
-          </div>
+     
           <div className='space-y-5 w-full'>
             <div>
               <label htmlFor="name" className='text-sm text-gray-600'>Name</label>
@@ -123,33 +111,17 @@ const Register = () => {
                 onChange={handleChange}
               />
             </div>
-            <div>
-              <label className='text-sm text-gray-600 mb-1'>Choose an Option</label>
-              <RadioGroup defaultValue={form.role} className="flex gap-6" onValueChange={handleRoleChange}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="customer" id="customer" />
-                  <label htmlFor="customer" className="text-sm text-gray-600">Customer</label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="admin" id="admin" />
-                  <label htmlFor="admin" className="text-sm text-gray-600">Admin</label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="delivery" id="delivery" />
-                  <label htmlFor="delivery" className="text-sm text-gray-600">Delivery</label>
-                </div>
-              </RadioGroup>
-            </div>
+    
           </div>
           <div className='mt-6'>
-            <Button
+            <button
               type="submit"
-              className="bg-black hover:bg-gray-800 text-white w-full py-3 rounded transition"
-              disabled={loading}
+              className="bg-black hover:bg-gray-800 text-white w-full py-3  transition flex justify-center items-center"
+              disabled={isLoading}
             >
-              {loading ? "Signing Up..." : "Sign Up"}
-            </Button>
-            <div className='text-gray-500 mt-4 text-center'>
+              {isLoading ? <TbLoader3 className="animate-spin" /> : "Sign Up"}
+            </button>
+            <div className='text-gray-500 mt-4 text-right'>
               <span className='text-xs'>Already have an account? </span>
               <NavLink to="/auth/login" className='text-xs cursor-pointer underline hover:text-black'>Sign In</NavLink>
             </div>

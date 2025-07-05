@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Input } from "@/components/ui/input"
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import { useLoginMutation } from '../../APIs/user';
 import { toast } from 'react-toastify';
 import { TbLoader3 } from "react-icons/tb";
@@ -44,21 +44,12 @@ const Login = () => {
             className="object-cover w-full h-full"
           />
         </div>
-        <form className="w-full md:w-1/2 p-8 flex flex-col justify-center" onSubmit={handleLogin}>
-          <h1 className="text-3xl font-bold mb-6 text-black text-center">Welcome, Please Sign In</h1>
-          <div className="flex items-center justify-center mb-4 w-full">
-            <button
-              type="button"
-              className="flex items-center justify-center space-x-2 bg-white text-black px-4 py-2 rounded-md transition w-full border border-gray-200 shadow-sm"
-            >
-              <img src="/google.png" alt="Google" className="h-5 w-5" />
-              <span className="text-sm font-medium">Continue With Google</span>
-            </button>
-          </div>
-          <div className="flex items-center w-full my-5 space-x-4 text-gray-400 text-sm">
-            <hr className="flex-grow border-t border-gray-200" />
-            <span className="whitespace-nowrap">OR</span>
-            <hr className="flex-grow border-t border-gray-200" />
+        <form className="w-full md:w-1/2 p-8 flex flex-col " onSubmit={handleLogin}>
+          <div className="mb-6 space-y-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-black text-center">Welcome, Please Sign In</h1>
+            <span className="block text-sm text-gray-500 text-center">
+              Sign in to your WEAREX account to unlock exclusive styles and offers.
+            </span>
           </div>
           <div className='space-y-5 w-full'>
             <div>
@@ -92,18 +83,20 @@ const Login = () => {
               />
             </div>
           </div>
-          <div className='text-right underline text-gray-500 cursor-pointer mt-2 text-xs'>
-            <span>Forgot your Password?</span>
+          <div className='text-right mt-2 text-xs'>
+            <NavLink to="/auth/reset-password" className="underline text-gray-500 hover:text-black cursor-pointer">
+              Forgot your Password?
+            </NavLink>
           </div>
           <div className='mt-6'>
             <button
               type="submit"
-              className="bg-black hover:bg-gray-800 text-white w-full py-3 transition"
+              className="bg-black hover:bg-gray-800 text-white w-full py-3 transition flex justify-center items-center"
               disabled={isLoading}
             >
               {isLoading ? <TbLoader3 className="animate-spin" /> : "Sign In"}
             </button>
-            <div className='text-gray-500 mt-4 text-center'>
+            <div className='text-gray-500 mt-4 text-right'>
               <span className='text-xs'>Don't have an account? </span>
               <span className='text-xs cursor-pointer underline hover:text-black' onClick={() => navigate('/auth/register')}>Sign Up</span>
             </div>

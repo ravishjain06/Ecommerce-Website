@@ -169,7 +169,7 @@ const Navbar = () => {
                             <input
                                 type="text"
                                 placeholder="Search for products..."
-                                className="w-full bg-gray-50 border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black transition-colors duration-300"
+                                className="w-full bg-gray-50 border border-gray-200 px-4 py-3 text-[16px] focus:outline-none focus:border-black transition-colors duration-300"
                                 value={searchInput}
                                 onChange={e => setSearchInput(e.target.value)}
                             />

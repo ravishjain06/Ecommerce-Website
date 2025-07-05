@@ -247,24 +247,25 @@ const Product = () => {
   const { data: wishlistData, refetch: refetchWishlist } = useGetWishlistQuery();
   const wishlistIds = wishlistData?.wishlist?.map(p => p._id) || [];
 
-  // Scroll to top on mount or when filters change
+  // Scroll to top on mount or when page changes (not on filter changes)
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
-  }, [categoryFromUrl, clothingFromUrl, brandNameFromUrl, currentPage]);
+  }, [currentPage]);
 
   return (
-    <div className='flex flex-col min-h-screen bg-gray-50'>
-      <div className='max-w-7xl mx-auto flex-1'>
-        <div className='flex'>
-          {/* Filter Component */}
-          <Filter
-            isMobile={isMobile}
-            isOpen={isFilterOpen}
-            onClose={() => setIsFilterOpen(false)}
-            onFiltersApply={handleFiltersApply}
-            onClearFilters={handleClearFilters}
-            appliedFilters={appliedFilters}
-          />
+    <div className='flex flex-col min-h-screen bg-gray-50 overflow-y-scroll'>
+      <div className='max-w-7xl mx-auto flex-1 w-full min-w-0'>
+        <div className='flex items-start'>
+          <div className='self-start'>
+            <Filter
+              isMobile={isMobile}
+              isOpen={isFilterOpen}
+              onClose={() => setIsFilterOpen(false)}
+              onFiltersApply={handleFiltersApply}
+              onClearFilters={handleClearFilters}
+              appliedFilters={appliedFilters}
+            />
+          </div>
 
           {/* Main Content */}
           <div className='flex-1'>

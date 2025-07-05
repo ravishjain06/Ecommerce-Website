@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ChevronRightIcon, StarIcon, ShoppingCartIcon, ShieldCheckIcon, RulerIcon, TruckIcon, RefreshCwIcon, HeartIcon, ShareIcon, MinusIcon, PlusIcon } from 'lucide-react'
+import { TbLoader3 } from "react-icons/tb";
 import { useGetProductByIdQuery } from '../../APIs/product'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -12,6 +13,7 @@ const ProductDetail = () => {
     const [selectedColor, setSelectedColor] = useState('')
     const [quantity, setQuantity] = useState(1)
     const [rating] = useState(4.5)
+    const [cartSuccess, setCartSuccess] = useState(false)
 
     const user = useSelector((state) => state.auth.user);
     const userId = user?._id
@@ -19,14 +21,14 @@ const ProductDetail = () => {
     const params = useParams();
     const id = params.id;
     // Use backend images
-    const { data } = useGetProductByIdQuery(id)
+    const { data, isLoading: isProductLoading} = useGetProductByIdQuery(id)
     let images = [];
     if (Array.isArray(data?.product?.image) && data.product.image.length > 0) {
         images = data.product.image;
     } else if (data?.product?.img) {
         images = [data.product.img];
     } else {
-        images = ['/public/jackets.jpg']; // fallback placeholder
+        images = ['']; 
     }
 
     const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
@@ -37,7 +39,9 @@ const ProductDetail = () => {
         { name: 'Red', code: '#DC2626' }
     ]
 
-    const navigate = useNavigate()
+      React.useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      }, []);
 
     const [addToCart, { data: cartData, isLoading, isError }] = useAddToCartMutation()
     const [addToWishlist, { isLoading: isWishlistLoading }] = useWishlistAddMutation();
@@ -45,11 +49,7 @@ const ProductDetail = () => {
     const { data: wishlistData, refetch: refetchWishlist } = useGetWishlistQuery();
     const wishlistIds = wishlistData?.wishlist?.map(p => p._id) || [];
 
-    useEffect(() => {
-        if (cartData) {
-            console.log('Cart Data:', cartData);
-        }
-    }, [cartData]);
+
 
     const handleAddToCart = async () => {
         if (!selectedSize || !selectedColor) {
@@ -66,7 +66,8 @@ const ProductDetail = () => {
             };
 
             const result = await addToCart({ data: cartItemData, productId: id }).unwrap();
-           
+            setCartSuccess(true);
+            setTimeout(() => setCartSuccess(false), 2000);
         } catch (error) {
             console.error('Failed to add product to cart:', error);
             alert(`Failed to add product to cart: ${error.message || 'Unknown error'}`);
@@ -79,7 +80,16 @@ const ProductDetail = () => {
     // Stock logic
     const stock = data?.product?.inStock ?? 0;
     const isOutOfStock = stock <= 0;
-
+   if (isProductLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px] w-full">
+                  <div className="text-center">
+                    <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600 font-light">Loading product...</p>
+                  </div>
+                </div>
+        );
+    }
     return (
         <div className='min-h-screen bg-gray-50'>
             <div className='max-w-7xl mx-auto'>
@@ -259,51 +269,54 @@ const ProductDetail = () => {
                             )}
 
                             {/* Action Buttons */}
-                            <div className='space-y-4'>
+                            <div className="w-full flex flex-col md:flex-row gap-4">
+                                {/* Add to Cart Button */}
                                 <button
                                     onClick={handleAddToCart}
                                     disabled={isLoading || !selectedSize || !selectedColor || isOutOfStock}
-                                    className={`w-full flex items-center justify-center space-x-3 py-4 px-6 text-sm font-medium tracking-wide transition-all duration-300 ${
+                                    className={`w-full md:w-1/2 flex items-center justify-center space-x-3 py-4 px-6 text-sm font-medium tracking-wide transition-all duration-300 ${
                                         isLoading || !selectedSize || !selectedColor || isOutOfStock
                                             ? 'bg-gray-400 cursor-not-allowed text-white'
                                             : 'bg-black text-white hover:bg-gray-800'
                                     }`}
                                 >
-                                    <ShoppingCartIcon className='h-5 w-5' />
+                                    {isLoading ? (
+                                        <TbLoader3 className="animate-spin h-5 w-5" />
+                                    ) : (
+                                        <ShoppingCartIcon className='h-5 w-5' />
+                                    )}
                                     <span>{isOutOfStock ? 'OUT OF STOCK' : isLoading ? 'Adding to Cart...' : 'ADD TO CART'}</span>
                                 </button>
-
-                                <div className='grid grid-cols-2 gap-4'>
-                                    <button
-                                        className={`flex items-center justify-center space-x-2 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm font-medium tracking-wide ${wishlistIds.includes(id) ? 'text-red-500 border-red-300 bg-red-50' : ''}`}
-                                        onClick={async () => {
-                                          if (!wishlistIds.includes(id)) {
+                                {/* Wishlist Button */}
+                                <button
+                                    className={`w-full md:w-1/2 flex items-center justify-center space-x-2 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm font-medium tracking-wide ${wishlistIds.includes(id) ? 'text-red-500 border-red-300 bg-red-50' : ''}`}
+                                    onClick={async () => {
+                                        if (!wishlistIds.includes(id)) {
                                             await addToWishlist({ productId: id });
-                                          } else {
+                                        } else {
                                             await removeFromWishlist({ productId: id });
-                                          }
-                                          refetchWishlist();
-                                        }}
-                                        disabled={isWishlistLoading || isRemoveLoading}
-                                        type="button"
-                                    >
-                                        { (isWishlistLoading || isRemoveLoading) ? (
-                                            <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-                                            </svg>
-                                        ) : (
-                                            <HeartIcon className='h-4 w-4' />
-                                        )}
-                                        <span>{wishlistIds.includes(id) ? (isRemoveLoading ? 'REMOVING...' : 'REMOVE WISHLIST') : (isWishlistLoading ? 'ADDING...' : 'WISHLIST')}</span>
-                                    </button>
-                                    <button className='flex items-center justify-center space-x-2 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm font-medium tracking-wide'>
-                                        <ShareIcon className='h-4 w-4' />
-                                        <span>SHARE</span>
-                                    </button>
-                                </div>
+                                        }
+                                        refetchWishlist();
+                                    }}
+                                    disabled={isWishlistLoading || isRemoveLoading}
+                                    type="button"
+                                >
+                                    {(isWishlistLoading || isRemoveLoading) ? (
+                                      ""
+                                    ) : (
+                                        <HeartIcon className='h-4 w-4' />
+                                    )}
+                                    <span>
+                                        {wishlistIds.includes(id)
+                                            ? (isRemoveLoading ? <TbLoader3 className="animate-spin h-4 w-4" /> : 'Wishlisted')
+                                            : (isWishlistLoading ? <TbLoader3 className="animate-spin h-4 w-4" /> : 'WISHLIST')}
+                                    </span>
+                                </button>
                             </div>
-
+                            {/* Success message */}
+                            {cartSuccess && (
+                                <p className="text-green-600 text-sm font-medium text-center mt-2">Added to cart!</p>
+                            )}
                             {/* Features */}
                             <div className='border-t border-gray-200 pt-8'>
                                 <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] mb-6'>

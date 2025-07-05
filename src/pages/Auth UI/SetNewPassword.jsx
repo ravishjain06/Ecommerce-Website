@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
-import { Input } from "@/components/ui/input"
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useForgotPasswordMutation } from '../../APIs/user';
+import { Input } from "@/components/ui/input";
+import { useParams, useNavigate } from 'react-router-dom';
+import { useResetPasswordMutation } from '../../APIs/user';
 import { TbLoader3 } from 'react-icons/tb';
 import { toast } from 'react-toastify';
 
-const ResetPassword = () => {
+const SetNewPassword = () => {
+  const { token } = useParams();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
+  const [newPassword, setNewPassword] = useState("");
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await forgotPassword({ email }).unwrap();
+      const res = await resetPassword({ token, newPassword }).unwrap();
       if (res.success) {
-        toast.success(res.message || "Reset link sent to your email.");
+        toast.success(res.message || "Password reset successful.");
+        navigate('/auth/login');
       } else {
         toast.error(res.message || "Something went wrong.");
       }
@@ -30,39 +32,39 @@ const ResetPassword = () => {
         <div className="w-full md:w-1/2 bg-blue-500 hidden md:block">
           <img
             src="/public/photo-1656664317725-427313ae4b97.avif"
-            alt="Reset Password"
+            alt="Set New Password"
             className="object-cover w-full h-full"
           />
         </div>
         <div className="w-full md:w-1/2 p-8 flex flex-col ">
           <form onSubmit={handleSubmit} className="flex flex-col">
             <div className='mb-6 space-y-2 text-center'>
-              <h1 className="text-3xl font-bold text-black ">Reset Your Password</h1>
+              <h1 className="text-3xl font-bold text-black ">Set New Password</h1>
               <span className="block text-sm text-gray-500 ">
-                Enter your email and we'll send you a link to reset your password.
+                Enter your new password below to reset your account password.
               </span>
             </div>
-            <div className='space-y-5 w-full'>
+            <div className="space-y-5 w-full">
               <div>
-                <label htmlFor="email" className='text-sm text-gray-600'>Email</label>
+                <label htmlFor="newPassword" className="text-sm text-gray-600">New Password</label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
+                  id="newPassword"
+                  type="password"
+                  placeholder="Enter new password"
                   className="w-full"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
                   required
                 />
               </div>
             </div>
             <div className='mt-6'>
               <button
+                className="bg-black hover:bg-gray-800 text-white w-full py-3 transition flex justify-center items-center disabled:opacity-60 disabled:cursor-not-allowed"
                 type="submit"
-                className="bg-black hover:bg-gray-800 text-white w-full py-3 transition flex justify-center items-center"
-                disabled={isLoading || !email}
+                disabled={isLoading || !newPassword}
               >
-                {isLoading ? <TbLoader3 className="animate-spin" /> : "Send"}
+                {isLoading ? <TbLoader3 className="animate-spin" /> : "Reset Password"}
               </button>
               <div className='text-gray-500 mt-4 text-right'>
                 <span className='text-xs'>Back to </span>
@@ -76,6 +78,4 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
-
-
+export default SetNewPassword;

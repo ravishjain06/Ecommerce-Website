@@ -4,15 +4,17 @@ import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Button } from '../../components/ui/button';
-import { useVerifyUserMutation } from '../../APIs/user';
+import { useVerifyUserMutation, useResendVerificationMutation } from '../../APIs/user';
 import { toast } from 'react-toastify';
+import { TbLoader3 } from "react-icons/tb";
 
 const Verification = () => {
   const [value, setValue] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const email = location?.state?.email || "";
-  const [verifyUser, { loading }] = useVerifyUserMutation();
+  const [verifyUser, { isLoading }] = useVerifyUserMutation();
+  const [resendVerification, { isLoading: isResending }] = useResendVerificationMutation();
 
   const handleChange = async (value) => {
     try {
@@ -39,10 +41,10 @@ const Verification = () => {
             className="object-cover w-full h-full"
           />
         </div>
-        <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
-          <div className='mb-6 space-y-2'>
-            <h1 className="text-3xl font-bold text-black text-center">Verification</h1>
-            <span className="block text-sm text-gray-500 text-center">
+        <div className="w-full md:w-1/2 p-8 flex flex-col ">
+          <div className='mb-6 space-y-2 text-center'>
+            <h1 className="text-3xl font-bold text-black ">Verification</h1>
+            <span className="block text-sm text-gray-500 ">
               Enter the 6-digit code we sent to your email or phone.
             </span>
           </div>
@@ -65,18 +67,38 @@ const Verification = () => {
                   <InputOTPSlot index={5} />
                 </InputOTPGroup>
               </InputOTP>
-              <div className='text-gray-500 mt-1'>
+              <div className='text-gray-500 mt-1 flex items-center justify-between'>
                 <span className='text-xs'>Must be at least 6 characters.</span>
+                <button
+                  type="button"
+                  className="text-xs underline text-blue-600 hover:text-blue-800 disabled:text-gray-400 ml-2"
+                  disabled={isResending}
+                  onClick={async () => {
+                    try {
+                      const res = await resendVerification({ email }).unwrap();
+                      if (res.success) {
+                        toast.success(res.message || 'Verification code resent!');
+                      } else {
+                        toast.error(res.message || 'Failed to resend code.');
+                      }
+                    } catch (err) {
+                      toast.error(err?.data?.message || 'Failed to resend code.');
+                    }
+                  }}
+                >
+                  {isResending ? 'Resending...' : 'Resend code'}
+                </button>
               </div>
             </div>
           </div>
           <div className='mt-6'>
             <Button
               onClick={() => handleChange(value)}
-              className="bg-black hover:bg-gray-800 text-white w-full py-3 rounded transition"
-              disabled={value.length !== 6 || loading}
+              className="bg-black hover:bg-gray-800 text-white w-full py-3 transition"
+              disabled={value.length !== 6 || isLoading}
+              style={{ borderRadius: 0 }}
             >
-              Verify code
+              {isLoading ? <TbLoader3 className="animate-spin" /> : "Verify code"}
             </Button>
           </div>
         </div>

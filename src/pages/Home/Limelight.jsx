@@ -110,23 +110,12 @@ const Limelight = () => {
                 <p className="text-sm text-gray-600 font-light">
                   {category.description}
                 </p>
-                {/* View Link */}
-                <div className="pt-3">
-                  <span className="inline-flex items-center text-black text-sm tracking-wide border-b border-gray-300 pb-1 hover:border-black transition-all duration-300 cursor-pointer">
-                    SHOP NOW
-                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </span>
-                </div>
+              
               </motion.div>
             </motion.div>
           ))}
         </div>
 
-     
-
-     
 
       </div>
     </section>

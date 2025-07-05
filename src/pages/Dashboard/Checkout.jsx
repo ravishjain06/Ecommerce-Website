@@ -157,11 +157,14 @@ const Checkout = () => {
                           name='firstName'
                           type='text'
                           placeholder="Enter your first name"
-                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('firstName') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
+                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('firstName') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-[16px]`}
                           value={billingDetails.firstName}
                           onChange={handleInputChange}
+                          minLength={2}
+                          maxLength={32}
                           required
                         />
+                        {missingFields.includes('firstName') && <span className="text-xs text-red-500">First name is required</span>}
                       </div>
                       <div className="space-y-2">
                         <label htmlFor="lastName" className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em]'>
@@ -172,11 +175,14 @@ const Checkout = () => {
                           name='lastName'
                           type='text'
                           placeholder="Enter your last name"
-                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('lastName') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
+                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('lastName') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-[16px]`}
                           value={billingDetails.lastName}
                           onChange={handleInputChange}
+                          minLength={2}
+                          maxLength={32}
                           required
                         />
+                        {missingFields.includes('lastName') && <span className="text-xs text-red-500">Last name is required</span>}
                       </div>
                     </div>
 
@@ -190,11 +196,14 @@ const Checkout = () => {
                         name='street'
                         type='text'
                         placeholder="Enter your street address"
-                        className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('street') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
+                        className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('street') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-[16px]`}
                         value={billingDetails.street}
                         onChange={handleInputChange}
+                        minLength={2}
+                        maxLength={64}
                         required
                       />
+                      {missingFields.includes('street') && <span className="text-xs text-red-500">Street address is required</span>}
                     </div>
 
                     {/* Address */}
@@ -207,9 +216,10 @@ const Checkout = () => {
                         name='address'
                         type='text'
                         placeholder="Apartment, suite, etc. (optional)"
-                        className={`w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
+                        className={`w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:outline-none focus:border-black transition-colors duration-300 font-light text-[16px]`}
                         value={billingDetails.address}
                         onChange={handleInputChange}
+                        maxLength={64}
                       />
                     </div>
 
@@ -224,11 +234,14 @@ const Checkout = () => {
                           name='city'
                           type='text'
                           placeholder="Enter your city"
-                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('city') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
+                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('city') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-[16px]`}
                           value={billingDetails.city}
                           onChange={handleInputChange}
+                          minLength={2}
+                          maxLength={32}
                           required
                         />
+                        {missingFields.includes('city') && <span className="text-xs text-red-500">City is required</span>}
                       </div>
                       <div className="space-y-2">
                         <label htmlFor="state" className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em]'>
@@ -239,11 +252,14 @@ const Checkout = () => {
                           name='state'
                           type='text'
                           placeholder="Enter your state"
-                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('state') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
+                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('state') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-[16px]`}
                           value={billingDetails.state}
                           onChange={handleInputChange}
+                          minLength={2}
+                          maxLength={32}
                           required
                         />
+                        {missingFields.includes('state') && <span className="text-xs text-red-500">State is required</span>}
                       </div>
                       <div className="space-y-2">
                         <label htmlFor="postalCode" className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em]'>
@@ -254,11 +270,15 @@ const Checkout = () => {
                           name='postalCode'
                           type='text'
                           placeholder="Enter postal code"
-                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('postalCode') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
+                          className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('postalCode') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-[16px]`}
                           value={billingDetails.postalCode}
                           onChange={handleInputChange}
+                          pattern="^[0-9]{5,10}$"
+                          minLength={5}
+                          maxLength={10}
                           required
                         />
+                        {missingFields.includes('postalCode') && <span className="text-xs text-red-500">Valid postal code is required</span>}
                       </div>
                     </div>
 
@@ -272,11 +292,15 @@ const Checkout = () => {
                         name='phone'
                         type='tel'
                         placeholder="Enter your phone number"
-                        className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('phone') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-sm`}
+                        className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('phone') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-[16px]`}
                         value={billingDetails.phone}
                         onChange={handleInputChange}
+                        pattern="^[0-9]{10,15}$"
+                        minLength={10}
+                        maxLength={15}
                         required
                       />
+                      {missingFields.includes('phone') && <span className="text-xs text-red-500">Valid phone number is required</span>}
                     </div>
                   </form>
                 </div>

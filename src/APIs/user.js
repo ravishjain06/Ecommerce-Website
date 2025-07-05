@@ -60,10 +60,42 @@ export const userApi = createApi({
                 body: data,
             }),
         }),
+
+        forgotPassword: builder.mutation({
+            query: (data) => ({
+                url: "user/forgot-password",
+                method: "POST",
+                body: data,
+            }),
+        }),
+
+        resetPassword: builder.mutation({
+            query: ({ token, newPassword }) => ({
+                url: `user/reset-password/${token}`,
+                method: "POST",
+                body: { newPassword },
+            }),
+        }),
+
+        resendVerification: builder.mutation({
+            query: (data) => ({
+                url: "user/resend-verification",
+                method: "POST",
+                body: data,
+            }),
+        }),
     })
 });
 
 
 export const { 
     useUpdateProfileMutation,
-    useRegisterMutation, useLoginMutation ,useVerifyUserMutation, useUserProfileQuery, useLogoutMutation } = userApi;
+    useRegisterMutation, 
+    useLoginMutation,
+    useVerifyUserMutation, 
+    useUserProfileQuery, 
+    useLogoutMutation,
+    useForgotPasswordMutation,
+    useResetPasswordMutation,
+    useResendVerificationMutation
+} = userApi;
