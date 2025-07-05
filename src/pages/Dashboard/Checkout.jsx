@@ -35,14 +35,58 @@ const Checkout = () => {
   }
 
   const handlePlaceOrder = async (e) => {
-    e.preventDefault()
-    const requiredFields = ['firstName', 'lastName', 'street', 'address', 'city', 'state', 'postalCode', 'phone']
-    const missing = requiredFields.filter(field => !billingDetails[field])
-    setMissingFields(missing)
-    if (missing.length > 0) {
-      window.scrollTo({ top: 250, behavior: 'smooth' })
-      return
+    e.preventDefault();
+    const requiredFields = [
+      'firstName', 'lastName', 'street', 'city', 'state', 'postalCode', 'phone'
+    ];
+    const missing = requiredFields.filter(field => !billingDetails[field]);
+    const errors = [...missing];
+
+    // Only letters for names and location fields
+    const alphaRegex = /^[A-Za-z\s]+$/;
+
+    if (billingDetails.firstName && !alphaRegex.test(billingDetails.firstName)) {
+      if (!errors.includes('firstName')) errors.push('firstName');
+      toast.error('First name should contain only letters');
     }
+    if (billingDetails.lastName && !alphaRegex.test(billingDetails.lastName)) {
+      if (!errors.includes('lastName')) errors.push('lastName');
+      toast.error('Last name should contain only letters');
+    }
+    if (billingDetails.city && !alphaRegex.test(billingDetails.city)) {
+      if (!errors.includes('city')) errors.push('city');
+      toast.error('City should contain only letters');
+    }
+    if (billingDetails.state && !alphaRegex.test(billingDetails.state)) {
+      if (!errors.includes('state')) errors.push('state');
+      toast.error('State should contain only letters');
+    }
+
+    // Phone validation (exactly 10 digits)
+    if (
+      billingDetails.phone &&
+      !/^[0-9]{10}$/.test(billingDetails.phone)
+    ) {
+      if (!errors.includes('phone')) errors.push('phone');
+      toast.error('Please enter a valid 10-digit phone number');
+    }
+
+    // Postal code validation (5-10 digits)
+    if (
+      billingDetails.postalCode &&
+      !/^[0-9]{5,10}$/.test(billingDetails.postalCode)
+    ) {
+      if (!errors.includes('postalCode')) errors.push('postalCode');
+      toast.error('Please enter a valid postal code (5-10 digits)');
+    }
+
+    setMissingFields(errors);
+
+    if (errors.length > 0) {
+      window.scrollTo({ top: 250, behavior: 'smooth' });
+      return;
+    }
+
     if (!cart?.items || cart.items.length === 0) {
       toast.error('Your cart is empty')
       return
@@ -295,9 +339,9 @@ const Checkout = () => {
                         className={`w-full px-4 py-3 bg-gray-50 border ${missingFields.includes('phone') ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:border-black transition-colors duration-300 font-light text-[16px]`}
                         value={billingDetails.phone}
                         onChange={handleInputChange}
-                        pattern="^[0-9]{10,15}$"
+                        pattern="^[0-9]{10}$"
                         minLength={10}
-                        maxLength={15}
+                        maxLength={10}
                         required
                       />
                       {missingFields.includes('phone') && <span className="text-xs text-red-500">Valid phone number is required</span>}

@@ -99,6 +99,8 @@ const CartPage = () => {
   const items = cart?.items || []
   const totalPrice = cartData?.totalPrice || 0
 
+  console.log("cart object:", cart); // <-- Add this line
+
   // Show empty cart
   if (!cart || items.length === 0) {
     return (
@@ -372,7 +374,7 @@ const CartPage = () => {
                     {isApplyingCoupon ? "Applying..." : "APPLY"}
                   </button>
                 </div>
-                {cart.coupon && (
+                {cart.coupon && cart.items.length > 0 && (
                   <div className='mt-4 p-4 bg-green-50 border border-green-200'>
                     <p className='text-sm text-green-700 font-light'>
                       Coupon applied: {cart.coupon}
@@ -398,7 +400,9 @@ const CartPage = () => {
                   {cart.coupon && (
                     <div className='flex justify-between items-center text-green-600'>
                       <span className='font-light'>Discount</span>
-                      <span className='font-light'>Applied</span>
+                      <span className='font-light'>
+                        {cart.discountPercent ? `${cart.discountPercent}%` : "Applied"}
+                      </span>
                     </div>
                   )}
                   <div className='border-t border-gray-200 pt-4'>

@@ -4,29 +4,64 @@ import { NavLink } from 'react-router-dom'
 import { useGetUserOrdersQuery } from '../../APIs/order'
 
 const Order = () => {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [dateFilter, setDateFilter] = useState('all')
-  const [showFilters, setShowFilters] = useState(false)
 
   const { data: ordersData, isLoading, isError } = useGetUserOrdersQuery()
   const orders = ordersData?.orders || []
 
   // Get status icon and color
-  const getStatusDisplay = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'processing':
-        return { icon: ClockIcon, color: 'text-blue-700', bg: 'bg-blue-100', text: 'Processing' } // Changed to blue
-      case 'shipped':
-        return { icon: TruckIcon, color: 'text-indigo-600', bg: 'bg-indigo-50', text: 'Shipped' } // Slightly different
-      case 'delivered':
-        return { icon: CheckCircleIcon, color: 'text-green-600', bg: 'bg-green-50', text: 'Delivered' }
-      case 'cancelled':
-        return { icon: XCircleIcon, color: 'text-red-600', bg: 'bg-red-50', text: 'Cancelled' }
-      default:
-        return { icon: PackageIcon, color: 'text-gray-600', bg: 'bg-gray-50', text: status }
-    }
+const getStatusDisplay = (status) => {
+  switch (status?.toLowerCase()) {
+    case 'processing':
+      return {
+        icon: ClockIcon,
+        color: 'text-amber-800',
+        bg: 'bg-amber-100',
+        text: 'Processing'
+      }
+    case 'shipped':
+      return {
+        icon: TruckIcon,
+        color: 'text-blue-800',
+        bg: 'bg-blue-100',
+        text: 'Shipped'
+      }
+    case 'delivered':
+      return {
+        icon: CheckCircleIcon,
+        color: 'text-green-800',
+        bg: 'bg-green-100',
+        text: 'Delivered'
+      }
+    case 'cancelled':
+      return {
+        icon: XCircleIcon,
+        color: 'text-rose-700',
+        bg: 'bg-rose-100',
+        text: 'Cancelled'
+      }
+    case 'pending':
+      return {
+        icon: ClockIcon,
+        color: 'text-gray-700',
+        bg: 'bg-gray-200',
+        text: 'Pending'
+      }
+    case 'returned':
+      return {
+        icon: XCircleIcon,
+        color: 'text-purple-700',
+        bg: 'bg-purple-100',
+        text: 'Returned'
+      }
+    default:
+      return {
+        icon: PackageIcon,
+        color: 'text-gray-700',
+        bg: 'bg-gray-100',
+        text: status
+      }
   }
+}
 
   // Get payment status display
   const getPaymentDisplay = (status) => {
@@ -115,7 +150,7 @@ const Order = () => {
     <div className='min-h-screen bg-gray-50'>
       <div className='max-w-7xl mx-auto'>
         <div className='bg-white'>
-    
+
           <div className='p-4 md:p-6 lg:p-8'>
             {/* Page Header */}
             <div className='mb-16'>
@@ -155,7 +190,7 @@ const Order = () => {
 
                       <div className='flex items-center gap-3'>
                         {/* Order Status */}
-                        <div className={`px-3 py-1 rounded-full ${getStatusDisplay(order.orderStatus).bg} flex items-center gap-2`}>
+                        <div className={`px-3 py-1  ${getStatusDisplay(order.orderStatus).bg} flex items-center gap-2`}>
                           {React.createElement(getStatusDisplay(order.orderStatus).icon, {
                             className: `h-3 w-3 ${getStatusDisplay(order.orderStatus).color}`
                           })}
@@ -165,7 +200,7 @@ const Order = () => {
                         </div>
 
                         {/* Payment Status */}
-                        <div className={`px-3 py-1 rounded-full ${getPaymentDisplay(order.paymentStatus).bg}`}>
+                        <div className={`px-3 py-1 ${getPaymentDisplay(order.paymentStatus).bg} flex items-center gap-2`}>
                           <span className={`text-xs font-medium ${getPaymentDisplay(order.paymentStatus).color}`}>
                             {getPaymentDisplay(order.paymentStatus).text}
                           </span>
@@ -250,7 +285,7 @@ const Order = () => {
                       </div>
                     </div>
 
-                 
+
                   </div>
                 </div>
               ))}

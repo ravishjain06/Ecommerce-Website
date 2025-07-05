@@ -79,11 +79,11 @@ const Navbar = () => {
             {/* Main Navbar */}
             <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
                 <div className="flex items-center h-16 px-4 md:px-8 justify-between max-w-7xl mx-auto">
-                    
+
                     {/* Logo */}
                     <NavLink to={"/"} className="flex-shrink-0 flex items-center">
                         <h1 className='text-2xl md:text-3xl font-light tracking-wide text-black'>
-                  W E A R E X
+                            W E A R E X
                         </h1>
                     </NavLink>
 
@@ -98,10 +98,9 @@ const Navbar = () => {
                                     key={link.to}
                                     to={link.to}
                                     className={
-                                        `text-sm font-light tracking-wide transition-all duration-300 py-2 relative ${
-                                            isActive
-                                                ? 'text-black border-b-2 border-black'
-                                                : 'text-gray-600 hover:text-black'
+                                        `text-sm font-light tracking-wide transition-all duration-300 py-2 relative ${isActive
+                                            ? 'text-black border-b-2 border-black'
+                                            : 'text-gray-600 hover:text-black'
                                         }`
                                     }
                                 >
@@ -111,18 +110,20 @@ const Navbar = () => {
                         })}
                     </div>
 
-           
+
 
                     {/* Right Side Actions */}
                     <div className="flex items-center gap-2">
-                        
+
                         {/* Mobile Search Toggle */}
-                        <button 
-                            className="md:hidden p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
-                            onClick={toggleSearch}
-                        >
-                            <CiSearch className="text-xl text-gray-700" />
-                        </button>
+                        {location.pathname !== "/product" && (
+                            <button
+                                className="md:hidden p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
+                                onClick={toggleSearch}
+                            >
+                                <CiSearch className="text-xl text-gray-700" />
+                            </button>
+                        )}
 
                         {isAuthenticated ? (
                             <div className="hidden md:flex gap-2 items-center">
@@ -131,7 +132,7 @@ const Navbar = () => {
                                 </NavLink>
                                 <NavLink to={"/cart"} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
                                     <BsCart2 className="text-xl text-gray-700" />
-                                
+
                                 </NavLink>
                                 <NavLink to={"/profile"} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300">
                                     <CiUser className="text-xl text-gray-700" />
@@ -199,7 +200,7 @@ const Navbar = () => {
                             transition={{ type: 'tween', duration: 0.35 }}
                             className="fixed top-0 right-0 h-full w-80 bg-white z-50 shadow-2xl lg:hidden flex flex-col"
                         >
-                            
+
                             {/* Sidebar Header */}
                             <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
                                 <h1 className='text-xl font-light tracking-wide text-black'>MENU</h1>
@@ -213,7 +214,7 @@ const Navbar = () => {
 
                             {/* Sidebar Content */}
                             <div className="flex-1 overflow-y-auto">
-                                
+
                                 {/* Navigation Links */}
                                 <div className="p-6 border-b border-gray-200">
                                     <h3 className="text-xs font-medium tracking-[0.2em] text-gray-500 uppercase mb-4">
@@ -273,18 +274,7 @@ const Navbar = () => {
                                     </div>
                                 )}
 
-                                {/* Quick Links */}
-                                <div className="p-6">
-                                    <h3 className="text-xs font-medium tracking-[0.2em] text-gray-500 uppercase mb-4">
-                                        Quick Links
-                                    </h3>
-                                    <div className="space-y-3 text-sm">
-                                        <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Track Order</a>
-                                        <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Size Guide</a>
-                                        <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Contact Us</a>
-                                        <a href="#" className="block text-gray-600 hover:text-black transition-colors duration-300">Help Center</a>
-                                    </div>
-                                </div>
+
                             </div>
                         </motion.div>
                     </>

@@ -147,7 +147,7 @@ const HeroSection = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="flex flex-row gap-8 pt-8 pb-6 border-t border-gray-200 justify-center text-center"
+              className="flex flex-row gap-8 pt-8 pb-6 border-t border-gray-200 justify-center text-center lg:justify-start lg:text-left"
             >
               <div>
                 <p className="text-xl font-light text-black">
