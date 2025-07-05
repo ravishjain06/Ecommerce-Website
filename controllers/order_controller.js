@@ -112,11 +112,13 @@ export const createOrder = async (req, res) => {
             });
 
         } else if (paymentMethod === 'CashOnDelivery') {
-            // Handle COD as before
             const order = new Order(orderData);
             await order.save();
 
-            await Cart.findOneAndDelete({ userId });
+            await Cart.findOneAndUpdate(
+                { userId },
+                { $set: { items: [], totalPrice: 0, coupon: null } }
+            );
 
             res.status(201).json({
                 success: true,
@@ -237,7 +239,10 @@ const handleCheckoutSessionCompleted = async (session) => {
             });
 
             // Clear the cart
-            const cartDeleted = await Cart.findOneAndDelete({ userId: order.user });
+            const cartDeleted = await Cart.findOneAndUpdate(
+                { userId: order.user },
+                { $set: { items: [], totalPrice: 0, coupon: null } }
+            );
             if (cartDeleted) {
                 console.log('🛒 Cart cleared for user:', order.user);
             }

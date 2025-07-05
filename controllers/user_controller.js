@@ -264,8 +264,7 @@ export const Logout = async (req, res, next) => {
 export const getUserProfile = async (req, res, next) => {
     try {
         const userId = req.id
-        console.log("User ID:", userId);
-
+  
         if (!userId) {
             return res.status(400).json({
                 success: false,

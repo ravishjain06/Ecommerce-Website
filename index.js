@@ -64,6 +64,6 @@ console.log('- STRIPE_WEBHOOK_SECRET:', process.env.STRIPE_WEBHOOK_SECRET ? '✅
 console.log('- CLIENT_URL:', process.env.CLIENT_URL || 'http://localhost:5173');
 
 
-// stripe listen --forward-to localhost:5000/webhook/stripe
+// stripe listen --forward-to localhost:3001/webhook/stripe
 // import {randomBytes} from 'crypto';
 // console.log(randomBytes(64).toString('hex')); // Generates a random string for use in secure applications

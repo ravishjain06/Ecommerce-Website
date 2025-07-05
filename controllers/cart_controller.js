@@ -68,7 +68,7 @@ export const addToCart = async (req, res) => {
             });
         }
 
-        // Calculate total price
+        // Calculate total price WITHOUT coupon
         cart.totalPrice = cart.items.reduce((total, item) => {
             return total + (item.price * item.quantity);
         }, 0);
@@ -78,7 +78,10 @@ export const addToCart = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Product added to cart successfully",
-            cart
+            cart: {
+                ...cart.toObject(),
+                coupon: cart.coupon && cart.coupon === "SAVE10" ? cart.coupon : null
+            }
         });
 
     } catch (error) {
@@ -92,31 +95,18 @@ export const addToCart = async (req, res) => {
 
 export const getCart = async (req, res) => {
     try {
-        const userId = req.id; // Get from authentication middleware
-        const { coupon } = req.query;
+        const userId = req.id;
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
 
-        const cart = await Cart.findOne({ userId })
-            .populate('items.productId');
-
-        // If cart exists but has no items
-        if (cart && (!cart.items || cart.items.length === 0)) {
+        // If cart does not exist or has no items
+        if (!cart || !cart.items || cart.items.length === 0) {
             return res.status(200).json({
                 success: true,
                 message: "Your cart is empty",
                 data: cart,
                 totalPrice: 0,
-                coupon: coupon || cart.coupon
-            });
-        }
-
-        // If cart does not exist at all
-        if (!cart) {
-            return res.status(200).json({
-                success: true,
-                message: "Your cart is empty",
-                data: null,
-                totalPrice: 0,
-                coupon: null
+                coupon: null,
+                discountPercent: null
             });
         }
 
@@ -125,14 +115,21 @@ export const getCart = async (req, res) => {
             total += item.price * item.quantity;
         }
 
-        // Apply coupon if provided
-        total = applyCoupon(total, coupon || cart.coupon);
+        // Only apply coupon if it exists and is valid
+        let discountPercent = null;
+        let appliedCoupon = null;
+        if (cart.coupon && cart.coupon === "SAVE10") {
+            discountPercent = 10;
+            appliedCoupon = cart.coupon;
+            total = applyCoupon(total, cart.coupon);
+        }
 
         res.status(200).json({
             success: true,
             data: cart,
             totalPrice: total,
-            coupon: coupon || cart.coupon
+            coupon: appliedCoupon,         // Only show if actually applied
+            discountPercent                // Only show if actually applied
         });
     } catch (error) {
         console.error("Error in getCart:", error);

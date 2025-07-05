@@ -30,7 +30,7 @@ export const isUserAuthenticated = (req, res, next) => {
         }
         req.id = decoded.id;
         req.role = decoded.role;
-        console.log('User authenticated:', req.id);
+     
         next();
     } 
     catch (error) {
