@@ -119,19 +119,10 @@ const Profile = () => {
 
     if (isLoading) {
         return (
-            <div className='min-h-screen bg-gray-50'>
-                <div className='max-w-7xl mx-auto'>
-                    <div className='flex'>
-                        <div className="hidden md:block">
-                            <Sidebar />
-                        </div>
-                        <div className='flex-1 flex items-center justify-center'>
-                            <div className="text-center">
-                                <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                                <p className="text-gray-600 font-light">Loading profile...</p>
-                            </div>
-                        </div>
-                    </div>
+            <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+                <div className="text-center">
+                    <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600 font-light">Loading profile...</p>
                 </div>
             </div>
         );

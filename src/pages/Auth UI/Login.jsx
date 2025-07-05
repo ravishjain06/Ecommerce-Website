@@ -22,7 +22,7 @@ const Login = () => {
     try {
       const res = await login({ email: form.email, password: form.password })
       if (res?.data?.success) {
-        toast.success(res?.data?.message || 'Login successful!')
+       
         dispatch(setUser(res?.data?.user))
         dispatch(setAccessToken(res?.data?.accessToken));
         navigate('/');

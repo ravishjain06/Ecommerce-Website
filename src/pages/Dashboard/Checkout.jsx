@@ -149,6 +149,9 @@ const Checkout = () => {
 
   const cart = cartData?.data
   const totalPrice = cartData?.totalPrice || 0
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [orderData]);
 
   return (
     <div className='min-h-screen bg-gray-50'>
