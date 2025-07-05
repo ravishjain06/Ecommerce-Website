@@ -36,7 +36,6 @@ const AddProduct = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Form Data:", form);
 
     };
 

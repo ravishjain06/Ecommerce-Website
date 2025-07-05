@@ -28,7 +28,7 @@ const Navbar = () => {
     const navigate = useNavigate(); // Add navigate
 
     const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-    console.log(isAuthenticated)
+
 
     const location = useLocation();
 

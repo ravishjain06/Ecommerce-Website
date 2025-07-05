@@ -24,7 +24,7 @@ const CartPage = () => {
   const handleRemoveItem = async (productId) => {
     try {
       await removeFromCart(productId).unwrap()
-      console.log('Item removed successfully')
+  
       refetch() // Refresh cart data
     } catch (error) {
       console.error('Failed to remove item:', error)
@@ -46,7 +46,7 @@ const CartPage = () => {
         quantity: newQuantity, 
         size 
       }).unwrap()
-      console.log('Quantity updated successfully')
+   
       refetch() // Refresh cart data
     } catch (error) {
       console.error('Failed to update quantity:', error)
@@ -99,7 +99,7 @@ const CartPage = () => {
   const items = cart?.items || []
   const totalPrice = cartData?.totalPrice || 0
 
-  console.log("cart object:", cart); // <-- Add this line
+
 
   // Show empty cart
   if (!cart || items.length === 0) {

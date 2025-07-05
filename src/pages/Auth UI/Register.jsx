@@ -55,7 +55,7 @@ const Register = () => {
       <div className="flex flex-col md:flex-row w-full max-w-5xl h-[40rem] bg-white shadow-lg overflow-hidden rounded-lg">
         <div className="w-full md:w-1/2 hidden md:block">
           <img
-            src="/public/img2.avif"
+            src="/img2.avif"
             alt="Register"
             className="object-cover w-full h-full"
           />

@@ -4,7 +4,7 @@ import { useGetAllUsersQuery } from '../../APIs/admin'
 
 const AllUser = () => {
   const { data: users = [], isLoading, isError } = useGetAllUsersQuery();
-  console.log(users)
+
 
   return (
     <div className="flex">

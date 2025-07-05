@@ -48,7 +48,7 @@ const Filter = ({
         ...prev,
         mainCategory: updatedMainCategory
       };
-      console.log('Selected mainCategory:', updatedMainCategory);
+    
       onFiltersApply(updatedFilters);
       return updatedFilters;
     });

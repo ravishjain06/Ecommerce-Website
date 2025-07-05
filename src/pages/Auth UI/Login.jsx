@@ -39,7 +39,7 @@ const Login = () => {
       <div className="flex flex-col md:flex-row w-full max-w-5xl h-[40rem] bg-white shadow-lg overflow-hidden rounded-lg">
         <div className="w-full md:w-1/2 hidden md:block">
           <img
-            src="/public/img1.avif"
+            src="/img1.avif"
             alt="Login"
             className="object-cover w-full h-full"
           />

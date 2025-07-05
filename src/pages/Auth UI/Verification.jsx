@@ -36,7 +36,7 @@ const Verification = () => {
       <div className="flex flex-col md:flex-row w-full max-w-5xl h-[40rem] bg-white shadow-lg overflow-hidden rounded-lg">
         <div className="w-full md:w-1/2 hidden md:block">
           <img
-            src="/public/22ffcfd407a58073b03767656a674f7d.jpg"
+            src="/22ffcfd407a58073b03767656a674f7d.jpg"
             alt="Verification"
             className="object-cover w-full h-full"
           />

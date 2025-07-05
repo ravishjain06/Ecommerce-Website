@@ -15,7 +15,7 @@ const CreateNewPassword = () => {
       <div className="flex flex-col md:flex-row w-full max-w-5xl h-[40rem] bg-white shadow-lg overflow-hidden rounded-lg">
         <div className="w-full md:w-1/2 hidden md:block">
           <img
-            src="/public/143c9cf90e1f4e72b7a1fb8ddae0662a.jpg"
+            src="/143c9cf90e1f4e72b7a1fb8ddae0662a.jpg"
             alt="Create New Password"
             className="object-cover w-full h-full"
           />

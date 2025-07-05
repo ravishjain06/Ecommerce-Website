@@ -6,7 +6,7 @@ export const productApi = createApi({
         baseUrl: `${import.meta.env.VITE_BASE_URL}/api/v1/product/`,
         prepareHeaders: (headers, { getState }) => {
             const token = ((state) =>  state.auth.accessToken)(getState());
-            console.log("Token:", token);
+         
             if (token) {
                 headers.set("Authorization", `Bearer ${token}`);
             }
@@ -83,8 +83,7 @@ export const productApi = createApi({
                 const queryString = queryParams.toString();
                 const finalUrl = `search/filter${queryString ? "?" + queryString : ""}`;
                 
-                console.log('API URL:', finalUrl); // Debug log
-                console.log('Params sent:', params); // Debug log
+            
 
                 return {
                     url: finalUrl,

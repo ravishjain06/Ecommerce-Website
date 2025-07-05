@@ -9,7 +9,7 @@ const AllOrder = () => {
   const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
 
   const handleStatusChange = async (orderId, newStatus) => {
-    console.log(`Updating order ${orderId} to orderStatus: ${newStatus}`);
+   
     try {
       // Pass orderId and updateData in body as required, using orderStatus
       await updateOrder({ orderId, data: { orderId, orderStatus: newStatus } });

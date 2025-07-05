@@ -108,10 +108,10 @@ const Checkout = () => {
         shippingCost: 0
       }
 
-      console.log('Order data being sent:', orderData)
+  
 
       const result = await createOrder(orderData).unwrap()
-      console.log('Order created:', result)
+      
 
       if (paymentMethod === 'CashOnDelivery') {
         toast.success(`Order placed successfully!`)
@@ -119,9 +119,7 @@ const Checkout = () => {
       } else if (paymentMethod === 'Stripe') {
         // Handle Stripe checkout redirection
         if (result.success && result.checkoutUrl) {
-          console.log('Redirecting to Stripe checkout:', result.checkoutUrl)
-          console.log('Order ID:', result.orderId)
-          console.log('Session ID:', result.sessionId)
+
           
           // Store order info in localStorage for post-payment reference
           localStorage.setItem('pendingOrderId', result.orderId)
