@@ -16,7 +16,8 @@ const SuccessPage = () => {
       setStatus('error');
       return;
     }
-   fetch(`http://localhost:3001/api/v1/order/verify-payment?session_id=${sessionId}`)
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+    fetch(`${baseUrl}/api/v1/order/verify-payment?session_id=${sessionId}`)
       .then(res => res.json())
       .then(data => {
         if (
