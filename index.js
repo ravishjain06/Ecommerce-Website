@@ -16,11 +16,13 @@ import { handleStripeWebhook } from './controllers/order_controller.js';
 dotenv.config();
 
 const app = express();
+
 app.post('/webhook/stripe', express.raw({ type: 'application/json' }), (req, res, next) => {
+    const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     console.log('🎯 Webhook endpoint hit!');
+    console.log('🔗 Webhook called at:', fullUrl);
     next();
 }, handleStripeWebhook);
-
 const PORT = process.env.PORT || 5000;
 
 
@@ -31,16 +33,6 @@ app.use(express.json())
 app.use(errorMiddleware)
 
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    next();
-});
-
-app.get('/health', (req, res) => {
-    res.status(200).json({ message: 'Server is running!' });
-});
 
 app.use('/api/v1/user', userRoutes)
 app.use('/api/v1/product',productRoutes)
