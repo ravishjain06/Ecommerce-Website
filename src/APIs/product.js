@@ -1,18 +1,45 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+const baseQuery = fetchBaseQuery({
+    baseUrl: `${import.meta.env.VITE_BASE_URL}/api/v1/product/`,
+    credentials: 'include',
+    prepareHeaders: (headers, { getState }) => {
+        const token = ((state) =>  state.auth.accessToken)(getState());
+        if (token) {
+            headers.set("Authorization", `Bearer ${token}`);
+        }
+        return headers;
+    }
+});
+
+const baseQueryWithReauth = async (args, api, extraOptions) => {
+    let result = await baseQuery(args, api, extraOptions);
+
+    if (result?.error?.status === 401) {
+        const refreshResult = await baseQuery(
+            { url: "user/refresh-token", method: "POST" },
+            api,
+            extraOptions
+        );
+
+        if (refreshResult?.data?.accessToken) {
+            api.dispatch({
+                type: "auth/setAccessToken",
+                payload: refreshResult.data.accessToken
+            });
+
+            result = await baseQuery(args, api, extraOptions);
+        } else {
+            api.dispatch({ type: "auth/setLogout" });
+        }
+    }
+
+    return result;
+};
+
 export const productApi = createApi({
     reducerPath: "productApi",
-    baseQuery: fetchBaseQuery({
-        baseUrl: `${import.meta.env.VITE_BASE_URL}/api/v1/product/`,
-        prepareHeaders: (headers, { getState }) => {
-            const token = ((state) =>  state.auth.accessToken)(getState());
-         
-            if (token) {
-                headers.set("Authorization", `Bearer ${token}`);
-            }
-            return headers;
-        }
-    }),
+    baseQuery: baseQueryWithReauth,
     endpoints: (builder) => ({
         allProduct: builder.query({
             query: ({ page = 1, limit = 12 } = {}) => ({
@@ -83,8 +110,6 @@ export const productApi = createApi({
                 const queryString = queryParams.toString();
                 const finalUrl = `search/filter${queryString ? "?" + queryString : ""}`;
                 
-            
-
                 return {
                     url: finalUrl,
                     method: "GET",
@@ -97,7 +122,6 @@ export const productApi = createApi({
                 url: "add-product",
                 method: "POST",
                 body: formData,
-                
             }),
         }),
 
@@ -105,7 +129,6 @@ export const productApi = createApi({
             query : (id) => ({
                 url:`/${id}`,
                 method:"GET",
-                
             })
         }),
     
@@ -135,6 +158,11 @@ export const productApi = createApi({
 })
 
 export const { 
-    
-    useAllProductQuery, useFilterProductQuery, useAddProductMutation ,useGetProductByIdQuery,
-    useWishlistAddMutation, useWishlistRemoveMutation, useGetWishlistQuery } = productApi
+    useAllProductQuery, 
+    useFilterProductQuery, 
+    useAddProductMutation,
+    useGetProductByIdQuery,
+    useWishlistAddMutation, 
+    useWishlistRemoveMutation, 
+    useGetWishlistQuery 
+} = productApi;

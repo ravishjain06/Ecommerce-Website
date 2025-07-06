@@ -2,19 +2,47 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+// Define baseQuery and baseQueryWithReauth here
+const baseQuery = fetchBaseQuery({
+    baseUrl: `${import.meta.env.VITE_BASE_URL}/api/v1/order/`,
+    credentials: 'include',
+    prepareHeaders: (headers, { getState }) => {
+        const token = getState().auth.accessToken;
+        if (token) {
+            headers.set("Authorization", `Bearer ${token}`);
+        }
+        return headers;
+    }
+});
+
+const baseQueryWithReauth = async (args, api, extraOptions) => {
+    let result = await baseQuery(args, api, extraOptions);
+
+    if (result?.error?.status === 401) {
+        const refreshResult = await baseQuery(
+            { url: "user/refresh-token", method: "POST" },
+            api,
+            extraOptions
+        );
+
+        if (refreshResult?.data?.accessToken) {
+            api.dispatch({
+                type: "auth/setAccessToken",
+                payload: refreshResult.data.accessToken
+            });
+
+            result = await baseQuery(args, api, extraOptions);
+        } else {
+            api.dispatch({ type: "auth/setLogout" });
+        }
+    }
+
+    return result;
+};
+
 export const orderApi = createApi({
     reducerPath: "orderApi",
-    baseQuery: fetchBaseQuery({
-        baseUrl: `${import.meta.env.VITE_BASE_URL}/api/v1/order/`,
-        prepareHeaders: (headers, { getState }) => {
-            const token = ((state) => state.auth.accessToken)(getState());
-          
-            if (token) {
-                headers.set("Authorization", `Bearer ${token}`);
-            }
-            return headers;
-        }
-    }),
+    baseQuery: baseQueryWithReauth,
     tagTypes: ['Order'], // Define cache tags for orders
     endpoints: (builder) => ({
 
