@@ -235,56 +235,36 @@ const handleCheckoutSessionCompleted = async (session) => {
                 stripePaymentIntentId: session.payment_intent
             });
             await order.save();
+            
+            console.log('✅ Order created in webhook:', order._id, 'for session:', session.id);
         } else {
+            // Capture status BEFORE updating
+            const previousStatus = order.paymentStatus;
+            const previousOrderStatus = order.orderStatus;
+            
             // Update status if needed
             order.paymentStatus = 'Paid';
             order.orderStatus = 'Processing';
             order.stripePaymentIntentId = session.payment_intent;
             await order.save();
+            
+            console.log('✅ Order updated:', {
+                orderId: order._id,
+                previousPaymentStatus: previousStatus,
+                newPaymentStatus: order.paymentStatus,
+                previousOrderStatus: previousOrderStatus,
+                newOrderStatus: order.orderStatus,
+                paymentIntentId: session.payment_intent
+            });
         }
 
-        // Before updating order status
-        const previousStatus = order.paymentStatus;
-        const previousOrderStatus = order.orderStatus;
-
-        // ...then update order status...
-        order.paymentStatus = 'Paid';
-        order.orderStatus = 'Processing';
-        order.stripePaymentIntentId = session.payment_intent;
-        await order.save();
-
-        console.log('✅ Payment Status Updated:', {
-            orderId: order._id,
-            previousPaymentStatus: previousStatus,
-            newPaymentStatus: order.paymentStatus,
-            previousOrderStatus: previousOrderStatus,
-            newOrderStatus: order.orderStatus,
-            paymentIntentId: session.payment_intent
-        });
-
         // Clear the cart
-const cartDeleted = await Cart.findOneAndUpdate(
-    { _id: session.metadata.cartId },
-    { $set: { items: [], totalPrice: 0, coupon: null } }
-);
-if (cartDeleted) {
-    console.log('🛒 Cart cleared for user:', order.user);
-}
-        
-        // Update product stock
-        console.log('📊 Updating product stock...');
-        for (const item of order.products) {
-            const product = await Product.findByIdAndUpdate(
-                item.productId,
-                { $inc: { inStock: -item.quantity } },
-                { new: true }
-            );
-            
-            console.log('📦 Stock updated:', {
-                productId: item.productId,
-                quantityDeducted: item.quantity,
-                newStock: product ? product.inStock : 'Product not found'
-            });
+        const cartDeleted = await Cart.findOneAndUpdate(
+            { _id: session.metadata.cartId },
+            { $set: { items: [], totalPrice: 0, coupon: null } }
+        );
+        if (cartDeleted) {
+            console.log('🛒 Cart cleared for user:', order.user);
         }
 
         console.log('🎊 Order payment completed successfully:', {
