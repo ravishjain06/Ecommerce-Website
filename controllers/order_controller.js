@@ -150,6 +150,10 @@ export const createOrder = async (req, res) => {
 
 // Updated Stripe webhook handler for Checkout Sessions
 export const handleStripeWebhook = async (req, res) => {
+    // Add logging at the start
+    console.log('🎯 Webhook endpoint hit!');
+    console.log('🔗 Webhook called at:', `${req.protocol}://${req.get('host')}${req.originalUrl}`);
+    
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
     
@@ -171,39 +175,44 @@ export const handleStripeWebhook = async (req, res) => {
     }
     
     // Handle the event
-    switch (event.type) {
-        case 'checkout.session.completed':
-            console.log('🎯 Processing checkout.session.completed event');
-            const session = event.data.object;
-            await handleCheckoutSessionCompleted(session);
-            break;
-            
-        case 'checkout.session.expired':
-            console.log('⏰ Processing checkout.session.expired event');
-            const expiredSession = event.data.object;
-            await handleCheckoutSessionExpired(expiredSession);
-            break;
-            
-        case 'payment_intent.succeeded':
-            const paymentIntent = event.data.object;
-            console.log('💰 PaymentIntent succeeded:', {
-                paymentIntentId: paymentIntent.id,
-                amount: paymentIntent.amount,
-                currency: paymentIntent.currency
-            });
-            break;
-            
-        case 'payment_intent.payment_failed':
-            const failedPayment = event.data.object;
-            console.log('❌ Payment failed:', {
-                paymentIntentId: failedPayment.id,
-                failureCode: failedPayment.last_payment_error?.code,
-                failureMessage: failedPayment.last_payment_error?.message
-            });
-            break;
-            
-        default:
-            console.log(`❓ Unhandled event type: ${event.type}`);
+    try {
+        switch (event.type) {
+            case 'checkout.session.completed':
+                console.log('🎯 Processing checkout.session.completed event');
+                const session = event.data.object;
+                await handleCheckoutSessionCompleted(session);
+                break;
+                
+            case 'checkout.session.expired':
+                console.log('⏰ Processing checkout.session.expired event');
+                const expiredSession = event.data.object;
+                await handleCheckoutSessionExpired(expiredSession);
+                break;
+                
+            case 'payment_intent.succeeded':
+                const paymentIntent = event.data.object;
+                console.log('💰 PaymentIntent succeeded:', {
+                    paymentIntentId: paymentIntent.id,
+                    amount: paymentIntent.amount,
+                    currency: paymentIntent.currency
+                });
+                break;
+                
+            case 'payment_intent.payment_failed':
+                const failedPayment = event.data.object;
+                console.log('❌ Payment failed:', {
+                    paymentIntentId: failedPayment.id,
+                    failureCode: failedPayment.last_payment_error?.code,
+                    failureMessage: failedPayment.last_payment_error?.message
+                });
+                break;
+                
+            default:
+                console.log(`❓ Unhandled event type: ${event.type}`);
+        }
+    } catch (handlerError) {
+        console.error('💥 Error in webhook handler:', handlerError);
+        return res.status(500).send(`Handler Error: ${handlerError.message}`);
     }
     
     // Return a 200 response to acknowledge receipt of the event

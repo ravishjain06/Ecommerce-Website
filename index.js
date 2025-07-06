@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
 import express, { urlencoded } from 'express';
+import dotenv from 'dotenv';
 import { connectToDatabase } from './utils/DatabaseConnection.js';
 import cookieParser from 'cookie-parser';
 import { errorMiddleware } from './middleware/error_middleware.js';
@@ -17,17 +17,7 @@ dotenv.config();
 const app = express();
 
 // 1. Register Stripe webhook route FIRST, before any body parsers!
-app.post(
-    '/webhook/stripe',
-    express.raw({ type: 'application/json' }),
-    (req, res, next) => {
-        const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-        console.log('🎯 Webhook endpoint hit!');
-        console.log('🔗 Webhook called at:', fullUrl);
-        next();
-    },
-    handleStripeWebhook
-);
+app.post('/webhook/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook);
 
 // 2. Register body parsers and other middleware AFTER webhook route
 app.use(cors(corsOptions));
