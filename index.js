@@ -17,22 +17,22 @@ dotenv.config();
 
 const app = express();
 
+// 1. Register webhook route FIRST, before any body parsers!
 app.post('/webhook/stripe', express.raw({ type: 'application/json' }), (req, res, next) => {
     const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     console.log('🎯 Webhook endpoint hit!');
     console.log('🔗 Webhook called at:', fullUrl);
     next();
 }, handleStripeWebhook);
-const PORT = process.env.PORT || 5000;
 
-
-app.use(cors(corsOptions))
-app.use(cookieParser())
-app.use(urlencoded({ extended: true }))
-app.use(express.json())
+// 2. Now register body parsers and other middleware
+app.use(cors(corsOptions));
+app.use(cookieParser());
+app.use(urlencoded({ extended: true }));
+app.use(express.json());
 app.use(errorMiddleware)
 
-
+const PORT = process.env.PORT || 5000;
 
 app.use('/api/v1/user', userRoutes)
 app.use('/api/v1/product',productRoutes)
