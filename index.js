@@ -46,7 +46,8 @@ app.use('/api/v1/admin',adminRoutes)
 await connectToDatabase();
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📡 Webhook endpoint: http://localhost:${PORT}/webhook/stripe`);
+    const webhookBase = process.env.CLIENT_URL || `http://localhost:${PORT}`;
+    console.log(`📡 Webhook endpoint: ${webhookBase}/webhook/stripe`);
 });
 
 console.log('🔧 Environment variables:');
