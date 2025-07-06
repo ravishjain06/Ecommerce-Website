@@ -89,25 +89,12 @@ export const createOrder = async (req, res) => {
                 }
             });
 
-            // Create order with pending payment AFTER session creation
-            const order = new Order({
-                ...orderData,
-                stripeSessionId: session.id
-            });
-            await order.save();
-
-            console.log('💳 Stripe checkout session created:', {
-                sessionId: session.id,
-                orderId: order._id,
-                totalAmount: order.totalAmount
-            });
-
-            // Return checkout URL for redirect
+            // Do NOT create the order here for Stripe
+            // Just return the session info to the frontend
             res.status(200).json({
                 success: true,
                 message: "Redirecting to Stripe checkout",
                 checkoutUrl: session.url,
-                orderId: order._id,
                 sessionId: session.id
             });
 
@@ -209,71 +196,72 @@ const handleCheckoutSessionCompleted = async (session) => {
             currency: session.currency
         });
         
-        // Find order by session ID (order already exists)
-        const order = await Order.findOne({ stripeSessionId: session.id });
-        
-        if (order) {
-            console.log('📦 Order found for session:', {
-                orderId: order._id,
-                userId: order.user,
-                currentStatus: order.paymentStatus,
-                totalAmount: order.totalAmount
+        // Check if order already exists (for idempotency)
+        let order = await Order.findOne({ stripeSessionId: session.id });
+        if (!order) {
+            // Create the order now, using session metadata
+            order = new Order({
+                user: session.metadata.userId,
+                products: [],
+                shippingAddress: {},
+                paymentMethod: 'Stripe',
+                shippingCost: 0,
+                totalAmount: session.amount_total / 100,
+                paymentStatus: 'Paid',
+                orderStatus: 'Processing',
+                stripeSessionId: session.id,
+                stripePaymentIntentId: session.payment_intent
             });
-
-            // Update order status
-            const previousStatus = order.paymentStatus;
-            const previousOrderStatus = order.orderStatus;
-            
+            await order.save();
+        } else {
+            // Update status if needed
             order.paymentStatus = 'Paid';
             order.orderStatus = 'Processing';
             order.stripePaymentIntentId = session.payment_intent;
             await order.save();
-
-            console.log('✅ Payment Status Updated:', {
-                orderId: order._id,
-                previousPaymentStatus: previousStatus,
-                newPaymentStatus: order.paymentStatus,
-                previousOrderStatus: previousOrderStatus,
-                newOrderStatus: order.orderStatus,
-                paymentIntentId: session.payment_intent
-            });
-
-            // Clear the cart
-            const cartDeleted = await Cart.findOneAndUpdate(
-                { userId: order.user },
-                { $set: { items: [], totalPrice: 0, coupon: null } }
-            );
-            if (cartDeleted) {
-                console.log('🛒 Cart cleared for user:', order.user);
-            }
-            
-            // Update product stock
-            console.log('📊 Updating product stock...');
-            for (const item of order.products) {
-                const product = await Product.findByIdAndUpdate(
-                    item.productId,
-                    { $inc: { inStock: -item.quantity } },
-                    { new: true }
-                );
-                
-                console.log('📦 Stock updated:', {
-                    productId: item.productId,
-                    quantityDeducted: item.quantity,
-                    newStock: product ? product.inStock : 'Product not found'
-                });
-            }
-
-            console.log('🎊 Order payment completed successfully:', {
-                orderId: order._id,
-                paymentStatus: order.paymentStatus,
-                orderStatus: order.orderStatus,
-                totalAmount: order.totalAmount
-            });
-            
-        } else {
-            console.error('❌ Order not found for session:', session.id);
-            console.error('Available session metadata:', session.metadata);
         }
+
+        console.log('✅ Payment Status Updated:', {
+            orderId: order._id,
+            previousPaymentStatus: previousStatus,
+            newPaymentStatus: order.paymentStatus,
+            previousOrderStatus: previousOrderStatus,
+            newOrderStatus: order.orderStatus,
+            paymentIntentId: session.payment_intent
+        });
+
+        // Clear the cart
+        const cartDeleted = await Cart.findOneAndUpdate(
+            { userId: order.user },
+            { $set: { items: [], totalPrice: 0, coupon: null } }
+        );
+        if (cartDeleted) {
+            console.log('🛒 Cart cleared for user:', order.user);
+        }
+        
+        // Update product stock
+        console.log('📊 Updating product stock...');
+        for (const item of order.products) {
+            const product = await Product.findByIdAndUpdate(
+                item.productId,
+                { $inc: { inStock: -item.quantity } },
+                { new: true }
+            );
+            
+            console.log('📦 Stock updated:', {
+                productId: item.productId,
+                quantityDeducted: item.quantity,
+                newStock: product ? product.inStock : 'Product not found'
+            });
+        }
+
+        console.log('🎊 Order payment completed successfully:', {
+            orderId: order._id,
+            paymentStatus: order.paymentStatus,
+            orderStatus: order.orderStatus,
+            totalAmount: order.totalAmount
+        });
+        
     } catch (error) {
         console.error('💥 Error handling checkout session completion:', {
             sessionId: session.id,
