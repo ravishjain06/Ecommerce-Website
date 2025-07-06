@@ -86,7 +86,30 @@ export const createOrder = async (req, res) => {
                 metadata: {
                     userId: userId.toString(),
                     cartId: cart._id.toString(),
+                    products: JSON.stringify(cart.items.map(item => ({
+                        productId: item.productId._id.toString(),
+                        quantity: item.quantity,
+                        price: item.price,
+                        size: item.size
+                    }))),
+                    shippingAddress: JSON.stringify(shippingAddress),
+                    shippingCost: shippingCost.toString(),
+                    totalAmount: totalAmount.toString()
                 }
+            });
+
+            console.log('Creating Stripe session with metadata:', {
+                userId: userId.toString(),
+                cartId: cart._id.toString(),
+                products: JSON.stringify(cart.items.map(item => ({
+                    productId: item.productId._id.toString(),
+                    quantity: item.quantity,
+                    price: item.price,
+                    size: item.size
+                }))),
+                shippingAddress: JSON.stringify(shippingAddress),
+                shippingCost: shippingCost.toString(),
+                totalAmount: totalAmount.toString()
             });
 
             // Do NOT create the order here for Stripe
@@ -181,32 +204,31 @@ export const handleStripeWebhook = async (req, res) => {
     }
 
     console.log('✅ Webhook processed successfully');
-    res.json({ received: true });
 };
 
 // Handle successful checkout session completion
 const handleCheckoutSessionCompleted = async (session) => {
     try {
-        console.log('🎉 Checkout session completed:', session.id);
-        console.log('Session details:', {
-            sessionId: session.id,
-            paymentIntent: session.payment_intent,
-            customerEmail: session.customer_email,
-            amountTotal: session.amount_total / 100, // Convert from cents
-            currency: session.currency
-        });
-        
-        // Check if order already exists (for idempotency)
         let order = await Order.findOne({ stripeSessionId: session.id });
         if (!order) {
-            // Create the order now, using session metadata
+            // Defensive: check for missing metadata
+            if (
+                !session.metadata ||
+                !session.metadata.products ||
+                !session.metadata.shippingAddress
+            ) {
+                throw new Error('Missing order metadata in Stripe session');
+            }
+
+            console.log('Session metadata:', session.metadata);
+
             order = new Order({
                 user: session.metadata.userId,
-                products: [],
-                shippingAddress: {},
+                products: JSON.parse(session.metadata.products),
+                shippingAddress: JSON.parse(session.metadata.shippingAddress),
                 paymentMethod: 'Stripe',
-                shippingCost: 0,
-                totalAmount: session.amount_total / 100,
+                shippingCost: Number(session.metadata.shippingCost),
+                totalAmount: Number(session.metadata.totalAmount),
                 paymentStatus: 'Paid',
                 orderStatus: 'Processing',
                 stripeSessionId: session.id,
@@ -221,6 +243,16 @@ const handleCheckoutSessionCompleted = async (session) => {
             await order.save();
         }
 
+        // Before updating order status
+        const previousStatus = order.paymentStatus;
+        const previousOrderStatus = order.orderStatus;
+
+        // ...then update order status...
+        order.paymentStatus = 'Paid';
+        order.orderStatus = 'Processing';
+        order.stripePaymentIntentId = session.payment_intent;
+        await order.save();
+
         console.log('✅ Payment Status Updated:', {
             orderId: order._id,
             previousPaymentStatus: previousStatus,
@@ -231,13 +263,13 @@ const handleCheckoutSessionCompleted = async (session) => {
         });
 
         // Clear the cart
-        const cartDeleted = await Cart.findOneAndUpdate(
-            { userId: order.user },
-            { $set: { items: [], totalPrice: 0, coupon: null } }
-        );
-        if (cartDeleted) {
-            console.log('🛒 Cart cleared for user:', order.user);
-        }
+const cartDeleted = await Cart.findOneAndUpdate(
+    { _id: session.metadata.cartId },
+    { $set: { items: [], totalPrice: 0, coupon: null } }
+);
+if (cartDeleted) {
+    console.log('🛒 Cart cleared for user:', order.user);
+}
         
         // Update product stock
         console.log('📊 Updating product stock...');
@@ -430,3 +462,4 @@ export const verifyPayment = async (req, res) => {
         });
     }
 };
+
