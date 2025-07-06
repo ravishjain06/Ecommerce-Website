@@ -17,8 +17,7 @@ dotenv.config();
 const app = express();
 
 // 1. CRITICAL: Register Stripe webhook route FIRST, before any body parsers!
-app.use('/webhook/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook);
-
+app.post('/webhook/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook);
 // 2. Register CORS and other middleware AFTER webhook route
 app.use(cors(corsOptions));
 app.use(cookieParser());

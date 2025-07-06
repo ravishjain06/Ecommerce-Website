@@ -149,20 +149,43 @@ export const createOrder = async (req, res) => {
 };
 
 // Updated Stripe webhook handler for Checkout Sessions
+// Updated Stripe webhook handler for Checkout Sessions
 export const handleStripeWebhook = async (req, res) => {
-    // Add logging at the start
     console.log('🎯 Webhook endpoint hit!');
     console.log('🔗 Webhook called at:', `${req.protocol}://${req.get('host')}${req.originalUrl}`);
+    
+    // Debug: Log headers and body info
+    console.log('📋 Request headers:', {
+        'stripe-signature': req.headers['stripe-signature'] ? 'Present' : 'Missing',
+        'content-type': req.headers['content-type'],
+        'content-length': req.headers['content-length']
+    });
+    console.log('📦 Request body type:', typeof req.body);
+    console.log('📦 Request body is Buffer:', Buffer.isBuffer(req.body));
     
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
     
+    if (!sig) {
+        console.error('❌ No Stripe signature found in headers');
+        return res.status(400).send('No Stripe signature found');
+    }
+    
+    if (!endpointSecret) {
+        console.error('❌ No webhook secret configured');
+        return res.status(500).send('Webhook secret not configured');
+    }
+    
     let event;
     
     try {
-        // Verify webhook signature
-        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+        // Ensure body is a Buffer for signature verification
+        const payload = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body, 'utf8');
         
+        // Verify webhook signature
+        event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
+        
+        console.log('✅ Webhook signature verified successfully');
         console.log('🔔 Webhook received:', {
             eventType: event.type,
             eventId: event.id,
@@ -171,6 +194,13 @@ export const handleStripeWebhook = async (req, res) => {
         
     } catch (err) {
         console.error('❌ Webhook signature verification failed:', err.message);
+        console.error('❌ Error details:', {
+            errorType: err.constructor.name,
+            message: err.message,
+            sigHeader: sig ? 'Present' : 'Missing',
+            bodyType: typeof req.body,
+            bodyLength: req.body ? req.body.length : 0
+        });
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
     
