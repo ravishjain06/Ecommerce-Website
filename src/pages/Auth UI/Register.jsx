@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Input } from "@/components/ui/input"
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Button } from '../../components/ui/button';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useRegisterMutation } from '../../APIs/user';
 import { toast } from 'react-toastify';
 import { TbLoader3 } from 'react-icons/tb';
@@ -15,8 +13,8 @@ const Register = () => {
     name: '',
     email: '',
     password: '',
-    role: 'customer',
   });
+  const [errors, setErrors] = useState({});
 
   const [register, { isLoading }] = useRegisterMutation();
 
@@ -24,20 +22,45 @@ const Register = () => {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: undefined });
   };
 
-  const handleRoleChange = (value) => {
-    setForm({ ...form, role: value });
+  // Validation function
+  const validate = () => {
+    const newErrors = {};
+    if (!form.name.trim()) {
+      newErrors.name = "Name is required";
+    } else if (!/^[A-Za-z\s]{2,32}$/.test(form.name.trim())) {
+      newErrors.name = "Name must be 2-32 letters";
+    }
+    if (!form.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/.test(form.email.trim())) {
+      newErrors.email = "Enter a valid email address";
+    }
+    if (!form.password) {
+      newErrors.password = "Password is required";
+    } else if (form.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    } else if (form.password.length > 32) {
+      newErrors.password = "Password must be at most 32 characters";
+    }
+    return newErrors;
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    const validationErrors = validate();
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      toast.error('Please fix the errors in the form.');
+      return;
+    }
     try {
       const res = await register({
         name: form.name,
         email: form.email,
         password: form.password,
-        role: form.role,
       });
       if (res?.data?.success) {
         toast.success(res?.data?.message)
@@ -80,6 +103,7 @@ const Register = () => {
                 value={form.name}
                 onChange={handleChange}
               />
+              {errors.name && <span className="text-xs text-red-500">{errors.name}</span>}
             </div>
             <div>
               <label htmlFor="email" className='text-sm text-gray-600'>Email</label>
@@ -92,6 +116,7 @@ const Register = () => {
                 value={form.email}
                 onChange={handleChange}
               />
+              {errors.email && <span className="text-xs text-red-500">{errors.email}</span>}
             </div>
             <div>
               <div className='flex justify-between items-center'>
@@ -110,8 +135,8 @@ const Register = () => {
                 value={form.password}
                 onChange={handleChange}
               />
+              {errors.password && <span className="text-xs text-red-500">{errors.password}</span>}
             </div>
-    
           </div>
           <div className='mt-6'>
             <button
