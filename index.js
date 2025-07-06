@@ -1,4 +1,4 @@
-import express, { urlencoded } from 'express';
+import express from 'express';
 import dotenv from 'dotenv';
 import { connectToDatabase } from './utils/DatabaseConnection.js';
 import cookieParser from 'cookie-parser';
@@ -16,15 +16,14 @@ dotenv.config();
 
 const app = express();
 
-// 1. Register Stripe webhook route FIRST, before any body parsers!
-app.post('/webhook/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook);
+// 1. CRITICAL: Register Stripe webhook route FIRST, before any body parsers!
+app.use('/webhook/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook);
 
-// 2. Register body parsers and other middleware AFTER webhook route
+// 2. Register CORS and other middleware AFTER webhook route
 app.use(cors(corsOptions));
 app.use(cookieParser());
-app.use(urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(errorMiddleware);
 
 // 3. Register all other routes
 app.use('/api/v1/user', userRoutes);
@@ -33,9 +32,13 @@ app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/order', orderRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
-// 4. Connect to database and start server
+// 4. Error middleware last
+app.use(errorMiddleware);
+
+// 5. Connect to database and start server
 const PORT = process.env.PORT || 5000;
 await connectToDatabase();
+
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     const webhookBase = process.env.BACKEND_URL || `http://localhost:${PORT}`;
