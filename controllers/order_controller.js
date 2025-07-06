@@ -152,21 +152,24 @@ export const createOrder = async (req, res) => {
 export const handleStripeWebhook = async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
+    
     let event;
-
+    
     try {
+        // Verify webhook signature
         event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+        
         console.log('🔔 Webhook received:', {
             eventType: event.type,
             eventId: event.id,
             created: new Date(event.created * 1000)
         });
+        
     } catch (err) {
         console.error('❌ Webhook signature verification failed:', err.message);
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
-
+    
     // Handle the event
     switch (event.type) {
         case 'checkout.session.completed':
@@ -174,22 +177,22 @@ export const handleStripeWebhook = async (req, res) => {
             const session = event.data.object;
             await handleCheckoutSessionCompleted(session);
             break;
-
+            
         case 'checkout.session.expired':
             console.log('⏰ Processing checkout.session.expired event');
             const expiredSession = event.data.object;
             await handleCheckoutSessionExpired(expiredSession);
             break;
-
+            
         case 'payment_intent.succeeded':
             const paymentIntent = event.data.object;
             console.log('💰 PaymentIntent succeeded:', {
                 paymentIntentId: paymentIntent.id,
-                amount: paymentIntent.amount / 100,
+                amount: paymentIntent.amount,
                 currency: paymentIntent.currency
             });
             break;
-
+            
         case 'payment_intent.payment_failed':
             const failedPayment = event.data.object;
             console.log('❌ Payment failed:', {
@@ -198,11 +201,13 @@ export const handleStripeWebhook = async (req, res) => {
                 failureMessage: failedPayment.last_payment_error?.message
             });
             break;
-
+            
         default:
             console.log(`❓ Unhandled event type: ${event.type}`);
     }
-
+    
+    // Return a 200 response to acknowledge receipt of the event
+    res.status(200).json({ received: true });
     console.log('✅ Webhook processed successfully');
 };
 
