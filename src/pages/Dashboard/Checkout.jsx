@@ -8,7 +8,7 @@ import { toast } from 'react-toastify'
 import { TbLoader3 } from "react-icons/tb";
 const Checkout = () => {
   const user = useSelector(state => state.auth.user)
-  const { data: cartData } = useGetCartQuery()
+  const { data: cartData, refetch } = useGetCartQuery()
   const [createOrder, { isLoading }] = useCreateOrderMutation()
   const navigate = useNavigate()
 
@@ -108,26 +108,23 @@ const Checkout = () => {
         shippingCost: 0
       }
 
-
-
       const result = await createOrder(orderData).unwrap()
-
 
       if (paymentMethod === 'CashOnDelivery') {
         toast.success(`Order placed successfully!`)
+        await refetch(); // <-- Force cart refresh after COD order
         navigate('/orders')
       } else if (paymentMethod === 'Stripe') {
-        // Handle Stripe checkout redirection
         if (result.success && result.checkoutUrl) {
-
-
           // Store order info in localStorage for post-payment reference
           localStorage.setItem('pendingOrderId', result.orderId)
           localStorage.setItem('stripeSessionId', result.sessionId)
 
+          // Optionally, refetch cart before redirecting to Stripe
+          await refetch();
+
           // Redirect to Stripe hosted checkout page
           window.location.href = result.checkoutUrl
-
         } else {
           toast.error('No Stripe checkout URL received from server')
         }
@@ -135,8 +132,6 @@ const Checkout = () => {
 
     } catch (error) {
       console.error('Order failed:', error)
-
-      // Enhanced error handling
       if (error.data) {
         toast.error(`Order failed: ${error.data.message || 'Unknown server error'}`)
       } else if (error.message) {
