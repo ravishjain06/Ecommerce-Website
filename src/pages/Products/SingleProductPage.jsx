@@ -285,7 +285,7 @@ const ProductDetail = () => {
                                     ) : (
                                         <ShoppingCartIcon className='h-5 w-5' />
                                     )}
-                                    <span>{isOutOfStock ? 'OUT OF STOCK' : isLoading ? 'Adding to Cart...' : 'ADD TO CART'}</span>
+                                    <span>{isOutOfStock ? 'OUT OF STOCK' : isLoading ? '' : 'ADD TO CART'}</span>
                                 </button>
                                 {/* Wishlist Button */}
                                 <button

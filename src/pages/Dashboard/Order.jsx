@@ -7,7 +7,9 @@ const Order = () => {
 
   const { data: ordersData, isLoading, isError } = useGetUserOrdersQuery()
   const orders = ordersData?.orders || []
-
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [ordersData]);
   // Get status icon and color
 const getStatusDisplay = (status) => {
   switch (status?.toLowerCase()) {

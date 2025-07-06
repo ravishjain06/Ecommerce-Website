@@ -5,7 +5,7 @@ import { useGetCartQuery } from '../../APIs/cart'
 import { useSelector } from 'react-redux'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-
+import { TbLoader3 } from "react-icons/tb";
 const Checkout = () => {
   const user = useSelector(state => state.auth.user)
   const { data: cartData } = useGetCartQuery()
@@ -108,10 +108,10 @@ const Checkout = () => {
         shippingCost: 0
       }
 
-  
+
 
       const result = await createOrder(orderData).unwrap()
-      
+
 
       if (paymentMethod === 'CashOnDelivery') {
         toast.success(`Order placed successfully!`)
@@ -120,22 +120,22 @@ const Checkout = () => {
         // Handle Stripe checkout redirection
         if (result.success && result.checkoutUrl) {
 
-          
+
           // Store order info in localStorage for post-payment reference
           localStorage.setItem('pendingOrderId', result.orderId)
           localStorage.setItem('stripeSessionId', result.sessionId)
-          
+
           // Redirect to Stripe hosted checkout page
           window.location.href = result.checkoutUrl
-          
+
         } else {
           toast.error('No Stripe checkout URL received from server')
         }
       }
-      
+
     } catch (error) {
       console.error('Order failed:', error)
-      
+
       // Enhanced error handling
       if (error.data) {
         toast.error(`Order failed: ${error.data.message || 'Unknown server error'}`)
@@ -157,11 +157,11 @@ const Checkout = () => {
     <div className='min-h-screen bg-gray-50'>
       <div className='max-w-7xl mx-auto'>
         <div className='bg-white'>
-          
- 
+
+
 
           <div className='p-4 md:p-6 lg:p-8'>
-            
+
             {/* Page Header */}
             <div className='mb-16'>
               <p className="text-xs font-medium tracking-[0.3em] text-gray-500 uppercase mb-2">
@@ -179,18 +179,18 @@ const Checkout = () => {
             </div>
 
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
-              
+
               {/* Left Side - Billing Details & Payment */}
               <div className='lg:col-span-2 space-y-8'>
-                
+
                 {/* Billing Details */}
                 <div className='bg-white border border-gray-200 p-8'>
                   <h2 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] mb-6'>
                     Shipping Information
                   </h2>
-                  
+
                   <form onSubmit={handlePlaceOrder} className='space-y-6'>
-                    
+
                     {/* Name Fields */}
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                       <div className="space-y-2">
@@ -355,14 +355,13 @@ const Checkout = () => {
                   <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] mb-6'>
                     Payment Method
                   </h3>
-                  
+
                   <div className='space-y-4'>
                     {/* Cash on Delivery */}
-                    <div className={`border-2 transition-all duration-300 cursor-pointer ${
-                      paymentMethod === 'CashOnDelivery' 
-                        ? 'border-black bg-gray-50' 
+                    <div className={`border-2 transition-all duration-300 cursor-pointer ${paymentMethod === 'CashOnDelivery'
+                        ? 'border-black bg-gray-50'
                         : 'border-gray-200 hover:border-gray-400'
-                    }`}>
+                      }`}>
                       <label htmlFor='cashOnDelivery' className='flex items-center p-6 cursor-pointer'>
                         <input
                           type='radio'
@@ -373,11 +372,10 @@ const Checkout = () => {
                           onChange={(e) => setPaymentMethod(e.target.value)}
                           className='sr-only'
                         />
-                        <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center mr-4 ${
-                          paymentMethod === 'CashOnDelivery' 
-                            ? 'border-black bg-black' 
+                        <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center mr-4 ${paymentMethod === 'CashOnDelivery'
+                            ? 'border-black bg-black'
                             : 'border-gray-300'
-                        }`}>
+                          }`}>
                           {paymentMethod === 'CashOnDelivery' && (
                             <div className="w-2 h-2 bg-white rounded-full"></div>
                           )}
@@ -393,11 +391,10 @@ const Checkout = () => {
                     </div>
 
                     {/* Stripe Online Payment */}
-                    <div className={`border-2 transition-all duration-300 cursor-pointer ${
-                      paymentMethod === 'Stripe' 
-                        ? 'border-black bg-gray-50' 
+                    <div className={`border-2 transition-all duration-300 cursor-pointer ${paymentMethod === 'Stripe'
+                        ? 'border-black bg-gray-50'
                         : 'border-gray-200 hover:border-gray-400'
-                    }`}>
+                      }`}>
                       <label htmlFor='stripe' className='flex items-center p-6 cursor-pointer'>
                         <input
                           type='radio'
@@ -408,11 +405,10 @@ const Checkout = () => {
                           onChange={(e) => setPaymentMethod(e.target.value)}
                           className='sr-only'
                         />
-                        <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center mr-4 ${
-                          paymentMethod === 'Stripe' 
-                            ? 'border-black bg-black' 
+                        <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center mr-4 ${paymentMethod === 'Stripe'
+                            ? 'border-black bg-black'
                             : 'border-gray-300'
-                        }`}>
+                          }`}>
                           {paymentMethod === 'Stripe' && (
                             <div className="w-2 h-2 bg-white rounded-full"></div>
                           )}
@@ -444,12 +440,17 @@ const Checkout = () => {
                       className="w-full bg-black text-white font-medium py-4 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={isLoading}
                     >
-                      {isLoading 
-                        ? 'Processing Order...' 
-                        : paymentMethod === 'Stripe' 
-                          ? 'Proceed to Payment' 
-                          : `Place Order - ₹${totalPrice.toLocaleString()}`
-                      }
+                      {isLoading ? (
+                        <span className="flex items-center justify-center">
+                          <TbLoader3 className="animate-spin h-5 w-5 mx-auto" />
+                        </span>
+                      ) : paymentMethod === 'Stripe' ? (
+                        'Proceed to Payment'
+                      ) : (
+                        <span className="flex items-center justify-center">
+                          Place Order - ₹{totalPrice.toLocaleString()}
+                        </span>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -461,14 +462,14 @@ const Checkout = () => {
                   <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] mb-6'>
                     Order Summary
                   </h3>
-                  
+
                   {/* Cart Items */}
                   <div className='space-y-4 mb-6 max-h-60 overflow-y-auto'>
                     {cart?.items?.map((item) => (
                       <div key={item._id} className='flex items-center space-x-4 p-4 bg-gray-50 border border-gray-200'>
                         <div className="w-12 h-12 bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
-                          <img 
-                            src={item.productId.img || item.productId.image?.[0]} 
+                          <img
+                            src={item.productId.img || item.productId.image?.[0]}
                             alt={item.productId.name}
                             className='w-full h-full object-cover'
                           />
