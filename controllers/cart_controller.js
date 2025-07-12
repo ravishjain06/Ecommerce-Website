@@ -14,27 +14,11 @@ export const addToCart = async (req, res) => {
     try {
         const { id: productId } = req.params;
         const { quantity = 1, size } = req.body;
-        const userId = req.id;
-
-        // Validate product exists
-        const product = await Product.findById(productId);
-        if (!product) {
-            return res.status(404).json({
-                success: false,
-                message: "Product not found"
-            });
+        let userId = req.id;
+        if (Buffer.isBuffer(userId)) {
+            userId = userId.toString('hex'); // or 'utf8' if that's how it's stored in DB
         }
-
-        // Check if product is in stock
-        if (!product.inStock) {
-            return res.status(400).json({
-                success: false,
-                message: "Product is out of stock"
-            });
-        }
-
-        // Find user's cart or create new one
-        let cart = await Cart.findOne({ userId });
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
 
         if (!cart) {
             cart = new Cart({

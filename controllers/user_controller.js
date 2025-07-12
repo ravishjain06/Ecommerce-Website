@@ -179,12 +179,14 @@ export const Login = async (req, res, next) => {
             .cookie('accessToken', accessToken, {
                 httpOnly: true,
                 maxAge: 3 * 24 * 60 * 60 * 1000,
-                sameSite: 'lax'
+                sameSite: 'none',
+                secure: true
             })
             .cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 maxAge: 6 * 24 * 60 * 60 * 1000,
-                sameSite: 'lax'
+                sameSite: 'none',
+                secure: true
             })
             .status(200)
             .json({
@@ -241,7 +243,7 @@ export const renewRefreshToken = async (req, res, next) => {
 
     } catch (error) {
         console.log(error);
-
+        return res.status(401).json({ success: false, message: "Invalid or expired refresh token." });
     }
 }
 
@@ -249,7 +251,7 @@ export const Logout = async (req, res, next) => {
     try {
         return res.clearCookie('accessToken', {
             httpOnly: true,
-            secure: true,         // set true in production (HTTPS)
+            secure: true,         
             sameSite: 'strict',
         }).status(200).json({
             success: true,
