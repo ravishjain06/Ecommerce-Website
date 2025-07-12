@@ -18,6 +18,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     let result = await baseQuery(args, api, extraOptions);
 
     if (result?.error?.status === 401) {
+        console.log("Session expired. Refreshing...");
         // Try to refresh token
         const refreshResult = await baseQuery(
             { url: "user/refresh-token", method: "POST" },

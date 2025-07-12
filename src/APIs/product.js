@@ -16,8 +16,12 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     let result = await baseQuery(args, api, extraOptions);
 
     if (result?.error?.status === 401) {
+        // Use absolute URL for refresh token
         const refreshResult = await baseQuery(
-            { url: "user/refresh-token", method: "POST" },
+            { 
+                url: `${import.meta.env.VITE_BASE_URL}/api/v1/user/refresh-token`, 
+                method: "POST" 
+            },
             api,
             extraOptions
         );

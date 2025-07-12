@@ -17,11 +17,14 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     let result = await baseQuery(args,api,extraOptions);
     
     if(result?.error?.status === 401){
-        const refreshResult = await baseQuery(
-            { url: "user/refresh-token", method: "POST" },
+             const refreshResult = await baseQuery(
+            { 
+                url: `${import.meta.env.VITE_BASE_URL}/api/v1/user/refresh-token`, 
+                method: "POST" 
+            },
             api,
             extraOptions
-        )
+        );
 
         if (refreshResult?.data?.accessToken) {
             api.dispatch({
