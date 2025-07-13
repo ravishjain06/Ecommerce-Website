@@ -12,33 +12,27 @@ import adminRoutes from './routes/adminRoutes.js';
 import { corsOptions } from './utils/cors.js';
 import { handleStripeWebhook } from './controllers/order_controller.js';
 
+import bodyParser from 'body-parser';
+
 dotenv.config();
 
 const app = express();
 
-import bodyParser from 'body-parser';
+// ✅ Correct for Stripe Webhooks
+app.post('/webhook/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook);
 
-// ✅ Stripe webhook MUST use express.raw, not json
-app.post(
-    '/webhook/stripe',
-    express.raw({ type: 'application/json' }),
-    handleStripeWebhook
-);
-
-// ✅ Apply parsers after webhook
+// ✅ Normal middleware for everything else AFTER webhook
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// ✅ Other routes
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/product', productRoutes);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/order', orderRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
-// ✅ Errors
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;
