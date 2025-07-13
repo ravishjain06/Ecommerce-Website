@@ -167,130 +167,133 @@ const getStatusDisplay = (status) => {
 
             {/* Orders List */}
             <div className='space-y-6'>
-              {orders.map((order) => (
-                <div key={order._id} className='bg-white border border-gray-200 hover:shadow-lg transition-all duration-300'>
-                  {/* Order Header */}
-                  <div className='px-6 py-4 border-b border-gray-100 bg-gray-50'>
-                    <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
-                      <div className='flex flex-col md:flex-row md:items-center gap-4'>
-                        <div>
-                          <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>Order ID</p>
-                          <p className='font-medium text-black text-sm'>#{order._id.slice(-8)}</p>
-                        </div>
-                        <div>
-                          <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>Order Date</p>
-                          <p className='text-sm text-gray-700'>{(() => {
-                            const d = new Date(order.createdAt);
-                            return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
-                          })()}</p>
-                        </div>
-                        <div>
-                          <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>Total Amount</p>
-                          <p className='font-medium text-black text-sm'>₹{order.totalAmount.toLocaleString()}</p>
-                        </div>
-                      </div>
-
-                      <div className='flex items-center gap-3'>
-                        {/* Order Status */}
-                        <div className={`px-3 py-1  ${getStatusDisplay(order.orderStatus).bg} flex items-center gap-2`}>
-                          {React.createElement(getStatusDisplay(order.orderStatus).icon, {
-                            className: `h-3 w-3 ${getStatusDisplay(order.orderStatus).color}`
-                          })}
-                          <span className={`text-xs font-medium ${getStatusDisplay(order.orderStatus).color}`}>
-                            {getStatusDisplay(order.orderStatus).text}
-                          </span>
+              {orders.map((order) => {
+                const userId = order.user?._id;
+                return (
+                  <div key={order._id} className='bg-white border border-gray-200 hover:shadow-lg transition-all duration-300'>
+                    {/* Order Header */}
+                    <div className='px-6 py-4 border-b border-gray-100 bg-gray-50'>
+                      <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
+                        <div className='flex flex-col md:flex-row md:items-center gap-4'>
+                          <div>
+                            <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>Order ID</p>
+                            <p className='font-medium text-black text-sm'>#{order._id.slice(-8)}</p>
+                          </div>
+                          <div>
+                            <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>Order Date</p>
+                            <p className='text-sm text-gray-700'>{(() => {
+                              const d = new Date(order.createdAt);
+                              return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+                            })()}</p>
+                          </div>
+                          <div>
+                            <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>Total Amount</p>
+                            <p className='font-medium text-black text-sm'>₹{order.totalAmount.toLocaleString()}</p>
+                          </div>
                         </div>
 
-                        {/* Payment Status */}
-                        <div className={`px-3 py-1 ${getPaymentDisplay(order.paymentStatus).bg} flex items-center gap-2`}>
-                          <span className={`text-xs font-medium ${getPaymentDisplay(order.paymentStatus).color}`}>
-                            {getPaymentDisplay(order.paymentStatus).text}
-                          </span>
+                        <div className='flex items-center gap-3'>
+                          {/* Order Status */}
+                          <div className={`px-3 py-1  ${getStatusDisplay(order.orderStatus).bg} flex items-center gap-2`}>
+                            {React.createElement(getStatusDisplay(order.orderStatus).icon, {
+                              className: `h-3 w-3 ${getStatusDisplay(order.orderStatus).color}`
+                            })}
+                            <span className={`text-xs font-medium ${getStatusDisplay(order.orderStatus).color}`}>
+                              {getStatusDisplay(order.orderStatus).text}
+                            </span>
+                          </div>
+
+                          {/* Payment Status */}
+                          <div className={`px-3 py-1 ${getPaymentDisplay(order.paymentStatus).bg} flex items-center gap-2`}>
+                            <span className={`text-xs font-medium ${getPaymentDisplay(order.paymentStatus).color}`}>
+                              {getPaymentDisplay(order.paymentStatus).text}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Order Items */}
-                  <div className='p-6'>
-                    <div className='space-y-4'>
-                      {order.products.map((item) => (
-                        <div key={item._id} className='flex items-center gap-4 p-4 bg-gray-50 rounded-lg'>
-                          {/* Product Image (clickable) */}
-                          <NavLink
-                            to={`/product/${item.productId._id}`}
-                            className='w-16 h-16 bg-white border border-gray-200 rounded-lg overflow-hidden flex-shrink-0 block group'
-                            title='View Product'
-                          >
-                            <img
-                              src={item.productId.img || item.productId.image?.[0] || '/public/jackets.jpg'}
-                              alt={item.productId.name}
-                              className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
-                              onError={(e) => {
-                                e.target.src = "/public/jackets.jpg";
-                              }}
-                            />
-                          </NavLink>
-
-                          {/* Product Details (title clickable) */}
-                          <div className='flex-1 min-w-0'>
+                    {/* Order Items */}
+                    <div className='p-6'>
+                      <div className='space-y-4'>
+                        {order.products.map((item) => (
+                          <div key={item._id} className='flex items-center gap-4 p-4 bg-gray-50 rounded-lg'>
+                            {/* Product Image (clickable) */}
                             <NavLink
-                              to={`/product/${item.productId._id}`}
-                              className='font-medium text-black text-sm mb-1 truncate block hover:underline'
+                              to={item.productId?._id ? `/product/${item.productId._id}` : "#"}
+                              className='w-16 h-16 bg-white border border-gray-200 rounded-lg overflow-hidden flex-shrink-0 block group'
                               title='View Product'
                             >
-                              {item.productId.name}
+                              <img
+                                src={item.productId?.img || item.productId?.image?.[0] || '/public/jackets.jpg'}
+                                alt={item.productId?.name || "Product"}
+                                className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
+                                onError={(e) => {
+                                  e.target.src = "/public/jackets.jpg";
+                                }}
+                              />
                             </NavLink>
-                            <p className='text-xs text-gray-600 uppercase tracking-wide mb-1'>
-                              {item.productId.brandName}
-                            </p>
-                            <p className='text-xs text-gray-500'>
-                              Size: {item.size} • Qty: {item.quantity}
-                            </p>
-                          </div>
 
-                          {/* Price */}
-                          <div className='text-right flex-shrink-0'>
-                            <p className='font-medium text-black text-sm'>
-                              ₹{(item.price * item.quantity).toLocaleString()}
-                            </p>
-                            {item.quantity > 1 && (
-                              <p className='text-xs text-gray-500'>
-                                ₹{item.price} each
+                            {/* Product Details (title clickable) */}
+                            <div className='flex-1 min-w-0'>
+                              <NavLink
+                                to={item.productId?._id ? `/product/${item.productId._id}` : "#"}
+                                className='font-medium text-black text-sm mb-1 truncate block hover:underline'
+                                title='View Product'
+                              >
+                                {item.productId?.name || "Product"}
+                              </NavLink>
+                              <p className='text-xs text-gray-600 uppercase tracking-wide mb-1'>
+                                {item.productId?.brandName || ""}
                               </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                              <p className='text-xs text-gray-500'>
+                                Size: {item.size} • Qty: {item.quantity}
+                              </p>
+                            </div>
 
-                    {/* Shipping Address */}
-                    <div className='mt-6 pt-6 border-t border-gray-100'>
-                      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                        <div>
-                          <h4 className='text-xs text-gray-500 uppercase tracking-wider mb-2'>Shipping Address</h4>
-                          <div className='text-sm text-gray-700 space-y-1'>
-                            <p className='font-medium'>{order.shippingAddress.firstname} {order.shippingAddress.lastname}</p>
-                            <p>{order.shippingAddress.street}</p>
-                            <p>{order.shippingAddress.address}</p>
-                            <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
-                            <p>Phone: {order.shippingAddress.phone}</p>
+                            {/* Price */}
+                            <div className='text-right flex-shrink-0'>
+                              <p className='font-medium text-black text-sm'>
+                                ₹{(item.price * item.quantity).toLocaleString()}
+                              </p>
+                              {item.quantity > 1 && (
+                                <p className='text-xs text-gray-500'>
+                                  ₹{item.price} each
+                                </p>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        ))}
+                      </div>
 
-                        <div>
-                          <h4 className='text-xs text-gray-500 uppercase tracking-wider mb-2'>Payment Method</h4>
-                          <p className='text-sm text-gray-700 font-medium'>
-                            {order.paymentMethod === 'CashOnDelivery' ? 'Cash On Delivery' : order.paymentMethod}
-                          </p>
+                      {/* Shipping Address */}
+                      <div className='mt-6 pt-6 border-t border-gray-100'>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                          <div>
+                            <h4 className='text-xs text-gray-500 uppercase tracking-wider mb-2'>Shipping Address</h4>
+                            <div className='text-sm text-gray-700 space-y-1'>
+                              <p className='font-medium'>{order.shippingAddress.firstname} {order.shippingAddress.lastname}</p>
+                              <p>{order.shippingAddress.street}</p>
+                              <p>{order.shippingAddress.address}</p>
+                              <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
+                              <p>Phone: {order.shippingAddress.phone}</p>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className='text-xs text-gray-500 uppercase tracking-wider mb-2'>Payment Method</h4>
+                            <p className='text-sm text-gray-700 font-medium'>
+                              {order.paymentMethod === 'CashOnDelivery' ? 'Cash On Delivery' : order.paymentMethod}
+                            </p>
+                          </div>
                         </div>
                       </div>
+
+
                     </div>
-
-
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
