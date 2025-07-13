@@ -149,7 +149,6 @@ export const createOrder = async (req, res) => {
 };
 
 // Updated Stripe webhook handler for Checkout Sessions
-// Updated Stripe webhook handler for Checkout Sessions
 export const handleStripeWebhook = async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -159,17 +158,35 @@ export const handleStripeWebhook = async (req, res) => {
         event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
         console.log('✅ Webhook verified:', event.type);
     } catch (err) {
-        console.error('❌ Webhook signature failed:', err.message);
+        console.error('❌ Webhook verification failed:', err.message);
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
-        console.log('🎯 Checkout session completed:', session.id);
-        // Handle successful payment
+
+        // ✅ Update your DB
+        try {
+            const updatedOrder = await Order.findOneAndUpdate(
+                { stripeSessionId: session.id },   // You should store this during session creation
+                {
+                    paymentStatus: 'Paid',
+                    orderStatus: 'Processing',
+                    stripePaymentIntentId: session.payment_intent,
+                },
+                { new: true }
+            );
+            if (updatedOrder) {
+                console.log(`✅ Order updated for session: ${session.id}`);
+            } else {
+                console.warn(`⚠️ No order found for session: ${session.id}`);
+            }
+        } catch (dbError) {
+            console.error('❌ Failed to update order in DB:', dbError);
+        }
     }
 
-    res.status(200).send();
+    res.status(200).json({ received: true });
 };
 
 // Handle successful checkout session completion
