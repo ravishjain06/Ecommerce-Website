@@ -3,9 +3,13 @@ import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'reac
 import { BsCart2 } from 'react-icons/bs'
 import { CiHeart, CiUser, CiSearch } from 'react-icons/ci'
 import { HiMenu, HiX } from 'react-icons/hi'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Button } from '../../components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useGetCartQuery } from '../../APIs/cart'
+import { useLogoutMutation } from '../../APIs/user' // Add this import
+import { setLogout } from '../../features/userSlice' // Add this import
+import { FaSignOutAlt } from 'react-icons/fa' // Add this import
 
 const navLinks = [
     { to: '/product?clothing=mens', label: 'Men' },
@@ -26,9 +30,20 @@ const Navbar = () => {
     const [searchInput, setSearchInput] = useState('') // Use for input value
     const [searchParams] = useSearchParams()
     const navigate = useNavigate(); // Add navigate
+    const dispatch = useDispatch() // Add this
 
     const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-
+    
+    // Get cart data
+    const { data: cartData } = useGetCartQuery(undefined, {
+        skip: !isAuthenticated // Only fetch if user is authenticated
+    });
+    
+    // Add logout mutation
+    const [logout] = useLogoutMutation()
+    
+    // Calculate cart item count
+    const cartItemCount = cartData?.data?.items?.length || 0;
 
     const location = useLocation();
 
@@ -56,6 +71,18 @@ const Navbar = () => {
         else url = '/product'; // fallback if no search
         navigate(url);
         setIsSearchOpen(false);
+    };
+
+    // Add logout handler
+    const handleLogout = async () => {
+        try {
+            await logout().unwrap();
+            dispatch(setLogout());
+            setIsMobileMenuOpen(false); // Close mobile menu
+            navigate("/");
+        } catch (err) {
+            console.error("Logout error:", err);
+        }
     };
 
     useEffect(() => {
@@ -110,8 +137,6 @@ const Navbar = () => {
                         })}
                     </div>
 
-
-
                     {/* Right Side Actions */}
                     <div className="flex items-center gap-2">
 
@@ -132,7 +157,12 @@ const Navbar = () => {
                                 </NavLink>
                                 <NavLink to={"/cart"} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
                                     <BsCart2 className="text-xl text-gray-700" />
-
+                                    {/* Cart Badge */}
+                                    {cartItemCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 bg-black text-white text-xs font-medium rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] border-2 border-white">
+                                            {cartItemCount > 99 ? '99+' : cartItemCount}
+                                        </span>
+                                    )}
                                 </NavLink>
                                 <NavLink to={"/profile"} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300">
                                     <CiUser className="text-xl text-gray-700" />
@@ -245,10 +275,18 @@ const Navbar = () => {
                                                 <NavLink
                                                     key={link.to}
                                                     to={link.to}
-                                                    className="flex items-center gap-3 text-gray-700 hover:text-black font-light transition-colors duration-300 py-2"
+                                                    className="flex items-center gap-3 text-gray-700 hover:text-black font-light transition-colors duration-300 py-2 relative"
                                                     onClick={toggleMobileMenu}
                                                 >
-                                                    {link.icon}
+                                                    <div className="relative">
+                                                        {link.icon}
+                                                        {/* Cart Badge for Mobile Menu */}
+                                                        {link.to === '/cart' && cartItemCount > 0 && (
+                                                            <span className="absolute -top-2 -right-2 bg-black text-white text-xs font-medium rounded-full h-4 w-4 flex items-center justify-center min-w-[16px] text-[10px]">
+                                                                {cartItemCount > 99 ? '99+' : cartItemCount}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     {link.label}
                                                 </NavLink>
                                             ))}
@@ -257,8 +295,8 @@ const Navbar = () => {
                                 )}
 
                                 {/* Auth Buttons for Mobile */}
-                                {!isAuthenticated && (
-                                    <div className="p-6 ">
+                                {!isAuthenticated ? (
+                                    <div className="p-6">
                                         <div className="space-y-3">
                                             <NavLink to="/auth/login" onClick={toggleMobileMenu}>
                                                 <button className="w-full mb-2 bg-black hover:bg-gray-800 text-white font-light py-3 text-sm tracking-wide transition-all duration-300">
@@ -272,8 +310,18 @@ const Navbar = () => {
                                             </NavLink>
                                         </div>
                                     </div>
+                                ) : (
+                                    /* Logout Button for Authenticated Users */
+                                    <div className="p-6">
+                                        <button
+                                            onClick={handleLogout}
+                                            className="w-full bg-black text-white font-light py-3 text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2"
+                                        >
+                                            <FaSignOutAlt className="text-sm" />
+                                            LOGOUT
+                                        </button>
+                                    </div>
                                 )}
-
 
                             </div>
                         </motion.div>

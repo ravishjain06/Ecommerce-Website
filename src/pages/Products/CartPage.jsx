@@ -6,52 +6,49 @@ import { useAddToCartMutation, useGetCartQuery, useRemoveFromCartMutation, useUp
 
 const CartPage = () => {
 
-  const user = useSelector(state=>state.auth.user)
+  const user = useSelector(state => state.auth.user)
   const userId = user?._id
   const { data: cartData, isLoading, isError, error, refetch } = useGetCartQuery()
-  
+
   // Add mutations
   const [removeFromCart, { isLoading: isRemoving }] = useRemoveFromCartMutation()
   const [updateQuantity, { isLoading: isUpdating }] = useUpdateQuantityMutation()
   const [applyCoupon, { isLoading: isApplyingCoupon }] = useApplyCouponMutation();
-  
+
   const [couponInput, setCouponInput] = React.useState("");
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, [cartData]);
+
   // Handle remove item
-  const handleRemoveItem = async (productId) => {
+  const handleRemoveItem = async (productId, size) => {
     try {
-      await removeFromCart(productId).unwrap()
-  
-      refetch() // Refresh cart data
+      console.log('Removing item:', productId, 'size:', size);
+      await removeFromCart({ productId, size }).unwrap(); 
+      refetch();
     } catch (error) {
-      console.error('Failed to remove item:', error)
-      alert('Failed to remove item from cart')
+      console.error('Failed to remove item:', error);
     }
   }
 
   // Handle quantity update
   const handleUpdateQuantity = async (productId, newQuantity, size) => {
-    if (newQuantity < 1) {
-      // If quantity becomes 0, remove the item instead
-      handleRemoveItem(productId)
-      return
+    if (!productId || !newQuantity || newQuantity < 1) {
+      // Optionally show a toast or error message here
+      return;
     }
-
     try {
-      await updateQuantity({ 
-        productId, 
-        quantity: newQuantity, 
-        size 
-      }).unwrap()
-   
-      refetch() // Refresh cart data
+      await updateQuantity({
+        productId,
+        quantity: newQuantity,
+        size
+      }).unwrap();
+      refetch();
     } catch (error) {
-      console.error('Failed to update quantity:', error)
-      alert('Failed to update quantity')
-    }
+      console.error('Failed to update quantity:', error);
+ 
+    } 
   }
 
   // Show loading state
@@ -84,7 +81,7 @@ const CartPage = () => {
           <p className='text-gray-600 font-light mb-6'>
             {error?.message || 'Unable to load your cart right now'}
           </p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="bg-black text-white font-medium px-6 py-3 hover:bg-gray-800 transition-colors text-sm tracking-wide"
           >
@@ -99,8 +96,6 @@ const CartPage = () => {
   const items = cart?.items || []
   const totalPrice = cartData?.totalPrice || 0
 
-
-
   // Show empty cart
   if (!cart || items.length === 0) {
     return (
@@ -108,8 +103,6 @@ const CartPage = () => {
         <div className='max-w-7xl mx-auto'>
           <div className='bg-white'>
             <div className='p-4 md:p-6 lg:p-8'>
-              
-              {/* Page Header */}
               <div className='mb-16'>
                 <p className="text-xs font-medium tracking-[0.3em] text-gray-500 uppercase mb-2">
                   Shopping Cart
@@ -124,7 +117,6 @@ const CartPage = () => {
                   Review your selected items and proceed to checkout when ready
                 </p>
               </div>
-
               <div className='text-center py-16'>
                 <div className="mb-6">
                   <div className="w-16 h-16 mx-auto bg-gray-100 border border-gray-300 flex items-center justify-center">
@@ -156,18 +148,14 @@ const CartPage = () => {
     <div className='min-h-screen bg-gray-50'>
       <div className='max-w-7xl mx-auto'>
         <div className='bg-white'>
-          
-   
-
           <div className='p-4 md:p-6 lg:p-8'>
-            
             {/* Page Header */}
             <div className='mb-16'>
               <p className="text-xs font-medium tracking-[0.3em] text-gray-500 uppercase mb-2">
                 Shopping Cart
               </p>
               <h1 className='text-3xl md:text-4xl lg:text-5xl font-light text-black mb-4'>
-                Your 
+                Your
                 <span className="block font-extralight text-gray-600">
                   Cart
                 </span>
@@ -180,41 +168,41 @@ const CartPage = () => {
             {/* Mobile Card Layout */}
             <div className='block md:hidden space-y-6 mb-8'>
               {items.map((item) => (
-                <div key={item._id} className='bg-white border border-gray-200 overflow-hidden'>
+                <div key={item?._id} className='bg-white border border-gray-200 overflow-hidden'>
                   <div className='p-6'>
                     <div className='flex justify-between items-start mb-4'>
                       <div className='flex space-x-4 flex-1'>
                         <div className="w-20 h-20 bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
-                          <img 
-                            src={item.productId.img || item.productId.image?.[0] || '/public/jackets.jpg'}
-                            alt={item.productId.name}
+                          <img
+                            src={item?.productId?.img || item?.productId?.image?.[0] || '/noImg.jpg'}
+                            alt={item?.productId?.name || 'Product'}
                             className='w-full h-full object-cover'
                           />
                         </div>
                         <div className='flex-1 min-w-0'>
-                          <h3 className='font-light text-black text-lg tracking-wide mb-1'>{item.productId.name}</h3>
-                          <p className='text-sm text-gray-600 font-light uppercase tracking-wide'>{item.productId.brandName}</p>
-                          <p className='text-xs text-gray-500 font-light uppercase tracking-wide'>{item.productId.category}</p>
+                          <h3 className='font-light text-black text-lg tracking-wide mb-1'>{item?.productId?.name || 'No Name'}</h3>
+                          <p className='text-sm text-gray-600 font-light uppercase tracking-wide'>{item?.productId?.brandName || ''}</p>
+                          <p className='text-xs text-gray-500 font-light uppercase tracking-wide'>{item?.productId?.category || ''}</p>
                         </div>
                       </div>
-                      <button 
-                        onClick={() => handleRemoveItem(item.productId._id)}
+                      <button
+                        onClick={() => handleRemoveItem(item?.productId?._id, item?.size)}
                         disabled={isRemoving}
                         className='w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors duration-300 disabled:opacity-50'
                       >
                         <XIcon className='h-4 w-4 text-gray-600' />
                       </button>
                     </div>
-                    
+
                     <div className='space-y-4'>
                       <div className='flex items-center justify-between'>
                         <div>
                           <span className='text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Size</span>
-                          <div className='text-sm text-gray-700 font-light mt-1'>{item.size}</div>
+                          <div className='text-sm text-gray-700 font-light mt-1'>{item?.size || ''}</div>
                         </div>
                         <div>
                           <span className='text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Price</span>
-                          <div className='text-lg font-light text-black mt-1'>₹{item.price.toLocaleString()}</div>
+                          <div className='text-lg font-light text-black mt-1'>₹{item?.price?.toLocaleString?.() || '0'}</div>
                         </div>
                       </div>
 
@@ -222,18 +210,18 @@ const CartPage = () => {
                         <div>
                           <span className='text-xs font-medium text-gray-500 uppercase tracking-[0.2em] mb-3 block'>Quantity</span>
                           <div className='flex items-center border border-gray-300 w-fit'>
-                            <button 
-                              onClick={() => handleUpdateQuantity(item.productId._id, item.quantity - 1, item.size)}
-                              disabled={isUpdating || item.quantity <= 1}
+                            <button
+                              onClick={() => handleUpdateQuantity(item?.productId?._id, (item?.quantity || 0) - 1, item?.size)}
+                              disabled={isUpdating || (item?.quantity || 0) <= 1}
                               className='p-3 hover:bg-gray-50 transition-colors duration-300 disabled:opacity-50'
                             >
                               <MinusIcon className='h-4 w-4 text-gray-600' />
                             </button>
                             <span className='px-6 py-3 font-medium text-black border-x border-gray-300 min-w-[60px] text-center'>
-                              {item.quantity}
+                              {item?.quantity}
                             </span>
-                            <button 
-                              onClick={() => handleUpdateQuantity(item.productId._id, item.quantity + 1, item.size)}
+                            <button
+                              onClick={() => handleUpdateQuantity(item?.productId?._id, (item?.quantity || 0) + 1, item?.size)}
                               disabled={isUpdating}
                               className='p-3 hover:bg-gray-50 transition-colors duration-300 disabled:opacity-50'
                             >
@@ -241,10 +229,10 @@ const CartPage = () => {
                             </button>
                           </div>
                         </div>
-                        
+
                         <div className='text-right'>
                           <span className='text-xs font-medium text-gray-500 uppercase tracking-[0.2em]'>Subtotal</span>
-                          <div className='text-xl font-light text-black mt-1'>₹{(item.price * item.quantity).toLocaleString()}</div>
+                          <div className='text-xl font-light text-black mt-1'>₹{((item?.price || 0) * (item?.quantity || 0)).toLocaleString()}</div>
                         </div>
                       </div>
                     </div>
@@ -269,40 +257,40 @@ const CartPage = () => {
                   </thead>
                   <tbody>
                     {items.map((item) => (
-                      <tr key={item._id} className='border-b border-gray-100 hover:bg-gray-50 transition-colors duration-300'>
+                      <tr key={item?._id} className='border-b border-gray-100 hover:bg-gray-50 transition-colors duration-300'>
                         <td className='py-6 px-6'>
                           <div className='flex items-center space-x-4'>
                             <div className="w-16 h-16 bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
-                              <img 
-                                src={item.productId.img || item.productId.image?.[0] || '/public/jackets.jpg'}
-                                alt={item.productId.name}
+                              <img
+                                src={item?.productId?.img || item?.productId?.image?.[0] || '/noImg.jpg'}
+                                alt={item?.productId?.name || 'Product'}
                                 className='w-full h-full object-cover'
                               />
                             </div>
                             <div className='min-w-0'>
-                              <h3 className='font-light text-black text-lg tracking-wide mb-1'>{item.productId.name}</h3>
-                              <p className='text-sm text-gray-600 font-light uppercase tracking-wide'>{item.productId.brandName}</p>
-                              <p className='text-xs text-gray-500 font-light uppercase tracking-wide'>{item.productId.category}</p>
+                              <h3 className='font-light text-black text-lg tracking-wide mb-1'>{item?.productId?.name || 'No Name'}</h3>
+                              <p className='text-sm text-gray-600 font-light uppercase tracking-wide'>{item?.productId?.brandName || ''}</p>
+                              <p className='text-xs text-gray-500 font-light uppercase tracking-wide'>{item?.productId?.category || ''}</p>
                             </div>
                           </div>
                         </td>
                         <td className='py-6 px-6'>
-                          <span className='text-lg font-light text-black'>₹{item.price.toLocaleString()}</span>
+                          <span className='text-lg font-light text-black'>₹{item?.price?.toLocaleString?.() || '0'}</span>
                         </td>
                         <td className='py-6 px-6'>
                           <div className='flex items-center border border-gray-300 w-fit'>
-                            <button 
-                              onClick={() => handleUpdateQuantity(item.productId._id, item.quantity - 1, item.size)}
-                              disabled={isUpdating || item.quantity <= 1}
+                            <button
+                              onClick={() => handleUpdateQuantity(item?.productId?._id, (item?.quantity || 0) - 1, item?.size)}
+                              disabled={isUpdating || (item?.quantity || 0) <= 1}
                               className='p-3 hover:bg-gray-50 transition-colors duration-300 disabled:opacity-50'
                             >
                               <MinusIcon className='h-4 w-4 text-gray-600' />
                             </button>
                             <span className='px-6 py-3 font-medium text-black border-x border-gray-300 min-w-[60px] text-center'>
-                              {item.quantity}
+                              {item?.quantity}
                             </span>
-                            <button 
-                              onClick={() => handleUpdateQuantity(item.productId._id, item.quantity + 1, item.size)}
+                            <button
+                              onClick={() => handleUpdateQuantity(item?.productId?._id, (item?.quantity || 0) + 1, item?.size)}
                               disabled={isUpdating}
                               className='p-3 hover:bg-gray-50 transition-colors duration-300 disabled:opacity-50'
                             >
@@ -311,14 +299,14 @@ const CartPage = () => {
                           </div>
                         </td>
                         <td className='py-6 px-6'>
-                          <span className='text-sm text-gray-700 font-light'>{item.size}</span>
+                          <span className='text-sm text-gray-700 font-light'>{item?.size}</span>
                         </td>
                         <td className='py-6 px-6'>
-                          <span className='text-lg font-light text-black'>₹{(item.price * item.quantity).toLocaleString()}</span>
+                          <span className='text-lg font-light text-black'>₹{((item?.price || 0) * (item?.quantity || 0)).toLocaleString()}</span>
                         </td>
                         <td className='py-6 px-6'>
-                          <button 
-                            onClick={() => handleRemoveItem(item.productId._id)}
+                          <button
+                            onClick={() => handleRemoveItem(item?.productId?._id, item?.size)}
                             disabled={isRemoving}
                             className='w-10 h-10 flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition-colors duration-300 disabled:opacity-50'
                           >
@@ -344,7 +332,6 @@ const CartPage = () => {
 
             {/* Summary Section */}
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12'>
-              
               {/* Discount Codes */}
               <div className='bg-white border border-gray-200 p-8'>
                 <h3 className='text-sm font-medium text-gray-500 uppercase tracking-[0.2em] mb-6'>
@@ -366,7 +353,7 @@ const CartPage = () => {
                         await applyCoupon(couponInput).unwrap();
                         setCouponInput("");
                       } catch (err) {
-                       console.log(err)
+                        console.log(err)
                       }
                     }}
                     disabled={isApplyingCoupon || !couponInput}
@@ -374,10 +361,10 @@ const CartPage = () => {
                     {isApplyingCoupon ? "Applying..." : "APPLY"}
                   </button>
                 </div>
-                {cart.coupon && cart.items.length > 0 && (
+                {cart?.coupon && cart?.items?.length > 0 && (
                   <div className='mt-4 p-4 bg-green-50 border border-green-200'>
                     <p className='text-sm text-green-700 font-light'>
-                      Coupon applied: {cart.coupon}
+                      Coupon applied: {cart?.coupon}
                     </p>
                   </div>
                 )}
@@ -397,11 +384,11 @@ const CartPage = () => {
                     <span className='text-gray-600 font-light'>Shipping</span>
                     <span className='font-light text-black'>Free</span>
                   </div>
-                  {cart.coupon && (
+                  {cart?.coupon && (
                     <div className='flex justify-between items-center text-green-600'>
                       <span className='font-light'>Discount</span>
                       <span className='font-light'>
-                        {cart.discountPercent ? `${cart.discountPercent}%` : "Applied"}
+                        {cart?.discountPercent ? `${cart?.discountPercent}%` : "Applied"}
                       </span>
                     </div>
                   )}
@@ -412,7 +399,7 @@ const CartPage = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <NavLink to={`/check-out`} className='block w-full'>
                   <button className='w-full bg-black text-white font-medium py-4 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide'>
                     PROCEED TO CHECKOUT

@@ -288,15 +288,6 @@ const Profile = () => {
                     </div>
                 </div>
 
-                <div className="md:hidden p-4">
-                    <button
-                        onClick={handleLogout}
-                        className="w-full bg-black text-white font-medium py-3 px-4 hover:bg-red-700 transition-colors text-sm tracking-wide flex items-center justify-center gap-2"
-                    >
-                        <FaSignOutAlt/>
-                        Logout
-                    </button>
-                </div>
             </div>
 
             {/* Loading overlay */}

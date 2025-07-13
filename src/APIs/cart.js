@@ -66,10 +66,10 @@ export const cartApi = createApi({
             providesTags: ['Cart'], // Provide cart data tag
         }),
         removeFromCart: builder.mutation({
-            query: (productId) => ({
-                url: `remove-from-cart/`,
+            query: ({ productId, size }) => ({
+                url: `remove-from-cart`,
                 method: "DELETE",
-                body: { productId },
+                body: { productId, size },
             }),
             invalidatesTags: ['Cart'], // Automatically refetch cart data
         }),
