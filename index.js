@@ -16,7 +16,10 @@ dotenv.config();
 
 const app = express();
 
-// 1. CRITICAL: Handle Stripe webhook with custom raw body parsing
+
+// ---------------------------
+// 1️⃣ Stripe Webhook Raw Parser (MUST BE BEFORE json middleware)
+// ---------------------------
 app.use('/webhook/stripe', (req, res, next) => {
     if (req.originalUrl === '/webhook/stripe') {
         let data = '';
@@ -35,40 +38,46 @@ app.use('/webhook/stripe', (req, res, next) => {
 
 app.post('/webhook/stripe', handleStripeWebhook);
 
-// 2. Register CORS and other middleware AFTER webhook route
+
+// ---------------------------
+// 2️⃣ CORS, Parsers, etc. (AFTER webhook)
+// ---------------------------
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// 3. Register all other routes
+
+// ---------------------------
+// 3️⃣ API Routes
+// ---------------------------
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/product', productRoutes);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/order', orderRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
-// 4. Error middleware last
+
+// ---------------------------
+// 4️⃣ Error Middleware
+// ---------------------------
 app.use(errorMiddleware);
 
-// 5. Connect to database and start server
+
+// ---------------------------
+// 5️⃣ Database Connection + Start Server
+// ---------------------------
 const PORT = process.env.PORT || 5000;
+
 await connectToDatabase();
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    const webhookBase = process.env.BACKEND_URL || `http://localhost:${PORT}`;
-    console.log(`📡 Webhook endpoint: ${webhookBase}/webhook/stripe`);
+    console.log(`📡 Webhook endpoint: ${process.env.BACKEND_URL}/webhook/stripe`);
+    console.log('✅ Render is now serving your app.');
+    console.log('🔑 Stripe keys:');
+    console.log('- STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? '✅ Set' : '❌ Missing');
+    console.log('- STRIPE_WEBHOOK_SECRET:', process.env.STRIPE_WEBHOOK_SECRET ? '✅ Set' : '❌ Missing');
+    console.log('- CLIENT_URL:', process.env.CLIENT_URL);
+    console.log('- BACKEND_URL:', process.env.BACKEND_URL);
 });
-
-console.log('🔧 Environment variables:');
-console.log('- PORT:', process.env.PORT || 4242);
-console.log('- STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? '✅ Set' : '❌ Missing');
-console.log('- STRIPE_WEBHOOK_SECRET:', process.env.STRIPE_WEBHOOK_SECRET ? '✅ Set' : '❌ Missing');
-console.log('- BACKEND_URL:', process.env.BACKEND_URL || 'http://localhost:5000');
-console.log('- CLIENT_URL:', process.env.CLIENT_URL || 'http://localhost:5173');
-
-
-// stripe listen --forward-to localhost:3001/webhook/stripe
-// import {randomBytes} from 'crypto';
-// console.log(randomBytes(64).toString('hex')); // Generates a random string for use in secure applications
