@@ -151,72 +151,25 @@ export const createOrder = async (req, res) => {
 // Updated Stripe webhook handler for Checkout Sessions
 // Updated Stripe webhook handler for Checkout Sessions
 export const handleStripeWebhook = async (req, res) => {
-    console.log('🎯 Stripe Webhook hit!');
-    console.log(`🔗 Webhook URL: ${req.protocol}://${req.get('host')}${req.originalUrl}`);
-
-    const signature = req.headers['stripe-signature'];
+    const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-    if (!signature || !endpointSecret) {
-        console.error('❌ Missing Stripe webhook signature or secret');
-        return res.status(400).send('Missing Stripe signature or secret');
-    }
 
     let event;
     try {
-        const payload = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body, 'utf8');
-        event = stripe.webhooks.constructEvent(payload, signature, endpointSecret);
-
-        console.log('✅ Stripe webhook signature verified');
-        console.log('🔔 Event Info:', {
-            id: event.id,
-            type: event.type,
-            created: new Date(event.created * 1000),
-        });
-
-    } catch (error) {
-        console.error('❌ Webhook signature verification failed:', error.message);
-        return res.status(400).send(`Webhook Error: ${error.message}`);
+        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+        console.log('✅ Webhook verified:', event.type);
+    } catch (err) {
+        console.error('❌ Webhook signature failed:', err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    try {
-        switch (event.type) {
-            case 'checkout.session.completed':
-                console.log('🎯 Handling checkout.session.completed');
-                await handleCheckoutSessionCompleted(event.data.object);
-                break;
-
-            case 'checkout.session.expired':
-                console.log('⏰ Handling checkout.session.expired');
-                await handleCheckoutSessionExpired(event.data.object);
-                break;
-
-            case 'payment_intent.succeeded':
-                console.log('💰 PaymentIntent succeeded:', {
-                    id: event.data.object.id,
-                    amount: event.data.object.amount,
-                    currency: event.data.object.currency,
-                });
-                break;
-
-            case 'payment_intent.payment_failed':
-                console.log('❌ PaymentIntent failed:', {
-                    id: event.data.object.id,
-                    failureCode: event.data.object.last_payment_error?.code,
-                    failureMessage: event.data.object.last_payment_error?.message,
-                });
-                break;
-
-            default:
-                console.log(`❓ Unhandled event type: ${event.type}`);
-        }
-    } catch (error) {
-        console.error('💥 Error processing webhook event:', error);
-        return res.status(500).send(`Internal Error: ${error.message}`);
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
+        console.log('🎯 Checkout session completed:', session.id);
+        // Handle successful payment
     }
 
-    console.log('✅ Webhook processing completed');
-    res.status(200).json({ received: true });
+    res.status(200).send();
 };
 
 // Handle successful checkout session completion
