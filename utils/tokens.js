@@ -8,7 +8,7 @@ export function generateAccessToken(user) {
             role: user.role
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: '2h' }
+        { expiresIn: '1m' }
     )
 }
 
