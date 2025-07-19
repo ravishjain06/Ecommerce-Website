@@ -12,10 +12,10 @@ export const isUserAuthenticated = (req, res, next) => {
             token = req.cookies.accessToken;
         }
 
-        console.log('Auth Middleware: token:', token);
+        // console.log('Auth Middleware: token:', token);
 
         if (!token) {
-            console.log('Auth Middleware: No token found');
+            // console.log('Auth Middleware: No token found');
             return res.status(401).json({
                 success: false,
                 message: 'Access token is missing or invalid.'
@@ -24,10 +24,10 @@ export const isUserAuthenticated = (req, res, next) => {
 
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-        console.log('Auth Middleware: decoded JWT:', decoded);
+        // console.log('Auth Middleware: decoded JWT:', decoded);
 
         if (!decoded) {
-            console.log('Auth Middleware: Decoded token is falsy');
+            // console.log('Auth Middleware: Decoded token is falsy');
             return res.status(401).json({
                 success: false,
                 message: 'Access token not matched.'
@@ -44,7 +44,7 @@ export const isUserAuthenticated = (req, res, next) => {
         }
         req.role = decoded.role;
 
-        console.log('Auth Middleware: req.id:', req.id, 'req.role:', req.role);
+        // console.log('Auth Middleware: req.id:', req.id, 'req.role:', req.role);
 
         next();
     }

@@ -45,13 +45,13 @@ await connectToDatabase();
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📡 Webhook endpoint: https://wearex.onrender.com/webhook/stripe`);
+    // console.log(`📡 Webhook endpoint: https://wearex.onrender.com/webhook/stripe`);
 });
 
 // 🔧 ENV Check
-console.log('🔧 Environment variables:');
-console.log('- PORT:', process.env.PORT || 4242);
-console.log('- STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? '✅ Set' : '❌ Missing');
-console.log('- STRIPE_WEBHOOK_SECRET:', process.env.STRIPE_WEBHOOK_SECRET ? '✅ Set' : '❌ Missing');
-console.log('- BACKEND_URL:', process.env.BACKEND_URL || 'http://localhost:5000');
-console.log('- CLIENT_URL:', process.env.CLIENT_URL || 'http://localhost:5173');
+// console.log('🔧 Environment variables:');
+// console.log('- PORT:', process.env.PORT || 4242);
+// console.log('- STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? '✅ Set' : '❌ Missing');
+// console.log('- STRIPE_WEBHOOK_SECRET:', process.env.STRIPE_WEBHOOK_SECRET ? '✅ Set' : '❌ Missing');
+// console.log('- BACKEND_URL:', process.env.BACKEND_URL || 'http://localhost:5000');
+// console.log('- CLIENT_URL:', process.env.CLIENT_URL || 'http://localhost:5173');
