@@ -1,3 +1,5 @@
+
+
 import express from 'express';
 import dotenv from 'dotenv';
 import { connectToDatabase } from './utils/DatabaseConnection.js';
@@ -15,7 +17,7 @@ import { handleStripeWebhook } from './controllers/order_controller.js';
 dotenv.config();
 
 const app = express();
-
+console.log("✅ Express app initialized");
 // 1️⃣ Stripe webhook FIRST - RAW BODY, REQUIRED
 app.post(
     '/webhook/stripe',
