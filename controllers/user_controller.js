@@ -61,7 +61,7 @@ export const Register = async (req, res, next) => {
         // Send OTP email
         await sendEmailVerifyOTP(req, { email, name }, OTP);
 
-        console.log("Registering email for verification:", email);
+     
 
         return res.status(200).json({
             success: true,

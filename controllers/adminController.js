@@ -56,12 +56,18 @@ export const getAllProducts = async (req, res) => {
 
 export const toggleUserBlock = async (req, res) => {
   try {
-    const { userId, block } = req.body;
+    const { userId } = req.body;
     if (!userId) return res.status(400).json({ error: 'userId is required' });
 
-    const user = await User.findByIdAndUpdate(userId, { isBlocked: !!block }, { new: true });
+    // Fetch the user first
+    const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json({ message: `User ${block ? 'blocked' : 'unblocked'} successfully`, user });
+
+    // Toggle the isBlocked value
+    user.isBlocked = !user.isBlocked;
+    await user.save();
+
+    res.json({ message: `User ${user.isBlocked ? 'blocked' : 'unblocked'} successfully`, user });
   } catch (err) {
     res.status(500).json({ error: 'Failed to update user status' });
   }
