@@ -43,8 +43,10 @@ app.use(errorMiddleware);
 
 // 5️⃣ Start DB + Server
 const PORT = process.env.PORT || 5000;
-await connectToDatabase();
-
+connectToDatabase();
+app.get('/', (req, res) => {
+  res.send('Server is up and running!');
+});
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     // console.log(`📡 Webhook endpoint: https://wearex.onrender.com/webhook/stripe`);
