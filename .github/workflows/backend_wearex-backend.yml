@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read #This is required for actions/checkout
 
@@ -21,14 +21,14 @@ jobs:
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: '22.x'
+          node-version: '20.x'
 
       - name: npm install, build, and test
         run: |
           npm install
           npm run build --if-present
           npm run test --if-present
-      
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -51,13 +51,13 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C37B7C3C84B64DB188E3986301D853C5 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B8637BD7355A4D92B78B26ECA456AE0E }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_3255089AC0ED407C9C5076F77A4A133D }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_112CFE5F453D4F9F8202B90F64434BE3 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_12781554C2B949C0AF1DC8B6762630DD }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8BE7F5078CBD48668A83880BD1FE704D }}
 
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
         with:
           app-name: 'wearex-backend'
           slot-name: 'Production'
