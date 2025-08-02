@@ -22,7 +22,20 @@ export const getAllOrders = async (req, res) => {
     const orders = await Order.find({})
       .populate('user', 'name email')
       .populate('products.productId', 'name price brandName image');
-    res.json(orders);
+    
+    // Map orders to include product name directly in each product
+    const ordersWithProductNames = orders.map(order => ({
+      ...order.toObject(),
+      products: order.products.map(p => ({
+        ...p,
+        productName: p.productId?.name || '',
+        price: p.productId?.price,
+        brandName: p.productId?.brandName,
+        image: p.productId?.image,
+      }))
+    }));
+
+    res.json(ordersWithProductNames);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
