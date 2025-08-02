@@ -6,13 +6,12 @@ import { Input } from "@/components/ui/input";
 import { useUserProfileQuery, useUpdateProfileMutation, useLogoutMutation } from '../../APIs/user';
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from 'react-router-dom';
-import { setLogout } from '../../features/userSlice';
+import { setLogout, setUser } from '../../features/userSlice';
 import { toast } from 'react-toastify';
 import { FaSignOutAlt } from 'react-icons/fa';
 
 const Profile = () => {
     const [isEditing, setIsEditing] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -93,12 +92,17 @@ const Profile = () => {
                 updateData.append('profilePicture', formData.profilePicture);
             }
 
-            await updateProfile(updateData).unwrap();
+            const response = await updateProfile(updateData).unwrap();
             toast.success('Profile updated successfully!');
             setIsEditing(false);
             setPreviewImage(null);
             setFormData(prev => ({ ...prev, password: '', profilePicture: null }));
             refetch(); // Refresh user data
+
+            // Update user in Redux store
+            if (response?.user) {
+                dispatch(setUser(response.user));
+            }
         } catch (error) {
             toast.error(error?.data?.message || 'Failed to update profile');
         }
@@ -119,11 +123,8 @@ const Profile = () => {
 
     if (isLoading) {
         return (
-            <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
-                <div className="text-center">
-                    <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600 font-light">Loading profile...</p>
-                </div>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="w-6 h-6 border-2 border-black border-t-transparent animate-spin"></div>
             </div>
         );
     }

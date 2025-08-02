@@ -2,9 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react'
 import Filter from './Filter'
 import { SlidersHorizontalIcon, Search, X } from 'lucide-react'
 import { useAllProductQuery, useFilterProductQuery, useGetWishlistQuery, useWishlistAddMutation, useWishlistRemoveMutation } from '../../APIs/product'
-import { NavLink, useParams, useSearchParams } from 'react-router-dom'
+import { NavLink, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { debounce } from 'lodash'
-
 import {
   Pagination,
   PaginationContent,
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/pagination"
 
 const Product = () => {
+  const location = useLocation();
   const [isMobile, setIsMobile] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -27,30 +27,42 @@ const Product = () => {
   const clothingFromUrl = searchParams.get('clothing') || ''
   const brandNameFromUrl = searchParams.get('brandName') || ''
 
-  // Filter state - Initialize with URL params
+  // If coming from navigation, use state for initial filter
+  const initialMainCategory = location.state?.mainCategory || (categoryFromUrl ? [categoryFromUrl] : []);
+
+  // Filter state - Initialize with navigation state or URL params
   const [appliedFilters, setAppliedFilters] = useState({
-    mainCategory: categoryFromUrl ? [categoryFromUrl] : [],
+    mainCategory: initialMainCategory,
     priceRange: '',
-    brands: brandNameFromUrl ? [brandNameFromUrl] : [], // <-- add this
+    brands: brandNameFromUrl ? [brandNameFromUrl] : [],
     search: '',
     clothing: clothingFromUrl || ''
   })
 
+  // Make sure selectedFilters is also initialized
   const [selectedFilters, setSelectedFilters] = useState({
-    mainCategory: appliedFilters.mainCategory || [],
-    priceRange: appliedFilters.priceRange || '',
-    brands: appliedFilters.brands || []
-  })
+    mainCategory: initialMainCategory,
+    priceRange: '',
+    brands: brandNameFromUrl ? [brandNameFromUrl] : []
+  });
 
   // Update filters when URL changes
   useEffect(() => {
     setAppliedFilters(prev => ({
       ...prev,
-      mainCategory: categoryFromUrl ? [categoryFromUrl] : [],
-      clothing: clothingFromUrl || '',
-      brands: brandNameFromUrl ? [brandNameFromUrl] : [],
-      search: searchParams.get('search') || '', // <-- sync search param from URL
-    }))
+      // Only update clothing if present in URL, else keep previous
+      clothing: clothingFromUrl || prev.clothing,
+      // Only update mainCategory if present in URL, else keep previous
+      mainCategory: categoryFromUrl
+        ? [categoryFromUrl]
+        : prev.mainCategory,
+      // Only update brands if present in URL, else keep previous
+      brands: brandNameFromUrl
+        ? [brandNameFromUrl]
+        : prev.brands,
+      // Always update search from URL
+      search: searchParams.get('search') || prev.search,
+    }));
   }, [categoryFromUrl, clothingFromUrl, brandNameFromUrl, searchParams])
 
   // Debounced search function
@@ -251,6 +263,27 @@ const Product = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, [currentPage]);
+
+  useEffect(() => {
+    if (location.state?.mainCategory) {
+      setAppliedFilters((prev) => ({
+        ...prev,
+        mainCategory: location.state.mainCategory
+      }));
+      setSelectedFilters((prev) => ({
+        ...prev,
+        mainCategory: location.state.mainCategory
+      }));
+    }
+  }, [location.state]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-6 h-6 border-2 border-black border-t-transparent animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className='flex flex-col min-h-screen bg-gray-50 overflow-y-scroll'>
@@ -505,10 +538,11 @@ const Product = () => {
                     >
                       {/* Product Image - Fixed aspect ratio */}
                       <div className="relative aspect-[3/4] overflow-hidden">
-                        <img 
-                          src={product?.image?.[0]}
+                        <img
+                          src={product?.image?.[0] || '/noImg.jpg'}
                           alt={product?.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" // cursor-pointer removed
+                          onError={e => { e.target.onerror = null; e.target.src = '/noImg.jpg'; }}
                         />
                         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all duration-300"></div>
 
@@ -521,7 +555,7 @@ const Product = () => {
 
                         {/* Wishlist Icon */}
                         <button
-                          className={`absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white hover:scale-110 ${wishlistIds.includes(product._id) ? 'text-red-500' : 'text-gray-700'}`}
+                          className={`absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white hover:scale-110 cursor-pointer ${wishlistIds.includes(product._id) ? 'text-red-500' : 'text-gray-700'}`}
                           onClick={async (e) => {
                             e.stopPropagation();
                             if (!wishlistIds.includes(product._id)) {
@@ -536,7 +570,7 @@ const Product = () => {
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                          </svg>
+                        </svg>
                         </button>
                       </div>
 
@@ -555,7 +589,7 @@ const Product = () => {
                             {product?.brandName}
                           </p>
                         </div>
-                        
+
                         {/* Price and Shop Link - Always at bottom */}
                         <div className="flex justify-between items-end mt-auto">
                           <div>
@@ -564,7 +598,7 @@ const Product = () => {
                               <div className="text-sm text-gray-500 line-through font-light">₹{product?.originalPrice}</div>
                             )}
                           </div>
-                          
+
                           {/* Hide Shop Now button on mobile */}
                           <NavLink to={product?._id} className="hidden md:block">
                             <span className="inline-flex items-center text-black text-sm tracking-wide border-b border-gray-300 pb-1 hover:border-black transition-all duration-300 cursor-pointer">

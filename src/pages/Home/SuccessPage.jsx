@@ -39,13 +39,8 @@ const SuccessPage = () => {
 
   if (status === 'loading') {
     return (
-      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
-        <div className='text-center max-w-md mx-auto p-8'>
-          <div className="mb-6">
-            <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          </div>
-          <h3 className="text-xl font-light text-black mb-2 tracking-wide">Verifying payment...</h3>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-6 h-6 border-2 border-black border-t-transparent animate-spin"></div>
       </div>
     );
   }

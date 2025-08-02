@@ -1,6 +1,8 @@
 import React from 'react'
 import Sidebar from './Sidebar'
 import { useGetAllOrdersQuery, useUpdateOrderMutation } from '../../APIs/admin'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const statusOptions = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
 
@@ -9,50 +11,72 @@ const AllOrder = () => {
   const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
 
   const handleStatusChange = async (orderId, newStatus) => {
-   
     try {
-      // Pass orderId and updateData in body as required, using orderStatus
-      await updateOrder({ orderId, data: { orderId, orderStatus: newStatus } });
+      await updateOrder({ id: orderId, orderStatus: newStatus }).unwrap();
+      toast.success('Order status updated successfully!');
     } catch (err) {
-      // Optionally show error toast
+      toast.error('Failed to update order status');
       console.error('Failed to update order status', err);
     }
   };
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1 p-6 lg:p-8">
-        <h2 className="text-2xl font-light text-black tracking-wide mb-6">All Orders</h2>
-        <div className="overflow-x-auto rounded-lg shadow border border-gray-200 bg-white min-h-[200px]">
+    <div className="min-h-screen bg-gray-50 flex">
+      <ToastContainer position="top-right" autoClose={2000} />
+      {/* Sidebar: fixed on the left */}
+      <div className="hidden md:block">
+        <div className="fixed inset-y-0 left-0 w-72 z-30">
+          <Sidebar />
+        </div>
+      </div>
+      {/* Main content: scrollable */}
+      <main className="flex-1 md:ml-72 h-screen overflow-y-auto p-6 md:p-8">
+        <div className="mb-8">
+          <h2 className="text-2xl font-light text-black">All Orders</h2>
+          <p className="text-sm text-gray-500 mt-1">Manage and update all orders</p>
+        </div>
+        <div className="bg-white border border-gray-100 rounded-lg overflow-x-auto">
           {isLoading ? (
-            <div className="p-8 text-center text-gray-500">Loading...</div>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+              <div className="w-6 h-6 border-2 border-black border-t-transparent animate-spin"></div>
+            </div>
           ) : isError ? (
             <div className="p-8 text-center text-red-500">Failed to load orders.</div>
           ) : orders.length === 0 ? (
             <div className="p-8 text-center text-gray-400 text-lg">No orders to display.</div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-500 border-b border-gray-100">
+                  <th style={{padding: '16px 24px'}} className="font-medium">#</th>
+                  <th style={{padding: '16px 24px'}} className="font-medium">Order ID</th>
+                  <th style={{padding: '16px 24px'}} className="font-medium">User</th>
+                  <th style={{padding: '16px 24px'}} className="font-medium">Total</th>
+                  <th style={{padding: '16px 24px'}} className="font-medium">Order Status</th>
+                  <th style={{padding: '16px 24px'}} className="font-medium">Payment Status</th>
+                  <th style={{padding: '16px 24px'}} className="font-medium">Date</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
+              <tbody>
                 {orders.map((order, idx) => (
-                  <tr key={order._id || order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{idx + 1}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">{order._id || order.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{order.user?.name || 'N/A'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">₹{order.totalAmount || 0}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold mr-2 ${order.orderStatus === 'Delivered' ? 'bg-green-100 text-green-700' : order.orderStatus === 'Cancelled' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>{order.orderStatus || 'Pending'}</span>
+                  <tr key={order._id || order.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                    <td style={{padding: '16px 24px'}} className="text-gray-700">{idx + 1}</td>
+                    <td style={{padding: '16px 24px'}} className="font-medium text-gray-900">{order._id || order.id}</td>
+                    <td style={{padding: '16px 24px'}} className="text-gray-700">{order.user?.name || 'N/A'}</td>
+                    <td style={{padding: '16px 24px'}} className="font-medium text-gray-900">₹{order.totalAmount || 0}</td>
+                    <td style={{padding: '16px 24px'}}>
+                      <span className={
+                        `inline-block px-3 py-1 text-xs font-medium border mr-2
+                        ${
+                          order.orderStatus === 'Delivered'
+                            ? 'bg-green-50 text-green-700 border-green-200'
+                            : order.orderStatus === 'Cancelled'
+                            ? 'bg-red-50 text-red-700 border-red-200'
+                            : 'bg-gray-50 text-gray-500 border-gray-200'
+                        }`
+                      }>
+                        {order.orderStatus || 'Pending'}
+                      </span>
                       <select
                         className="px-2 py-1 rounded text-xs border ml-1 focus:outline-none"
                         value={order.orderStatus || 'Pending'}
@@ -64,17 +88,38 @@ const AllOrder = () => {
                         ))}
                       </select>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${order.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700' : order.paymentStatus === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>{order.paymentStatus || 'Pending'}</span>
+                    <td style={{padding: '16px 24px'}}>
+                      <span className={
+                        `inline-block px-3 py-1 text-xs font-medium border
+                        ${
+                          order.paymentStatus === 'Paid'
+                            ? 'bg-green-50 text-green-700 border-green-200'
+                            : order.paymentStatus === 'Pending'
+                            ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                            : 'bg-gray-50 text-gray-500 border-gray-200'
+                        }`
+                      }>
+                        {order.paymentStatus || 'Pending'}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</td>
+                    <td style={{padding: '16px 24px'}} className="text-gray-500">
+                      {order.createdAt
+                        ? (() => {
+                            const d = new Date(order.createdAt);
+                            const day = String(d.getDate()).padStart(2, '0');
+                            const month = String(d.getMonth() + 1).padStart(2, '0');
+                            const year = d.getFullYear();
+                            return `${day}-${month}-${year}`;
+                          })()
+                        : 'N/A'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
         </div>
-      </div>
+      </main>
     </div>
   )
 }

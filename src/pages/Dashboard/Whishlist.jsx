@@ -14,10 +14,9 @@ const Whishlist = () => {
   if (isLoading) {
     return (
       <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
-        <div className='text-center'>
-          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className='text-gray-600 font-light'>Loading your wishlist...</p>
-        </div>
+       <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-6 h-6 border-2 border-black border-t-transparent animate-spin"></div>
+    </div>
       </div>
     )
   }

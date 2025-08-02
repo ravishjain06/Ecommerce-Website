@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 // Define baseQuery and baseQueryWithReauth here
 const baseQuery = fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_BASE_URL}/api/v1/`,
+    baseUrl: `${import.meta.env.VITE_BASE_URL}/api/v1/admin/`,
     credentials: 'include',
     prepareHeaders: (headers, { getState }) => {
         const token = getState().auth.accessToken;
@@ -62,10 +62,10 @@ export const adminApi = createApi({
             providesTags: ['Order'],
         }),
         updateOrder: builder.mutation({
-            query: ({ data }) => ({
-                url: `status/update`,
+            query: ({ id, orderStatus }) => ({
+                url: 'order/update',
                 method: 'PUT',
-                body: data,
+                body: { orderId: id, orderStatus },
             }),
             invalidatesTags: ['Order'],
         }),
@@ -76,6 +76,34 @@ export const adminApi = createApi({
             }),
             providesTags: ['Products'],
         }),
+        getDashboardStats: builder.query({
+            query: () => ({
+                url: 'dashboard-stats',
+                method: 'GET',
+            }),
+        }),
+        getAdminActivityLogs: builder.query({
+    query: () => ({
+        url: 'activity-logs',
+        method: 'GET',
+    }),
+}),
+        toggleUserBlock: builder.mutation({
+            query: ({ userId }) => ({
+                url: 'user/block',
+                method: 'POST',
+                body: { userId },
+            }),
+            invalidatesTags: ['User'],
+        }),
+        deleteUser: builder.mutation({
+            query: ({ userId }) => ({
+                url: 'user/delete',
+                method: 'DELETE',
+                body: { userId },
+            }),
+            invalidatesTags: ['User'],
+        }),
     })
 });
 
@@ -83,5 +111,9 @@ export const {
     useGetAllUsersQuery,
     useGetAllOrdersQuery,
     useUpdateOrderMutation,
-    useGetAllProductsQuery
+    useGetAllProductsQuery,
+    useGetDashboardStatsQuery,
+    useGetAdminActivityLogsQuery,
+    useToggleUserBlockMutation,
+    useDeleteUserMutation
 } = adminApi;

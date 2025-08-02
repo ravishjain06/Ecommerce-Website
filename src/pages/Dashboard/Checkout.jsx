@@ -148,6 +148,14 @@ const Checkout = () => {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-6 h-6 border-2 border-black border-t-transparent animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <div className='max-w-7xl mx-auto'>

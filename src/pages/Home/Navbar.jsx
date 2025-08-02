@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { BsCart2 } from 'react-icons/bs'
+import { CiShoppingCart } from "react-icons/ci";
 import { CiHeart, CiUser, CiSearch } from 'react-icons/ci'
 import { HiMenu, HiX } from 'react-icons/hi'
 import { useSelector, useDispatch } from 'react-redux'
@@ -9,7 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useGetCartQuery } from '../../APIs/cart'
 import { useLogoutMutation } from '../../APIs/user' // Add this import
 import { setLogout } from '../../features/userSlice' // Add this import
-import { FaSignOutAlt } from 'react-icons/fa' // Add this import
+import { FaSignOutAlt } from 'react-icons/fa'; // already imported
+import { MdDashboard } from "react-icons/md"; // Add this import for dashboard icon
+import { BiUserCircle } from "react-icons/bi"; // Add this for default avatar
 
 const navLinks = [
     { to: '/product?clothing=mens', label: 'Men' },
@@ -19,7 +21,7 @@ const navLinks = [
 ]
 
 const accountLinks = [
-    { to: '/cart', label: 'My Cart', icon: <BsCart2 className="text-xl" /> },
+    { to: '/cart', label: 'My Cart', icon: <CiShoppingCart  className="text-xl" /> },
     { to: '/wishlist', label: 'Wishlist', icon: <CiHeart className="text-xl" /> },
     { to: '/profile', label: 'Profile', icon: <CiUser className="text-xl" /> },
 ]
@@ -27,25 +29,32 @@ const accountLinks = [
 const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [isSearchOpen, setIsSearchOpen] = useState(false)
-    const [searchInput, setSearchInput] = useState('') // Use for input value
+    const [searchInput, setSearchInput] = useState('')
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false) // <-- Add this
     const [searchParams] = useSearchParams()
     const navigate = useNavigate(); // Add navigate
     const dispatch = useDispatch() // Add this
 
     const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-    
+    const user = useSelector((state) => state.auth.user);
+
+    console.log("User:", user);
+
+    const role = user?.role;
+
     // Get cart data
     const { data: cartData } = useGetCartQuery(undefined, {
         skip: !isAuthenticated // Only fetch if user is authenticated
     });
     
     // Add logout mutation
-    const [logout] = useLogoutMutation()
+    const [logout] = useLogoutMutation(); // already present
     
     // Calculate cart item count
     const cartItemCount = cartData?.data?.items?.length || 0;
 
     const location = useLocation();
+    const profileMenuRef = useRef(null);
 
     // Helper to get current clothing param
     const getActiveClothing = () => {
@@ -73,17 +82,30 @@ const Navbar = () => {
         setIsSearchOpen(false);
     };
 
-    // Add logout handler
+    // Logout handler
     const handleLogout = async () => {
         try {
             await logout().unwrap();
             dispatch(setLogout());
-            setIsMobileMenuOpen(false); // Close mobile menu
+            setIsProfileMenuOpen(false);
             navigate("/");
         } catch (err) {
             console.error("Logout error:", err);
         }
     };
+
+    // Handle outside click for profile menu
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+                setIsProfileMenuOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     useEffect(() => {
         setSearchInput(searchParams.get('search') || '');
@@ -152,21 +174,70 @@ const Navbar = () => {
 
                         {isAuthenticated ? (
                             <div className="hidden md:flex gap-2 items-center">
-                                <NavLink to={"/wishlist"} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
+                                <NavLink to={"/wishlist"} className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
                                     <CiHeart className="text-xl text-gray-700" />
                                 </NavLink>
-                                <NavLink to={"/cart"} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
-                                    <BsCart2 className="text-xl text-gray-700" />
-                                    {/* Cart Badge */}
+                                <NavLink to={"/cart"} className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
+                                    <CiShoppingCart className="text-xl text-gray-700" />
                                     {cartItemCount > 0 && (
                                         <span className="absolute -top-1 -right-1 bg-black text-white text-xs font-medium rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] border-2 border-white">
                                             {cartItemCount > 99 ? '99+' : cartItemCount}
                                         </span>
                                     )}
                                 </NavLink>
-                                <NavLink to={"/profile"} className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300">
-                                    <CiUser className="text-xl text-gray-700" />
-                                </NavLink>
+                                {/* Avatar Icon with Dropdown */}
+                                <div className="relative flex items-center justify-center" ref={profileMenuRef}>
+                                    <button
+                                        className="flex items-center justify-center cursor-pointer p-2 rounded-full transition-colors duration-300"
+                                        onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                                    >
+                                        {user?.profilePicture ? (
+                                            <img
+                                                src={user.profilePicture}
+                                                alt="avatar"
+                                                className="w-7 h-7 rounded-full object-cover border border-gray-200"
+                                            />
+                                        ) : (
+                                            <img
+                                                src="/default-avatar.png"
+                                                alt="default avatar"
+                                                className="w-7 h-7 rounded-full object-cover border border-gray-200"
+                                            />
+                                        )}
+                                    </button>
+                                    {isProfileMenuOpen && (
+                                        <div
+                                            className="absolute right-0 top-full mt-3 w-52 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+                                            style={{ minWidth: '200px' }}
+                                        >
+                                            <NavLink
+                                                to="/profile"
+                                                className="block px-4 py-2 text-gray-700 hover:bg-gray-50 font-light tracking-wide text-sm flex items-center gap-2"
+                                                onClick={() => setIsProfileMenuOpen(false)}
+                                            >
+                                                <BiUserCircle className="text-lg" />
+                                                Profile
+                                            </NavLink>
+                                            {role === 'admin' && user?.category !== 'trouser' && (
+                                                <NavLink
+                                                    to="/admin/dashboard"
+                                                    className="block px-4 py-2 text-gray-700 hover:bg-gray-50 font-light tracking-wide text-sm flex items-center gap-2"
+                                                    onClick={() => setIsProfileMenuOpen(false)}
+                                                >
+                                                    <MdDashboard className="text-lg" />
+                                                    Dashboard
+                                                </NavLink>
+                                            )}
+                                            <button
+                                                onClick={handleLogout}
+                                                className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 font-light tracking-wide text-sm flex items-center gap-2"
+                                            >
+                                                <FaSignOutAlt className="text-lg" />
+                                                Logout
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         ) : (
                             <div className='gap-3 hidden md:flex'>

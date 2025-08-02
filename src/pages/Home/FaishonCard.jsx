@@ -1,7 +1,18 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 
 const FashionCard = () => {
+  const navigate = useNavigate();
+
+  const handleDiscoverMore = () => {
+    navigate('/product', {
+      state: {
+        mainCategory: ['Hoodies & Sweatshirts']
+      }
+    });
+  };
+
   return (
     <section className="bg-gray-50 py-16 px-4 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -58,7 +69,10 @@ const FashionCard = () => {
                 <p className="text-sm opacity-90 font-light">
                   Carefully crafted pieces for everyday elegance
                 </p>
-                <button className="inline-flex items-center text-white text-sm tracking-wide border-b border-white/40 pb-1 hover:border-white transition-all duration-300">
+                <button
+                  className="inline-flex items-center text-white text-sm tracking-wide border-b border-white/40 pb-1 hover:border-white transition-all duration-300 cursor-pointer"
+                  onClick={handleDiscoverMore}
+                >
                   DISCOVER MORE
                   <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -102,7 +116,14 @@ const FashionCard = () => {
                 <p className="text-sm opacity-90 font-light">
                   Timeless designs with modern sensibility
                 </p>
-                <button className="inline-flex items-center text-white text-sm tracking-wide border-b border-white/40 pb-1 hover:border-white transition-all duration-300">
+                <button
+                  className="inline-flex items-center text-white text-sm tracking-wide border-b border-white/40 pb-1 hover:border-white transition-all duration-300 cursor-pointer"
+                  onClick={() => navigate('/product', {
+                    state: {
+                      mainCategory: ['T-Shirts']
+                    }
+                  })}
+                >
                   VIEW COLLECTION
                   <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />

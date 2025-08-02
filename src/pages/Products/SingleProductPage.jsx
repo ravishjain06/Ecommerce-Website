@@ -82,12 +82,9 @@ const ProductDetail = () => {
     const isOutOfStock = stock <= 0;
    if (isProductLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px] w-full">
-                  <div className="text-center">
-                    <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600 font-light">Loading product...</p>
-                  </div>
-                </div>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-6 h-6 border-2 border-black border-t-transparent animate-spin"></div>
+    </div>
         );
     }
     return (
