@@ -290,13 +290,20 @@ export const getUserProfile = async (req, res, next) => {
 }
 
 export const updateUserProfile = async (req, res, next) => {
-    console.log("Updating user profile...");
     try {
-        const userId = req.id
-        const { name, email, phone, profilePicture, currentPassword, newPassword, dateOfBirth } = req.body // <-- Added dateOfBirth
-        const file = req.file;
+        console.log("Raw req.body:", req.body);
+        console.log("Raw req.file:", req.file);
 
-        console.log("Date of Birth:", req.body.dateOfBirth);
+        const userId = req.id;
+        const file = req.file; // <-- Add this line
+
+        if (!req.body) {
+            return res.status(400).json({
+                success: false,
+                message: "No data sent in request body."
+            });
+        }
+        const { name, email, phone, profilePicture, currentPassword, newPassword, dateOfBirth } = req.body
 
         if (!userId) {
             return res.status(400).json({
@@ -313,18 +320,60 @@ export const updateUserProfile = async (req, res, next) => {
             });
         }
 
-        // ...existing password update logic...
+        // If user wants to update password
+        if (newPassword) {
+            if (!currentPassword) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Current password is required to update password."
+                });
+            }
+
+            // Verify current password
+            const isCurrentPasswordValid = await argon2.verify(user.password, currentPassword);
+            if (!isCurrentPasswordValid) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Current password is incorrect."
+                });
+            }
+
+            // Validate new password (optional - add your validation rules)
+            if (newPassword.length < 6) {
+                return res.status(400).json({
+                    success: false,
+                    message: "New password must be at least 6 characters long."
+                });
+            }
+
+            // Hash new password
+            const hashedNewPassword = await argon2.hash(newPassword);
+            user.password = hashedNewPassword;
+        }
 
         let profilePictureUrl = null
 
         if (name) user.name = name;
         if (email) {
-            // ...existing email update logic...
+            // Check if email is already taken by another user
+            const emailExists = await User.findOne({ email, _id: { $ne: userId } });
+            if (emailExists) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Email is already taken by another user."
+                });
+            }
+            user.email = email;
         }
         if (phone) user.phone = phone;
-        if (dateOfBirth) user.dateOfBirth = dateOfBirth; // <-- Update dateOfBirth
         if (file) {
-            // ...existing image upload logic...
+            const uploadedImage = await imagekit.upload({
+                file: fs.readFileSync(file.path), // Binary file data
+                fileName: file.originalname, // Image name
+                folder: "my_uploads", // Optional folder in ImageKit
+            });
+            profilePictureUrl = uploadedImage.url; // Get the URL of the uploaded image
+            fs.unlinkSync(file.path); // Clean up the temporary file
         }
         if (file) user.profilePicture = profilePictureUrl;
 
@@ -339,8 +388,7 @@ export const updateUserProfile = async (req, res, next) => {
                 phone: user.phone,
                 profilePicture: user.profilePicture,
                 role: user.role,
-                isVerified: user.isVerified,
-                dateOfBirth: user.dateOfBirth // <-- Return dateOfBirth
+                isVerified: user.isVerified
             }
         });
 

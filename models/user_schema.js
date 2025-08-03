@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
     },
     profilePicture: {
         type: String,
-        default: "https://img.freepik.com/free-psd/contact-icon-illustration-isolated_23-2151903337.jpg?t=st=1746337821~exp=1746341421~hmac=0dfce26dcfcd6cd10e1164cf42373f7e6642d2312813765fbb1dcd7e774d46a9&w=740",
+        default: "",
     },
     isVerified: {
         type: Boolean,
