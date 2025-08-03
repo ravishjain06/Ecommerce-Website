@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'reac
 import { CiShoppingCart } from "react-icons/ci";
 import { CiHeart, CiUser, CiSearch } from 'react-icons/ci'
 import { HiMenu, HiX } from 'react-icons/hi'
+import { RiMenu3Fill } from "react-icons/ri"; // Add this import
 import { useSelector, useDispatch } from 'react-redux'
 import { Button } from '../../components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -259,7 +260,7 @@ const Navbar = () => {
                             className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
                             onClick={toggleMobileMenu}
                         >
-                            <HiMenu className="text-xl text-gray-700" />
+                            <RiMenu3Fill className="text-xl text-gray-700" />
                         </button>
                     </div>
                 </div>
