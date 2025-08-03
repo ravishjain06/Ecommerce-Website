@@ -380,10 +380,10 @@ const Profile = () => {
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm mx-4 border border-gray-100">
                         <div className="text-center">
-                            
+
                             <div className="flex justify-center mb-6">
-                                
-<div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div>
+
+                                <div className="w-4 h-4 border-2 border-black border-t-transparent animate-spin duration-500"></div>
                             </div>
 
                             <h3 className="text-lg font-medium text-black mb-2">Updating Profile</h3>
