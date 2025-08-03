@@ -22,7 +22,7 @@ const Login = () => {
     try {
       const res = await login({ email: form.email, password: form.password })
       if (res?.data?.success) {
-       
+
         dispatch(setUser(res?.data?.user))
         dispatch(setAccessToken(res?.data?.accessToken));
         navigate('/');
@@ -94,7 +94,9 @@ const Login = () => {
               className="bg-black hover:bg-gray-800 text-white w-full py-3 transition flex justify-center items-center"
               disabled={isLoading}
             >
-              {isLoading ? <TbLoader3 className="animate-spin" /> : "Sign In"}
+          {isLoading
+  ? <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div>
+  : "Sign In"}
             </button>
             <div className='text-gray-500 mt-4 text-right'>
               <span className='text-xs'>Don't have an account? </span>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ChevronRightIcon, StarIcon, ShoppingCartIcon, ShieldCheckIcon, RulerIcon, TruckIcon, RefreshCwIcon, HeartIcon, ShareIcon, MinusIcon, PlusIcon } from 'lucide-react'
-import { TbLoader3 } from "react-icons/tb";
+
 import { useGetProductByIdQuery } from '../../APIs/product'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -278,7 +278,7 @@ const ProductDetail = () => {
                                     }`}
                                 >
                                     {isLoading ? (
-                                        <TbLoader3 className="animate-spin h-5 w-5" />
+                                       <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div>
                                     ) : (
                                         <ShoppingCartIcon className='h-5 w-5' />
                                     )}
@@ -305,8 +305,8 @@ const ProductDetail = () => {
                                     )}
                                     <span>
                                         {wishlistIds.includes(id)
-                                            ? (isRemoveLoading ? <TbLoader3 className="animate-spin h-4 w-4" /> : 'Wishlisted')
-                                            : (isWishlistLoading ? <TbLoader3 className="animate-spin h-4 w-4" /> : 'WISHLIST')}
+                                            ? (isRemoveLoading ? <div className="w-4 h-4 border-2 border-black border-t-transparent animate-spin duration-500"></div> : 'Wishlisted')
+                                            : (isWishlistLoading ? <div className="w-4 h-4 border-2 border-black border-t-transparent animate-spin duration-500"></div> : 'WISHLIST')}
                                     </span>
                                 </button>
                             </div>

@@ -445,7 +445,8 @@ const Checkout = () => {
                     >
                       {isLoading ? (
                         <span className="flex items-center justify-center">
-                          <TbLoader3 className="animate-spin h-5 w-5 mx-auto" />
+
+<div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div>
                         </span>
                       ) : paymentMethod === 'Stripe' ? (
                         'Proceed to Payment'
@@ -470,11 +471,16 @@ const Checkout = () => {
                   <div className='space-y-4 mb-6 max-h-60 overflow-y-auto'>
                     {cart?.items?.map((item) => (
                       <div key={item._id} className='flex items-center space-x-4 p-4 bg-gray-50 border border-gray-200'>
-                        <div className="w-12 h-12 bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+                        <div className="w-12 h-12 bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
                           <img
-                            src={item.productId.img || item.productId.image?.[0]}
+                            src={
+                              item.productId.image?.[0] ||
+                              item.productId.img ||
+                              '/noImg.jpg'
+                            }
                             alt={item.productId.name}
-                            className='w-full h-full object-cover'
+                            className="w-full h-full object-cover object-center"
+                            loading="lazy"
                           />
                         </div>
                         <div className='flex-1 min-w-0'>

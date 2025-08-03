@@ -98,7 +98,7 @@ const Verification = () => {
               disabled={value.length !== 6 || isLoading}
               style={{ borderRadius: 0 }}
             >
-              {isLoading ? <TbLoader3 className="animate-spin" /> : "Verify code"}
+              {isLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div> : "Verify code"}
             </Button>
           </div>
         </div>

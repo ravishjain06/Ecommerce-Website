@@ -7,8 +7,6 @@ import { useUserProfileQuery, useUpdateProfileMutation, useLogoutMutation } from
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from 'react-router-dom';
 import { setLogout, setUser } from '../../features/userSlice';
-import { toast } from 'react-toastify';
-import { FaSignOutAlt } from 'react-icons/fa';
 
 const Profile = () => {
     const [isEditing, setIsEditing] = useState(false);
@@ -17,7 +15,8 @@ const Profile = () => {
         email: '',
         phone: '',
         password: '',
-        profilePicture: null
+        profilePicture: null,
+        dateOfBirth: '' // <-- Add this line
     });
     const [previewImage, setPreviewImage] = useState(null);
 
@@ -47,7 +46,8 @@ const Profile = () => {
                 email: user.email || '',
                 phone: user.phone || '',
                 password: '',
-                profilePicture: null
+                profilePicture: null,
+                dateOfBirth: user.dateOfBirth || '' // <-- Add this line
             });
         }
     }, [user]);
@@ -83,6 +83,7 @@ const Profile = () => {
             updateData.append('name', formData.name);
             updateData.append('email', formData.email);
             updateData.append('phone', formData.phone);
+            updateData.append('dateOfBirth', formData.dateOfBirth); // <-- Add this line
 
             if (formData.password) {
                 updateData.append('password', formData.password);
@@ -93,7 +94,7 @@ const Profile = () => {
             }
 
             const response = await updateProfile(updateData).unwrap();
-            toast.success('Profile updated successfully!');
+          
             setIsEditing(false);
             setPreviewImage(null);
             setFormData(prev => ({ ...prev, password: '', profilePicture: null }));
@@ -109,13 +110,14 @@ const Profile = () => {
     };
 
     const handleCancel = () => {
-        // Reset form data
+        // Reset form data to user values
         setFormData({
             name: user?.name || '',
             email: user?.email || '',
             phone: user?.phone || '',
             password: '',
-            profilePicture: null
+            profilePicture: null,
+            dateOfBirth: user?.dateOfBirth || '' // <-- Fix here
         });
         setPreviewImage(null);
         setIsEditing(false);
@@ -140,22 +142,21 @@ const Profile = () => {
 
                     <div className='flex-1 p-4 md:p-6 lg:p-8'>
                         {/* Profile Header and Edit Button OUTSIDE the card */}
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4 max-w-2xl mx-auto">
-                            <div>
+                        <div className="flex flex-row items-center justify-between mb-6 gap-4 max-w-2xl mx-auto">
+                            <div className="flex-1">
                                 <h1 className="text-2xl md:text-3xl font-light text-black mb-2">Profile Settings</h1>
                                 <p className="text-gray-600 font-light">Manage your personal information and account preferences</p>
                             </div>
-                            <button
-                                onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-                                disabled={isUpdating}
-                                className={`px-4 py-2 text-sm font-medium transition-colors duration-300 flex items-center gap-2 disabled:opacity-50 ${isEditing
-                                        ? 'bg-green-600 text-white hover:bg-green-700'
-                                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                                    }`}
-                            >
-                                <Edit3 className="w-4 h-4" />
-                                {isUpdating ? 'Saving...' : isEditing ? 'Save Changes' : 'Edit Profile'}
-                            </button>
+                            {!isEditing && (
+                                <button
+                                    onClick={() => setIsEditing(true)}
+                                    disabled={isUpdating}
+                                    className="px-4 py-2 text-sm font-medium transition-colors duration-300 flex items-center gap-2 disabled:opacity-50 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 self-start mt-1"
+                                >
+                                    <Edit3 className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Edit Profile</span>
+                                </button>
+                            )}
                         </div>
                         <div className="bg-white border border-gray-200 max-w-2xl mx-auto">
                             {/* Profile Picture */}
@@ -252,14 +253,42 @@ const Profile = () => {
                                             <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                                         </div>
                                     </div>
-
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
-                                        <Input
-                                            type="date"
-                                            disabled={!isEditing}
-                                            className={`w-full ${isEditing ? 'bg-white border-gray-300 focus:border-black' : 'bg-gray-50 border-gray-200'} transition-colors`}
-                                        />
+                                        <div className="relative">
+                                            <Input
+                                                type={isEditing ? "date" : "text"}
+                                                name="dateOfBirth"
+                                               
+                                                value={
+                                                    isEditing
+                                                        ? (
+                                                            formData.dateOfBirth
+                                                                ? /^\d{4}-\d{2}-\d{2}$/.test(formData.dateOfBirth)
+                                                                    ? formData.dateOfBirth
+                                                                    : new Date(formData.dateOfBirth).toISOString().slice(0, 10)
+                                                                : ''
+                                                        )
+                                                        : (
+                                                            user?.dateOfBirth
+                                                                ? (() => {
+                                                                    const d = new Date(user.dateOfBirth);
+                                                                    const day = String(d.getDate()).padStart(2, '0');
+                                                                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                                                                    const year = d.getFullYear();
+                                                                    return `${day}-${month}-${year}`;
+                                                                })()
+                                                                : 'Not Provided'
+                                                        )
+                                                }
+                                                placeholder="Add date of birth"
+                                                onChange={handleInputChange}
+                                                disabled={!isEditing}
+                                                className={`w-full block ${isEditing ? 'bg-white border-gray-300 focus:border-black' : 'bg-gray-50 border-gray-200'} transition-colors`}
+                                            />
+                                         
+                                          
+                                        </div>
                                     </div>
                                 </div>
                                 {/* Action Buttons */}
@@ -296,9 +325,10 @@ const Profile = () => {
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm mx-4 border border-gray-100">
                         <div className="text-center">
-                            {/* Simple LuLoaderCircle */}
+                            
                             <div className="flex justify-center mb-6">
-                                <LuLoaderCircle className="w-12 h-12 text-black animate-spin" />
+                                
+<div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div>
                             </div>
 
                             <h3 className="text-lg font-medium text-black mb-2">Updating Profile</h3>

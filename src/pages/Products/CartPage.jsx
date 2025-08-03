@@ -16,6 +16,8 @@ const CartPage = () => {
   const [applyCoupon, { isLoading: isApplyingCoupon }] = useApplyCouponMutation();
 
   const [couponInput, setCouponInput] = React.useState("");
+  const [couponError, setCouponError] = React.useState(""); // Add error state
+  const [checkoutLoading, setCheckoutLoading] = React.useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -169,13 +171,17 @@ const CartPage = () => {
                   <div className='p-6'>
                     <div className='flex justify-between items-start mb-4'>
                       <div className='flex space-x-4 flex-1'>
-                        <div className="w-20 h-20 bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
-                          <img
-                            src={item?.productId?.img || item?.productId?.image?.[0] || '/noImg.jpg'}
-                            alt={item?.productId?.name || 'Product'}
-                            className='w-full h-full object-cover'
-                          />
-                        </div>
+                  <div className="w-20 h-20 bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+  <img
+    src={
+      item?.productId?.image?.[0] ||
+      item?.productId?.img ||
+      '/noImg.jpg'
+    }
+    alt={item?.productId?.name || 'Product'}
+    className='w-full h-full object-cover'
+  />
+</div>
                         <div className='flex-1 min-w-0'>
                           <h3 className='font-light text-black text-lg tracking-wide mb-1'>{item?.productId?.name || 'No Name'}</h3>
                           <p className='text-sm text-gray-600 font-light uppercase tracking-wide'>{item?.productId?.brandName || ''}</p>
@@ -257,13 +263,17 @@ const CartPage = () => {
                       <tr key={item?._id} className='border-b border-gray-100 hover:bg-gray-50 transition-colors duration-300'>
                         <td className='py-6 px-6'>
                           <div className='flex items-center space-x-4'>
-                            <div className="w-16 h-16 bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
-                              <img
-                                src={item?.productId?.img || item?.productId?.image?.[0] || '/noImg.jpg'}
-                                alt={item?.productId?.name || 'Product'}
-                                className='w-full h-full object-cover'
-                              />
-                            </div>
+                           <div className="w-20 h-20 bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+  <img
+    src={
+      item?.productId?.image?.[0] ||
+      item?.productId?.img ||
+      '/noImg.jpg'
+    }
+    alt={item?.productId?.name || 'Product'}
+    className='w-full h-full object-cover'
+  />
+</div>
                             <div className='min-w-0'>
                               <h3 className='font-light text-black text-lg tracking-wide mb-1'>{item?.productId?.name || 'No Name'}</h3>
                               <p className='text-sm text-gray-600 font-light uppercase tracking-wide'>{item?.productId?.brandName || ''}</p>
@@ -346,18 +356,25 @@ const CartPage = () => {
                     className='px-8 py-3 bg-black text-white hover:bg-gray-800 transition-colors duration-300 text-sm font-medium tracking-wide disabled:opacity-50'
                     onClick={async () => {
                       if (!couponInput) return;
+                      setCouponError(""); // Reset error before applying
                       try {
                         await applyCoupon(couponInput).unwrap();
                         setCouponInput("");
                       } catch (err) {
-                        console.log(err)
+                        setCouponError(err?.data?.message || "Failed to apply coupon"); // Show backend error
+                        setCouponInput(""); // Clear input on error
                       }
                     }}
                     disabled={isApplyingCoupon || !couponInput}
                   >
-                    {isApplyingCoupon ? "Applying..." : "APPLY"}
+                    {isApplyingCoupon ? <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div> : "APPLY"}
                   </button>
                 </div>
+                {couponError && (
+  <div className="mt-2 text-sm text-red-600 font-light">
+    {couponError}
+  </div>
+)}
                 {cart?.coupon && cart?.items?.length > 0 && (
                   <div className='mt-4 p-4 bg-green-50 border border-green-200'>
                     <p className='text-sm text-green-700 font-light'>
@@ -398,10 +415,22 @@ const CartPage = () => {
                 </div>
 
                 <NavLink to={`/check-out`} className='block w-full'>
-                  <button className='w-full bg-black text-white font-medium py-4 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide'>
-                    PROCEED TO CHECKOUT
-                  </button>
-                </NavLink>
+                  <button
+    className='w-full bg-black text-white font-medium py-4 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide flex items-center justify-center'
+    disabled={checkoutLoading}
+    onClick={e => {
+      setCheckoutLoading(true);
+      // Optionally, you can add a small delay for UX or let navigation handle it
+      // If you want to wait for navigation, you may need to use useNavigate instead of NavLink
+    }}
+  >
+    {checkoutLoading ? (
+      <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div>
+    ) : (
+      "PROCEED TO CHECKOUT"
+    )}
+  </button>
+</NavLink>
               </div>
             </div>
           </div>

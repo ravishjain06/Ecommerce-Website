@@ -222,11 +222,15 @@ const getStatusDisplay = (status) => {
                               title='View Product'
                             >
                               <img
-                                src={item.productId?.img || item.productId?.image?.[0] || '/public/jackets.jpg'}
+                                src={
+                                  item.productId?.image?.[0] ||
+                                  item.productId?.img ||
+                                  '/noImg.jpg'
+                                }
                                 alt={item.productId?.name || "Product"}
-                                className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
+                                className='w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-200'
                                 onError={(e) => {
-                                  e.target.src = "/public/jackets.jpg";
+                                  e.target.src = "/noImg.jpg";
                                 }}
                               />
                             </NavLink>

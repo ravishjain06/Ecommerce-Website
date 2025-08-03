@@ -64,7 +64,7 @@ const SetNewPassword = () => {
                 type="submit"
                 disabled={isLoading || !newPassword}
               >
-                {isLoading ? <TbLoader3 className="animate-spin" /> : "Reset Password"}
+                {isLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div> : "Reset Password"}
               </button>
               <div className='text-gray-500 mt-4 text-right'>
                 <span className='text-xs'>Back to </span>

@@ -62,7 +62,7 @@ const ResetPassword = () => {
                 className="bg-black hover:bg-gray-800 text-white w-full py-3 transition flex justify-center items-center"
                 disabled={isLoading || !email}
               >
-                {isLoading ? <TbLoader3 className="animate-spin" /> : "Send"}
+                {isLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div> : "Send"}
               </button>
               <div className='text-gray-500 mt-4 text-right'>
                 <span className='text-xs'>Back to </span>
