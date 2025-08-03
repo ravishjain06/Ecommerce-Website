@@ -14,23 +14,39 @@ const Login = () => {
   const dispatch = useDispatch()
   const handleShow = () => setShow(!show)
   const [form, setform] = useState({ email: "", password: "" })
-  const handleChange = (e) => setform({ ...form, [e.target.name]: e.target.value })
+  const [errors, setErrors] = useState({ email: "", password: "", general: "" }); // Add errors state
   const [login, { isLoading }] = useLoginMutation()
+
+  const handleChange = (e) => {
+    setform({ ...form, [e.target.name]: e.target.value })
+    setErrors(prev => ({ ...prev, [e.target.name]: "" })); // Clear field error on change
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    let newErrors = { email: "", password: "", general: "" };
+
+    // Basic validation
+    if (!form.email) newErrors.email = "Email is required";
+    if (!form.password) newErrors.password = "Password is required";
+    if (newErrors.email || newErrors.password) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
       const res = await login({ email: form.email, password: form.password })
       if (res?.data?.success) {
-
         dispatch(setUser(res?.data?.user))
         dispatch(setAccessToken(res?.data?.accessToken));
         navigate('/');
       } else if (res?.error) {
-        toast.error(res?.error?.data?.message)
+        // Show API error below fields
+        newErrors.general = res?.error?.data?.message || "Login failed. Please try again.";
+        setErrors(newErrors);
       }
     } catch (error) {
-      toast.error('Login failed. Please try again.')
+      setErrors({ ...newErrors, general: "Login failed. Please try again." });
     }
   };
 
@@ -63,6 +79,7 @@ const Login = () => {
                 value={form.email}
                 onChange={handleChange}
               />
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
             <div>
               <div className='flex justify-between items-center'>
@@ -81,7 +98,9 @@ const Login = () => {
                 value={form.password}
                 onChange={handleChange}
               />
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
+            {errors.general && <p className="text-red-500 text-xs mt-2 text-center">{errors.general}</p>}
           </div>
           <div className='text-right mt-2 text-xs'>
             <NavLink to="/auth/reset-password" className="underline text-gray-500 hover:text-black cursor-pointer">

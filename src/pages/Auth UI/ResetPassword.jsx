@@ -3,24 +3,31 @@ import { Input } from "@/components/ui/input"
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useForgotPasswordMutation } from '../../APIs/user';
 import { TbLoader3 } from 'react-icons/tb';
-import { toast } from 'react-toastify';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+    if (!email) {
+      setError("Email is required.");
+      return;
+    }
     try {
       const res = await forgotPassword({ email }).unwrap();
       if (res.success) {
-        toast.success(res.message || "Reset link sent to your email.");
+        setSuccess(res.message || "Reset link sent to your email.");
       } else {
-        toast.error(res.message || "Something went wrong.");
+        setError(res.message || "Something went wrong.");
       }
     } catch (err) {
-      toast.error(err?.data?.message || "Something went wrong.");
+      setError(err?.data?.message || "Something went wrong.");
     }
   };
 
@@ -54,6 +61,8 @@ const ResetPassword = () => {
                   onChange={e => setEmail(e.target.value)}
                   required
                 />
+                {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+                {success && <div className="text-green-600 text-xs mt-1">{success}</div>}
               </div>
             </div>
             <div className='mt-6'>

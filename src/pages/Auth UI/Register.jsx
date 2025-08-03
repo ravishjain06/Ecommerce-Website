@@ -53,7 +53,7 @@ const Register = () => {
     const validationErrors = validate();
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
-      toast.error('Please fix the errors in the form.');
+      // Do NOT show toast, just show errors below fields
       return;
     }
     try {
@@ -63,13 +63,18 @@ const Register = () => {
         password: form.password,
       });
       if (res?.data?.success) {
-        toast.success(res?.data?.message)
         navigate('/auth/verify-code', { state: { email: form.email } });
       } else if (res?.error) {
-        toast.error(res?.error?.data?.message || 'Registration failed!')
+        setErrors(prev => ({
+          ...prev,
+          general: res?.error?.data?.message || 'Registration failed!'
+        }));
       }
     } catch (err) {
-      toast.error('Registration failed. Please try again.')
+      setErrors(prev => ({
+        ...prev,
+        general: 'Registration failed. Please try again.'
+      }));
     }
   };
 
@@ -138,6 +143,9 @@ const Register = () => {
               {errors.password && <span className="text-xs text-red-500">{errors.password}</span>}
             </div>
           </div>
+          {errors.general && (
+  <div className="text-red-500 text-xs mt-2 text-center">{errors.general}</div>
+)}
           <div className='mt-6'>
             <button
               type="submit"

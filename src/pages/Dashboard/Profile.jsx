@@ -19,6 +19,7 @@ const Profile = () => {
         dateOfBirth: '' // <-- Add this line
     });
     const [previewImage, setPreviewImage] = useState(null);
+    const [errors, setErrors] = useState({ email: '', phone: '' });
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -58,6 +59,28 @@ const Profile = () => {
             ...prev,
             [name]: value
         }));
+
+        // Live validation for email and phone
+        let newErrors = { ...errors };
+        if (name === "email") {
+            if (!value) {
+                newErrors.email = "Email is required";
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                newErrors.email = "Invalid email address";
+            } else {
+                newErrors.email = "";
+            }
+        }
+        if (name === "phone") {
+            if (!value) {
+                newErrors.phone = "Phone number is required";
+            } else if (!/^\d{10}$/.test(value)) {
+                newErrors.phone = "Phone must be 10 digits";
+            } else {
+                newErrors.phone = "";
+            }
+        }
+        setErrors(newErrors);
     };
 
     const handleImageChange = (e) => {
@@ -77,30 +100,56 @@ const Profile = () => {
         }
     };
 
+    // Validation function
+    const validate = () => {
+        let valid = true;
+        let newErrors = { email: '', phone: '' };
+
+        // Email validation
+        if (!formData.email) {
+            newErrors.email = 'Email is required';
+            valid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            newErrors.email = 'Invalid email address';
+            valid = false;
+        }
+
+        // Phone validation (10 digits, numbers only)
+        if (!formData.phone) {
+            newErrors.phone = 'Phone number is required';
+            valid = false;
+        } else if (!/^\d{10}$/.test(formData.phone)) {
+            newErrors.phone = 'Phone must be 10 digits';
+            valid = false;
+        }
+
+        setErrors(newErrors);
+        return valid;
+    };
+
     const handleSave = async () => {
+        if (!validate()) return; // Prevent save if invalid
+
         try {
             const updateData = new FormData();
             updateData.append('name', formData.name);
             updateData.append('email', formData.email);
             updateData.append('phone', formData.phone);
-            updateData.append('dateOfBirth', formData.dateOfBirth); // <-- Add this line
-
+            if (formData.dateOfBirth && formData.dateOfBirth.trim() !== '') {
+                updateData.append('dateOfBirth', formData.dateOfBirth);
+            }
             if (formData.password) {
                 updateData.append('password', formData.password);
             }
-
             if (formData.profilePicture) {
                 updateData.append('profilePicture', formData.profilePicture);
             }
 
             const response = await updateProfile(updateData).unwrap();
-          
             setIsEditing(false);
             setPreviewImage(null);
             setFormData(prev => ({ ...prev, password: '', profilePicture: null }));
-            refetch(); // Refresh user data
-
-            // Update user in Redux store
+            refetch();
             if (response?.user) {
                 dispatch(setUser(response.user));
             }
@@ -236,6 +285,7 @@ const Profile = () => {
                                             />
                                             <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                                         </div>
+                                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                                     </div>
 
                                     <div>
@@ -245,15 +295,20 @@ const Profile = () => {
                                                 type="tel"
                                                 name="phone"
                                                 value={formData.phone}
-                                                onChange={handleInputChange}
+                                                onChange={(e) => {
+                                                    // Only allow digits
+                                                    const value = e.target.value.replace(/\D/g, '');
+                                                    handleInputChange({ target: { name: 'phone', value } });
+                                                }}
                                                 placeholder="Add phone number"
                                                 disabled={!isEditing}
                                                 className={`w-full pr-10 ${isEditing ? 'bg-white border-gray-300 focus:border-black' : 'bg-gray-50 border-gray-200'} transition-colors`}
                                             />
                                             <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                                         </div>
+                                        {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                                     </div>
-                                    <div>
+                                    {/* <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
                                         <div className="relative">
                                             <Input
@@ -289,7 +344,7 @@ const Profile = () => {
                                          
                                           
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                                 {/* Action Buttons */}
                                 {isEditing && (

@@ -10,24 +10,43 @@ import { TbLoader3 } from "react-icons/tb";
 
 const Verification = () => {
   const [value, setValue] = useState("");
+  const [errors, setErrors] = useState({ otp: "", general: "" }); // Add errors state
   const location = useLocation();
   const navigate = useNavigate();
   const email = location?.state?.email || "";
   const [verifyUser, { isLoading }] = useVerifyUserMutation();
   const [resendVerification, { isLoading: isResending }] = useResendVerificationMutation();
 
-  const handleChange = async (value) => {
+  const handleChange = async (otpValue) => {
+    setErrors({ otp: "", general: "" }); // Clear errors on submit
+    if (otpValue.length !== 6) {
+      setErrors({ otp: "Code must be 6 digits", general: "" });
+      return;
+    }
     try {
-      const res = await verifyUser({ email, otp: value });
+      const res = await verifyUser({ email, otp: otpValue });
       if (res?.data?.success) {
-        toast.success(res?.data?.message)
         navigate('/auth/login');
-        setValue("")
+        setValue("");
       } else if (res?.error) {
-        toast.error(res?.error?.data?.message || 'Verification failed!')
+        setErrors({ otp: "", general: res?.error?.data?.message || 'Verification failed!' });
       }
     } catch (error) {
-      toast.error('Verification failed. Please try again.')
+      setErrors({ otp: "", general: 'Verification failed. Please try again.' });
+    }
+  };
+
+  const handleResend = async () => {
+    setErrors({ otp: "", general: "" });
+    try {
+      const res = await resendVerification({ email }).unwrap();
+      if (res.success) {
+        setErrors({ otp: "", general: res.message || 'Verification code resent!' });
+      } else {
+        setErrors({ otp: "", general: res.message || 'Failed to resend code.' });
+      }
+    } catch (err) {
+      setErrors({ otp: "", general: err?.data?.message || 'Failed to resend code.' });
     }
   };
 
@@ -67,24 +86,14 @@ const Verification = () => {
                   <InputOTPSlot index={5} />
                 </InputOTPGroup>
               </InputOTP>
+              {errors.otp && <div className="text-red-500 text-xs mt-1">{errors.otp}</div>}
               <div className='text-gray-500 mt-1 flex items-center justify-between'>
                 <span className='text-xs'>Must be at least 6 characters.</span>
                 <button
                   type="button"
                   className="text-xs underline text-blue-600 hover:text-blue-800 disabled:text-gray-400 ml-2"
                   disabled={isResending}
-                  onClick={async () => {
-                    try {
-                      const res = await resendVerification({ email }).unwrap();
-                      if (res.success) {
-                        toast.success(res.message || 'Verification code resent!');
-                      } else {
-                        toast.error(res.message || 'Failed to resend code.');
-                      }
-                    } catch (err) {
-                      toast.error(err?.data?.message || 'Failed to resend code.');
-                    }
-                  }}
+                  onClick={handleResend}
                 >
                   {isResending ? 'Resending...' : 'Resend code'}
                 </button>
@@ -100,6 +109,7 @@ const Verification = () => {
             >
               {isLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div> : "Verify code"}
             </Button>
+            {errors.general && <div className="text-red-500 text-xs mt-2 text-center">{errors.general}</div>}
           </div>
         </div>
       </div>
