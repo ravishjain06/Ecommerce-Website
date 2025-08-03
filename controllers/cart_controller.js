@@ -2,11 +2,23 @@ import mongoose from 'mongoose';
 import { Cart } from '../models/cart_schema.js';
 import { Product } from '../models/product_schema.js';
 
-// Only apply discount if coupon code matches "SAVE10"
+const validCoupons = ["SAVE10"]; // Place this at the top for reuse
+
+function sanitizeCoupon(coupon) {
+    console.log("[sanitizeCoupon] Received coupon:", coupon);
+    const isValid = validCoupons.includes(coupon);
+    console.log("[sanitizeCoupon] Is valid:", isValid);
+    return isValid ? coupon : null;
+}
+
 function applyCoupon(total, coupon) {
+    console.log("[applyCoupon] Total before:", total, "Coupon:", coupon);
     if (coupon && coupon === "SAVE10") {
-        return total - total * 0.10; 
+        const discounted = total - total * 0.10;
+        console.log("[applyCoupon] Discount applied. Total after:", discounted);
+        return discounted;
     }
+    console.log("[applyCoupon] No discount applied.");
     return total;
 }
 
@@ -76,7 +88,7 @@ export const addToCart = async (req, res) => {
             message: "Product added to cart successfully",
             cart: {
                 ...cart.toObject(),
-                coupon: cart.coupon && cart.coupon === "SAVE10" ? cart.coupon : null
+                coupon: sanitizeCoupon(cart.coupon)
             }
         });
 
@@ -92,10 +104,12 @@ export const addToCart = async (req, res) => {
 export const getCart = async (req, res) => {
     try {
         const userId = req.id;
+        console.log("[getCart] userId:", userId);
         const cart = await Cart.findOne({ userId }).populate('items.productId');
+        console.log("[getCart] Cart found:", !!cart);
 
-        // If cart does not exist or has no items
         if (!cart || !cart.items || cart.items.length === 0) {
+            console.log("[getCart] Cart is empty or not found.");
             return res.status(200).json({
                 success: true,
                 message: "Your cart is empty",
@@ -110,22 +124,23 @@ export const getCart = async (req, res) => {
         for (let item of cart.items) {
             total += item.price * item.quantity;
         }
+        console.log("[getCart] Total before coupon:", total);
 
-        // Only apply coupon if it exists and is valid
         let discountPercent = null;
-        let appliedCoupon = null;
-        if (cart.coupon && cart.coupon === "SAVE10") {
+        let appliedCoupon = sanitizeCoupon(cart.coupon);
+        if (appliedCoupon) {
             discountPercent = 10;
-            appliedCoupon = cart.coupon;
-            total = applyCoupon(total, cart.coupon);
+            total = applyCoupon(total, appliedCoupon);
         }
+
+        console.log("[getCart] Total after coupon:", total, "Applied coupon:", appliedCoupon);
 
         res.status(200).json({
             success: true,
-            data: cart,
+            data: { ...cart.toObject(), coupon: appliedCoupon },
             totalPrice: total,
-            coupon: appliedCoupon,         // Only show if actually applied
-            discountPercent                // Only show if actually applied
+            coupon: appliedCoupon,
+            discountPercent
         });
     } catch (error) {
         console.error("Error in getCart:", error);
@@ -190,7 +205,7 @@ export const updateQuantity = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Quantity updated successfully",
-            data: cart
+            data: { ...cart.toObject(), coupon: sanitizeCoupon(cart.coupon) }
         });
     } catch (error) {
         console.error("Error in updateQuantity:", error);
@@ -264,7 +279,7 @@ export const removeFromCart = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Item removed from cart successfully",
-            data: cart
+            data: { ...cart.toObject(), coupon: sanitizeCoupon(cart.coupon) }
         });
     } catch (error) {
         console.error("Error in removeFromCart:", error);
@@ -279,34 +294,62 @@ export const applyCouponToCart = async (req, res) => {
     try {
         const userId = req.id;
         const { coupon } = req.body;
+        console.log("[applyCouponToCart] userId:", userId, "Coupon received:", coupon);
+
+        // Define valid coupons
+        console.log("[applyCouponToCart] Valid coupons:", validCoupons);
+
+        // Validate coupon
+        if (!validCoupons.includes(coupon)) {
+            console.log("[applyCouponToCart] Invalid coupon attempted:", coupon);
+            return res.status(400).json({
+                success: false,
+                message: "Invalid coupon code"
+            });
+        }
 
         const cart = await Cart.findOne({ userId }).populate('items.productId');
+        console.log("[applyCouponToCart] Cart found:", !!cart);
+
         if (!cart) {
+            console.log("[applyCouponToCart] Cart not found for user:", userId);
             return res.status(404).json({
                 success: false,
                 message: "Cart not found"
             });
         }
 
-        // Store the coupon in the cart
+        // Store only valid coupon
         cart.coupon = coupon;
+        console.log("[applyCouponToCart] Coupon set in cart:", cart.coupon);
 
         // Recalculate total price with coupon
         let total = 0;
         for (let item of cart.items) {
             total += item.price * item.quantity;
         }
+        console.log("[applyCouponToCart] Total before coupon:", total);
+
         total = applyCoupon(total, coupon);
         cart.totalPrice = total;
+        console.log("[applyCouponToCart] Total after coupon:", total);
 
         await cart.save();
+        console.log("[applyCouponToCart] Cart saved with coupon:", cart.coupon);
+
+        // Always sanitize coupon in response
+        const sanitizedCart = {
+            ...cart.toObject(),
+            coupon: sanitizeCoupon(cart.coupon)
+        };
+        console.log("[applyCouponToCart] Sanitized coupon for response:", sanitizedCart.coupon);
 
         res.status(200).json({
             success: true,
             message: "Coupon applied successfully",
-            data: cart,
+            data: sanitizedCart,
             totalPrice: total,
-            coupon
+            coupon: sanitizedCart.coupon
         });
     } catch (error) {
         console.error("Error in applyCouponToCart:", error);

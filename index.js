@@ -49,7 +49,7 @@ app.use(errorMiddleware);
 
 // 6️⃣ Start Server After DB Connection
 const PORT = process.env.PORT || 5000;
-
+ 
 const startServer = async () => {
   try {
     await connectToDatabase();
