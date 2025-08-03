@@ -329,12 +329,12 @@ const CartPage = () => {
 
             {/* Loading overlay for updates */}
             {(isRemoving || isUpdating) && (
-              <div className='fixed inset-0 bg-[#0000005e] bg-opacity-30 flex items-center justify-center z-50'>
-                <div className='bg-white p-6 border border-gray-200'>
-                  <div className="w-4 h-4 border-2 border-black border-t-transparent animate-spin duration-500"></div>
-                  <p className='text-sm text-gray-600 font-light'>Updating cart...</p>
-                </div>
-              </div>
+       <div className='fixed inset-0 min-h-screen bg-[#0000005e] bg-opacity-30 flex items-center justify-center z-50'>
+    <div className='bg-white p-6 border border-gray-200 flex flex-col items-center'>
+        <div className="w-4 h-4 border-2 border-black border-t-transparent animate-spin duration-500 mb-3"></div>
+        <p className='text-sm text-gray-600 font-light'>Updating cart...</p>
+    </div>
+</div>
             )}
 
             {/* Summary Section */}
