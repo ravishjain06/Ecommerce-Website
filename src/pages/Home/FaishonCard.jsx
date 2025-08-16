@@ -44,7 +44,15 @@ const FashionCard = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="group relative bg-white border border-gray-200 overflow-hidden"
           >
-            <div className="relative h-96 overflow-hidden">
+            {/* Make image area clickable */}
+            <div
+              className="relative h-96 overflow-hidden cursor-pointer"
+              onClick={handleDiscoverMore}
+              tabIndex={0}
+              role="button"
+              aria-label="Discover Premium Collection"
+              onKeyDown={e => { if (e.key === 'Enter') handleDiscoverMore(); }}
+            >
               <img
                 src="/Card1.png"
                 alt="Premium Collection"
@@ -52,9 +60,8 @@ const FashionCard = () => {
               />
               <div className="absolute inset-0 bg-black/20"></div>
             </div>
-
-            <div className="absolute inset-0 flex items-end p-8">
-              <div className="text-white space-y-3">
+            <div className="absolute inset-0 flex items-end p-8 pointer-events-none">
+              <div className="text-white space-y-3 pointer-events-auto">
                 <div className="space-y-1">
                   <p className="text-xs tracking-[0.2em] uppercase opacity-80">
                     Premium Collection
@@ -89,9 +96,20 @@ const FashionCard = () => {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="group relative  overflow-hidden"
+            className="group relative overflow-hidden"
           >
-            <div className="relative  h-96 overflow-hidden group">
+            <div
+              className="relative h-96 overflow-hidden group cursor-pointer"
+              onClick={() => navigate('/product', {
+                state: {
+                  mainCategory: ['T-Shirts']
+                }
+              })}
+              tabIndex={0}
+              role="button"
+              aria-label="View Seasonal Collection"
+              onKeyDown={e => { if (e.key === 'Enter') navigate('/product', { state: { mainCategory: ['T-Shirts'] } }); }}
+            >
               <img
                 src="/Card2.png"
                 alt="Seasonal Collection"
@@ -99,9 +117,8 @@ const FashionCard = () => {
               />
               <div className="absolute inset-0 bg-black/40"></div>
             </div>
-
-            <div className="absolute inset-0 flex items-end p-8">
-              <div className="text-white space-y-3">
+            <div className="absolute inset-0 flex items-end p-8 pointer-events-none">
+              <div className="text-white space-y-3 pointer-events-auto">
                 <div className="space-y-1">
                   <p className="text-xs tracking-[0.2em] uppercase opacity-80">
                     New Season
