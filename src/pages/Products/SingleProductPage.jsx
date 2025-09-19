@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ChevronRightIcon, StarIcon, ShoppingCartIcon, ShieldCheckIcon, RulerIcon, TruckIcon, RefreshCwIcon, HeartIcon, ShareIcon, MinusIcon, PlusIcon } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { useGetProductByIdQuery } from '../../APIs/product'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -14,6 +15,10 @@ const ProductDetail = () => {
     const [quantity, setQuantity] = useState(1)
     const [rating] = useState(4.5)
     const [cartSuccess, setCartSuccess] = useState(false)
+    const [cartMessage, setCartMessage] = useState("");
+    const [wishlistMessage, setWishlistMessage] = useState(""); // Add for wishlist messages
+    const [showCartPanel, setShowCartPanel] = useState(false);
+    const [cartPanelProduct, setCartPanelProduct] = useState(null);
 
     const user = useSelector((state) => state.auth.user);
     const userId = user?._id
@@ -52,11 +57,12 @@ const ProductDetail = () => {
 
 
     const handleAddToCart = async () => {
+        setCartMessage("");
         if (!selectedSize || !selectedColor) {
-            alert('Please select size and color');
+            setCartMessage("Please select size and color");
+            setTimeout(() => setCartMessage(""), 2000);
             return;
         }
-
         try {
             const cartItemData = {
                 userId: userId,
@@ -64,15 +70,52 @@ const ProductDetail = () => {
                 color: selectedColor,
                 quantity: quantity
             };
-
-            const result = await addToCart({ data: cartItemData, productId: id }).unwrap();
-            setCartSuccess(true);
-            setTimeout(() => setCartSuccess(false), 2000);
+            const result = await addToCart({ data: cartItemData, productId: id });
+            if (result?.data?.success) {
+                setCartMessage(result?.data?.message || "Added to cart!");
+                // Show slide-in panel with product details
+                setCartPanelProduct({
+                    name: data?.product?.name,
+                    image: images[selectedImage],
+                    size: selectedSize,
+                    color: selectedColor,
+                    quantity,
+                    price: data?.product?.price,
+                    brand: data?.product?.brandName,
+                });
+                setShowCartPanel(true);
+                setTimeout(() => setShowCartPanel(false), 2000);
+            } else if (result?.error) {
+                setCartMessage(result?.error?.data?.message || "Failed to add product to cart.");
+            }
+            setTimeout(() => setCartMessage(""), 2000); // Hide after 2 seconds
         } catch (error) {
-            console.error('Failed to add product to cart:', error);
-            alert(`Failed to add product to cart: ${error.message || 'Unknown error'}`);
+            setCartMessage(error?.data?.message || "Failed to add product to cart.");
+            setTimeout(() => setCartMessage(""), 2000);
         }
-    }
+    };
+
+    const handleWishlist = async () => {
+        setWishlistMessage("");
+        try {
+            let result;
+            if (!wishlistIds.includes(id)) {
+                result = await addToWishlist({ productId: id });
+            } else {
+                result = await removeFromWishlist({ productId: id });
+            }
+            refetchWishlist();
+            if (result?.data?.message) {
+                setWishlistMessage(result.data.message);
+            } else if (result?.error) {
+                setWishlistMessage(result?.error?.data?.message || "Wishlist action failed.");
+            }
+            setTimeout(() => setWishlistMessage(""), 2000); // Hide after 2 seconds
+        } catch (error) {
+            setWishlistMessage(error?.data?.message || "Wishlist action failed.");
+            setTimeout(() => setWishlistMessage(""), 2000);
+        }
+    };
 
     const incrementQuantity = () => setQuantity(prev => prev + 1)
     const decrementQuantity = () => setQuantity(prev => prev > 1 ? prev - 1 : 1)
@@ -287,14 +330,7 @@ const ProductDetail = () => {
                                 {/* Wishlist Button */}
                                 <button
                                     className={`w-full md:w-1/2 flex items-center justify-center space-x-2 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm font-medium tracking-wide ${wishlistIds.includes(id) ? 'text-red-500 border-red-300 bg-red-50' : ''}`}
-                                    onClick={async () => {
-                                        if (!wishlistIds.includes(id)) {
-                                            await addToWishlist({ productId: id });
-                                        } else {
-                                            await removeFromWishlist({ productId: id });
-                                        }
-                                        refetchWishlist();
-                                    }}
+                                    onClick={handleWishlist}
                                     disabled={isWishlistLoading || isRemoveLoading}
                                     type="button"
                                 >
@@ -310,9 +346,17 @@ const ProductDetail = () => {
                                     </span>
                                 </button>
                             </div>
-                            {/* Success message */}
-                            {cartSuccess && (
-                                <p className="text-green-600 text-sm font-medium text-center mt-2">Added to cart!</p>
+                            {/* Cart message */}
+                            {cartMessage && (
+                                <p className={`text-sm font-medium text-center mt-2 text-red-600`}>
+                                    {cartMessage}
+                                </p>
+                            )}
+                            {/* Wishlist message */}
+                            {wishlistMessage && (
+                                <p className="text-sm font-medium text-center mt-2 text-red-600">
+                                    {wishlistMessage}
+                                </p>
                             )}
                             {/* Features */}
                             <div className='border-t border-gray-200 pt-8'>
@@ -377,6 +421,46 @@ const ProductDetail = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Cart Panel - Slide in from right */}
+            <AnimatePresence>
+  {showCartPanel && cartPanelProduct && (
+    <motion.div
+      initial={{ x: 350, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: 350, opacity: 0 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30, duration: 1 }} // <-- slower animation
+      className="fixed top-8 right-8 z-[100] w-80 max-w-full bg-white shadow-2xl border border-gray-200"
+      style={{ borderRadius: 0 }}
+    >
+      <div className="flex gap-4 p-4 border-b border-gray-100">
+        <img
+          src={cartPanelProduct.image}
+          alt={cartPanelProduct.name}
+          className="w-16 h-16 object-cover border"
+        />
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-black truncate">{cartPanelProduct.name}</div>
+          <div className="text-xs text-gray-500 truncate">{cartPanelProduct.brand}</div>
+          <div className="text-sm text-gray-700 mt-1">
+            <span className="font-medium">Size:</span> {cartPanelProduct.size} &nbsp;|&nbsp;
+            <span className="font-medium">Color:</span> {cartPanelProduct.color}
+          </div>
+          <div className="text-sm text-gray-700">
+            <span className="font-medium">Qty:</span> {cartPanelProduct.quantity}
+          </div>
+          <div className="text-base font-bold text-black mt-2">
+            ₹{cartPanelProduct.price}
+          </div>
+        </div>
+      </div>
+      <div className="px-4 py-3 text-green-700 text-sm font-semibold flex items-center justify-center gap-2">
+        <ShoppingCartIcon className="w-5 h-5 text-green-700" />
+        <span>Added to cart!</span>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
         </div>
     )
 }

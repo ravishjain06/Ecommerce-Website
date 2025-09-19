@@ -415,13 +415,12 @@ const CartPage = () => {
                 </div>
 
                 <NavLink to={`/check-out`} className='block w-full'>
-                  <button
+  <button
     className='w-full bg-black text-white font-medium py-4 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide flex items-center justify-center'
     disabled={checkoutLoading}
     onClick={e => {
       setCheckoutLoading(true);
-      // Optionally, you can add a small delay for UX or let navigation handle it
-      // If you want to wait for navigation, you may need to use useNavigate instead of NavLink
+      // Do NOT call window.scrollTo here
     }}
   >
     {checkoutLoading ? (

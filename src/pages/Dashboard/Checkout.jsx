@@ -83,7 +83,7 @@ const Checkout = () => {
     setMissingFields(errors);
 
     if (errors.length > 0) {
-      window.scrollTo({ top: 250, behavior: 'smooth' });
+      // Remove scroll logic if you want, but this does NOT block API if no errors
       return;
     }
 
@@ -350,6 +350,26 @@ const Checkout = () => {
                       />
                       {missingFields.includes('phone') && <span className="text-xs text-red-500">Valid phone number is required</span>}
                     </div>
+                    <div className='mt-8'>
+                      <button
+                        type="submit"
+                        className="w-full bg-black text-white font-medium py-4 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <span className="flex items-center justify-center">
+
+<div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin duration-500"></div>
+                          </span>
+                        ) : paymentMethod === 'Stripe' ? (
+                          'Proceed to Payment'
+                        ) : (
+                          <span className="flex items-center justify-center">
+                            Place Order - ₹{totalPrice.toLocaleString()}
+                          </span>
+                        )}
+                      </button>
+                    </div>
                   </form>
                 </div>
 
@@ -439,7 +459,6 @@ const Checkout = () => {
                   <div className='mt-8'>
                     <button
                       type="submit"
-                      onClick={handlePlaceOrder}
                       className="w-full bg-black text-white font-medium py-4 hover:bg-gray-800 transition-colors duration-300 text-sm tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={isLoading}
                     >
